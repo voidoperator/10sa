@@ -14,13 +14,19 @@ const Divider = tw.div`
 `;
 
 const Form = () => {
-  const { formData } = useFormData();
+  const { formData, setFormData } = useFormData();
   const [isLoading, setIsLoading] = useState(true);
   const [dependents, setDependents] = useState([{ name: '', dob: '' }]);
 
   useEffect(() => {
     setIsLoading(false);
   }, []);
+
+  useEffect(() => {
+    if (formData.married === 'no') {
+      setFormData({ ...formData, taxes_filing_status: 'single' });
+    }
+  }, [formData.married, setFormData]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -47,7 +53,7 @@ const Form = () => {
   return (
     <div className='flex items-center justify-center min-h-screen py-20'>
       <div className='w-full max-w-4xl p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700'>
-        {/* {JSON.stringify(formData)} */}
+        {JSON.stringify(formData)}
         <form className='space-y-6' onSubmit={(e) => handleSubmit(e)}>
           <>
             <h5 className='text-xl font-medium text-gray-900 dark:text-white'>Customer Details</h5>
@@ -59,6 +65,14 @@ const Form = () => {
               options={[
                 { label: 'Individual', value: 'individual' },
                 { label: 'Family', value: 'family' },
+              ]}
+            />
+            <RadioInput
+              labelName='Current insurance?'
+              name='current_insurance'
+              options={[
+                { label: 'Yes', value: 'yes' },
+                { label: 'No', value: 'no' },
               ]}
             />
             <DropDownInput labelName='State' name='state' defaultOption='Please select a state' options={states} />
@@ -83,19 +97,35 @@ const Form = () => {
               labelName='Tobacco User?'
               name='tobacco_use'
               options={[
-                { label: 'Yes', value: 'Yes' },
-                { label: 'No', value: 'No' },
+                { label: 'Yes', value: 'yes' },
+                { label: 'No', value: 'no' },
               ]}
             />
             <RadioInput
               labelName='Married?'
               name='married'
               options={[
-                { label: 'Yes', value: 'Yes' },
-                { label: 'No', value: 'No' },
+                { label: 'Yes', value: 'yes' },
+                { label: 'No', value: 'no' },
               ]}
             />
-            {formData.married === 'Yes' && (
+            <RadioInput
+              labelName='Taxes filing status?'
+              name='taxes_filing_status'
+              rowOrCol='col'
+              value={formData.taxes_filing_status}
+              options={[
+                { label: 'Single', value: 'single' },
+                { label: 'Married filing jointly', value: 'married_filing_jointly' },
+                { label: 'Married filing separately', value: 'married_filing_separately' },
+                { label: 'Head of household', value: 'head_of_household' },
+                {
+                  label: 'Qualifying widow(er) with dependent child',
+                  value: 'qualifying_widow(er)_with_dependent_child',
+                },
+              ]}
+            />
+            {/* {formData.married === 'yes' && (
               <>
                 <div className='flex flex-col gap-4 px-6 py-5 border rounded-xl border-black/10 dark:border-white/10 w-full h-full'>
                   <TextInput
@@ -107,16 +137,16 @@ const Form = () => {
                   <DateInput labelName="Spouse's Date of Birth" name='spouse_date_of_birth' showAge={true} />
                 </div>
               </>
-            )}
+            )} */}
             <RadioInput
               labelName='Dependents? (declared on taxes)'
               name='dependents'
               options={[
-                { label: 'Yes', value: 'Yes' },
-                { label: 'No', value: 'No' },
+                { label: 'Yes', value: 'yes' },
+                { label: 'No', value: 'no' },
               ]}
             />
-            {formData.dependents === 'Yes' &&
+            {formData.dependents === 'yes' &&
               dependents.map((_, i) => (
                 <div
                   key={`dependent_${i + 1}_info`}
@@ -156,7 +186,7 @@ const Form = () => {
                   </button>
                 </div>
               ))}
-            {formData.dependents === 'Yes' && (
+            {formData.dependents === 'yes' && (
               <div className='flex items-center justify-center gap-6'>
                 <button
                   type='button'
@@ -179,11 +209,11 @@ const Form = () => {
               labelName='Pre-existing conditions?'
               name='pre_existing_conditions'
               options={[
-                { label: 'Yes', value: 'Yes' },
-                { label: 'No', value: 'No' },
+                { label: 'Yes', value: 'yes' },
+                { label: 'No', value: 'no' },
               ]}
             />
-            {formData.pre_existing_conditions === 'Yes' && (
+            {formData.pre_existing_conditions === 'yes' && (
               <TextInput
                 labelName='Pre-existing conditions?'
                 placeholder='e.g. Coronary Disease, Cancer, Lupus'
@@ -195,11 +225,11 @@ const Form = () => {
               labelName='Specific medications?'
               name='medications'
               options={[
-                { label: 'Yes', value: 'Yes' },
-                { label: 'No', value: 'No' },
+                { label: 'Yes', value: 'yes' },
+                { label: 'No', value: 'no' },
               ]}
             />
-            {formData.medications === 'Yes' && (
+            {formData.medications === 'yes' && (
               <TextInput
                 labelName='Specific medications?'
                 placeholder='e.g. Benazepril, Moexipril , Prozac'
@@ -217,11 +247,11 @@ const Form = () => {
               labelName='Preferred doctors?'
               name='preferred_doctors'
               options={[
-                { label: 'Yes', value: 'Yes' },
-                { label: 'No', value: 'No' },
+                { label: 'Yes', value: 'yes' },
+                { label: 'No', value: 'no' },
               ]}
             />
-            {formData.preferred_doctors === 'Yes' && (
+            {formData.preferred_doctors === 'yes' && (
               <TextInput
                 labelName='Doctor Name'
                 placeholder='e.g. Dr. Lino Fernandez'

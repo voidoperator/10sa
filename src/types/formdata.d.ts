@@ -8,6 +8,7 @@ export type FormDataType = {
   date_of_birth: string;
   tobacco_use: string;
   married: string;
+  taxes_filing_status: string;
   spouse_full_name?: string;
   spouse_date_of_birth?: string;
   dependents: string;
@@ -61,7 +62,8 @@ export type RadioInputProps = {
   name: string;
   options: { label: string; value: string }[];
   required?: boolean;
-  handleStateChange?: (value: string) => void;
+  rowOrCol?: string;
+  value?: string;
 };
 
 export type TextAreaProps = {
