@@ -1,18 +1,6 @@
 import React, { useState } from 'react';
-
-type TextInputProps = {
-  labelName: string;
-  placeholder: string;
-  type: string;
-  name: string;
-  required?: boolean;
-  pattern?: string;
-  currency?: boolean;
-  phone?: boolean;
-  socialSecurity?: boolean;
-  height?: boolean;
-  weight?: boolean;
-};
+import { useFormData } from '../contexts/FormContext';
+import type { FormDataType, TextInputProps } from '../../types/formdata';
 
 const TextInput: React.FC<TextInputProps> = ({
   labelName,
@@ -28,6 +16,7 @@ const TextInput: React.FC<TextInputProps> = ({
   weight = false,
 }) => {
   const [value, setValue] = useState('');
+  const { formData, setFormData } = useFormData();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let value = event.target.value;
@@ -64,15 +53,16 @@ const TextInput: React.FC<TextInputProps> = ({
     }
 
     if (weight) {
-      value = value.replace(/[^\d.]/g, ''); // Remove non-digit and non-decimal characters
-      value += ' lbs'; // Append " lbs" to the value
+      value = value.replace(/[^\d.]/g, '');
+      value += ' lbs';
     }
 
     setValue(value);
+    setFormData({ ...formData, [name]: value });
   };
 
   return (
-    <div>
+    <div className='shadow-lg'>
       <label htmlFor={name} className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
         {labelName}
         {required && <span className='ml-1 after:content-["*"] after:text-gray-900 after:dark:text-gray-300' />}
@@ -84,7 +74,7 @@ const TextInput: React.FC<TextInputProps> = ({
         id={name}
         placeholder={placeholder}
         required={required}
-        className='focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-500 dark:focus:border-blue-500 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white'
+        className='focus:rinasdfg-blue-500 focus:border-blue-500 dark:focus:ring-blue-500 dark:focus:border-blue-500 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white'
         onChange={handleChange}
         value={value}
       />

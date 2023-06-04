@@ -1,14 +1,10 @@
 import React from 'react';
+import { useFormData } from '../contexts/FormContext';
 import tw from 'tailwind-styled-components';
+import type { RadioInputProps } from '../../types/formdata';
 
-type RadioInputProps = {
-  labelName: string;
-  name: string;
-  options: { label: string; value: string }[];
-  required?: boolean;
-};
-
-const RadioInput: React.FC<RadioInputProps> = ({ labelName, name, options, required = true }) => {
+const RadioInput: React.FC<RadioInputProps> = ({ labelName, name, options, handleStateChange, required = true }) => {
+  const { formData, setFormData } = useFormData();
   return (
     <div>
       <label className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
@@ -21,8 +17,9 @@ const RadioInput: React.FC<RadioInputProps> = ({ labelName, name, options, requi
             type='radio'
             id={`${name}${index}`}
             name={name}
-            value={option.value}
+            value={option.value.toString()}
             required={required}
+            onChange={(e) => setFormData({ ...formData, [name]: e.target.value })}
             className='rounded-full w-4 h-4 border-gray-300 dark:bg-gray-700 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-500 dark:focus:border-blue-500'
           />
           <label

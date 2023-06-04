@@ -1,20 +1,11 @@
 import React, { useState } from 'react';
 import Datepicker from 'react-tailwindcss-datepicker';
+import { useFormData } from '../contexts/FormContext';
 import type { DateValueType } from 'react-tailwindcss-datepicker/dist/types';
-
-type DateInputProps = {
-  labelName: string;
-  name: string;
-  showAge?: boolean;
-  required?: boolean;
-};
-
-type DateValue = {
-  startDate: Date | null;
-  endDate: Date | null;
-};
+import type { DateInputProps, DateValue } from '../../types/formdata';
 
 const DateInput: React.FC<DateInputProps> = ({ labelName, name, showAge = false, required = true }) => {
+  const { formData, setFormData } = useFormData();
   const [age, setAge] = useState<number | null>(null);
   const [value, setValue] = useState<DateValue>({
     startDate: null,
@@ -27,10 +18,12 @@ const DateInput: React.FC<DateInputProps> = ({ labelName, name, showAge = false,
       setAge(null);
     } else if (typeof newDate === 'object' && newDate.hasOwnProperty('startDate')) {
       setValue(newDate as DateValue);
-      // Calculate age
       const { startDate } = newDate;
-      const age = calculateAge(startDate as Date);
+      const [year, month, day] = startDate!.toString().split('-');
+      const formatDate = `${month}-${day}-${year}`;
+      const age = calculateAge(new Date(startDate as string));
       setAge(age);
+      setFormData({ ...formData, [name]: formatDate });
     }
   };
 

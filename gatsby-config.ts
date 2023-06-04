@@ -8,7 +8,7 @@ dotenv.config();
 const config: GatsbyConfig = {
   siteMetadata: {
     author: 'Julio Nunez',
-    siteUrl: '',
+    siteUrl: 'https://10sa.vercel.app/',
   },
   plugins: [
     'gatsby-plugin-image',
