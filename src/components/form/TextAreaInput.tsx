@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFormData } from '../contexts/FormContext';
-import type { TextAreaProps } from '../../types/formdata';
+import type { TextAreaProps } from '../../types/formData';
 import tw from 'tailwind-styled-components';
 
 const TextAreaInput: React.FC<TextAreaProps> = ({ labelName, placeholder, name, required = true, rows = 4 }) => {

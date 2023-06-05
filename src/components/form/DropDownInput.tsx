@@ -1,7 +1,7 @@
 import React from 'react';
 import { useFormData } from '../contexts/FormContext';
 import tw from 'tailwind-styled-components';
-import type { DropDownInputProps } from '../../types/formdata';
+import type { DropDownInputProps } from '../../types/formData';
 
 const DropDownInput: React.FC<DropDownInputProps> = ({
   labelName,

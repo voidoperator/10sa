@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, FC, ReactNode, Context } from 'react';
-import type { FormDataType } from '../../types/formdata';
+import type { FormDataType } from '../../types/formData';
 
 const initialFormData: FormDataType = {
   first_name: '',

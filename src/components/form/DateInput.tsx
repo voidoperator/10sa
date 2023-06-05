@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Datepicker from 'react-tailwindcss-datepicker';
 import { useFormData } from '../contexts/FormContext';
 import type { DateValueType } from 'react-tailwindcss-datepicker/dist/types';
-import type { DateInputProps, DateValue } from '../../types/formdata';
+import type { DateInputProps, DateValue } from '../../types/formData';
 
 const DateInput: React.FC<DateInputProps> = ({
   labelName,

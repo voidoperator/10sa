@@ -1,7 +1,7 @@
 import React from 'react';
 import { useFormData } from '../contexts/FormContext';
 import tw from 'tailwind-styled-components';
-import type { RadioInputProps } from '../../types/formdata';
+import type { RadioInputProps } from '../../types/formData';
 
 const RadioInput: React.FC<RadioInputProps> = ({
   labelName,

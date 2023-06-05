@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
-import type { FormDataType, TextInputProps } from '../../types/formdata';
+import type { FormDataType, TextInputProps } from '../../types/formData';
 
 const TextInput: React.FC<TextInputProps> = ({
   id,
