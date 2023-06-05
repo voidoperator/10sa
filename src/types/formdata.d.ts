@@ -58,9 +58,10 @@ export type InsuredList = {
 
 export type TextInputProps = {
   labelName: string;
+  name: string;
+  id: string;
   placeholder: string;
   type: string;
-  name: string;
   required?: boolean;
   pattern?: string;
   currency?: boolean;
@@ -77,6 +78,7 @@ export type TextInputProps = {
 export type RadioInputProps = {
   labelName: string;
   name: string;
+  id: string;
   options: { label: string; value: string }[];
   required?: boolean;
   rowOrCol?: string;
@@ -85,8 +87,9 @@ export type RadioInputProps = {
 
 export type TextAreaProps = {
   labelName: string;
-  placeholder: string;
   name: string;
+  id: string;
+  placeholder: string;
   required?: boolean;
   rows?: number;
 };
@@ -94,6 +97,7 @@ export type TextAreaProps = {
 export type DropDownInputProps = {
   labelName: string;
   name: string;
+  id: string;
   defaultOption: string;
   options: { label: string; value: string }[];
   required?: boolean;

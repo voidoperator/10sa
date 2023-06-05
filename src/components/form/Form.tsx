@@ -90,14 +90,15 @@ const Form = () => {
         {JSON.stringify(formData)}
         <br />
         <br />
-        <form className='space-y-6'>
+        <form className='space-y-6' autoComplete='off' autoCapitalize='on'>
           <>
             <h5 className='text-xl font-medium text-gray-900 dark:text-white'>Customer Details</h5>
-            <TextInput labelName='First Name' placeholder='e.g. John' type='text' name='first_name' />
-            <TextInput labelName='Last Name' placeholder='e.g. Doe' type='text' name='last_name' />
+            <TextInput labelName='First Name' name='first_name' id='first_name' placeholder='e.g. John' type='text' />
+            <TextInput labelName='Last Name' name='last_name' id='last_name' placeholder='e.g. Doe' type='text' />
             <RadioInput
               labelName='Type of Plan'
               name='plan_type'
+              id='plan_type'
               options={[
                 { label: 'Individual', value: 'individual' },
                 { label: 'Family', value: 'family' },
@@ -106,23 +107,32 @@ const Form = () => {
             <RadioInput
               labelName='Current insurance?'
               name='current_insurance'
+              id='current_insurance'
               options={[
                 { label: 'Yes', value: 'yes' },
                 { label: 'No', value: 'no' },
               ]}
             />
-            <DropDownInput labelName='State' name='state' defaultOption='Please select a state' options={states} />
+            <DropDownInput
+              labelName='State'
+              name='state'
+              id='state'
+              defaultOption='Please select a state'
+              options={states}
+            />
             <TextInput
               labelName='Zip Code'
+              name='zip_code'
+              id='zip_code'
               placeholder='e.g. 12345'
               type='number'
-              name='zip_code'
               pattern='/^\d{5}(-\d{4})?$/'
             />
             <TextAreaInput
               labelName='Why are they looking for coverage?'
-              placeholder='Enter reason here'
               name='coverage_reason'
+              id='coverage_reason'
+              placeholder='Enter reason here'
               required={false}
             />
           </>
@@ -133,6 +143,7 @@ const Form = () => {
             <RadioInput
               labelName='Tobacco User?'
               name='tobacco_use'
+              id='tobacco_use'
               options={[
                 { label: 'Yes', value: 'yes' },
                 { label: 'No', value: 'no' },
@@ -141,6 +152,7 @@ const Form = () => {
             <RadioInput
               labelName='Married?'
               name='married'
+              id='married'
               options={[
                 { label: 'Yes', value: 'yes' },
                 { label: 'No', value: 'no' },
@@ -149,6 +161,7 @@ const Form = () => {
             <RadioInput
               labelName='Taxes filing status?'
               name='taxes_filing_status'
+              id='taxes_filing_status'
               rowOrCol='col'
               value={formData.taxes_filing_status}
               options={[
@@ -164,14 +177,16 @@ const Form = () => {
             />
             <TextInput
               labelName='Household size?'
+              name='household_size'
+              id='household_size'
               placeholder='e.g. 4'
               type='number'
-              name='household_size'
               pattern='/^\d{9}$/'
             />
             <RadioInput
               labelName='Additional insured/dependents? (part of household)'
               name='additional_insured'
+              id='additional_insured'
               options={[
                 { label: 'Yes', value: 'yes' },
                 { label: 'No', value: 'no' },
@@ -179,7 +194,6 @@ const Form = () => {
             />
             {formData.additional_insured === 'yes' &&
               formData.additional_insured_list?.map((dependent, i) => {
-                console.log(dependent.age);
                 return (
                   <div
                     key={`dependent_${i + 1}_info`}
@@ -197,33 +211,37 @@ const Form = () => {
                     )}
                     <TextInput
                       labelName={`Dependent ${i + 1} Full Name`}
+                      name='full_name'
+                      id={'full_name_' + i}
                       placeholder='e.g. Jane Doe'
                       type='text'
-                      name='full_name'
                       additional={true}
                     />
                     <TextInput
                       labelName={`Dependent ${i + 1} Relationship`}
+                      name='relationship'
+                      id={'relationship_' + i}
                       placeholder='e.g. Son, Daughter, Husband, Wife'
                       type='text'
-                      name='relationship'
                       additional={true}
                     />
                     <DateInput labelName={`Dependent ${i + 1} Date of Birth`} name='date_of_birth' additional={true} />
                     <TextInput
                       labelName={`Dependent ${i + 1} Social Security Number`}
+                      name='ssn'
+                      id={'ssn_' + i}
                       placeholder='e.g. 123-45-6789'
                       type='text'
-                      name='ssn'
                       pattern='^\d{3}-\d{2}-\d{4}$'
                       socialSecurity={true}
                       additional={true}
                     />
                     <TextInput
                       labelName={`Dependent ${i + 1} State ID Number`}
+                      name='driver_license'
+                      id={'driver_license_' + i}
                       placeholder='e.g. L12-123-12-123-0'
                       type='text'
-                      name='ssn'
                       pattern='^[A-Za-z]\d{2}-\d{3}-\d{2}-\d{3}-\d$'
                       driverLicense={true}
                       required={false}
@@ -233,18 +251,20 @@ const Form = () => {
                       <>
                         <TextInput
                           labelName={`Dependent ${i + 1} Height`}
+                          name='height'
+                          id={'height_' + i}
                           placeholder="e.g. 5'11"
                           type='text'
-                          name='height'
                           pattern="^\\d{1,2}'(?:1[0-2]|0?[1-9])$"
                           height={true}
                           additional={true}
                         />
                         <TextInput
                           labelName={`Dependent ${i + 1} Weight`}
+                          name='weight'
+                          id={'weight_' + i}
                           placeholder='e.g. 150 (lbs.)'
                           type='text'
-                          name='weight'
                           pattern='^\d{1,3}(?:\.\d)?$'
                           weight={true}
                           additional={true}
@@ -276,15 +296,17 @@ const Form = () => {
             )}
             <TextInput
               labelName='Annual household NET income? (after taxes)'
+              name='annual_household_income'
+              id='annual_household_income'
               placeholder='e.g. $25,000'
               type='text'
-              name='annual_household_income'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               currency={true}
             />
             <RadioInput
               labelName='Pre-existing conditions?'
               name='pre_existing_conditions'
+              id='pre_existing_conditions'
               options={[
                 { label: 'Yes', value: 'yes' },
                 { label: 'No', value: 'no' },
@@ -293,14 +315,16 @@ const Form = () => {
             {formData.pre_existing_conditions === 'yes' && (
               <TextInput
                 labelName='Pre-existing conditions?'
+                name='pre_existing_conditions_list'
+                id='pre_existing_conditions_list'
                 placeholder='e.g. Coronary Disease, Cancer, Lupus'
                 type='text'
-                name='pre_existing_conditions_list'
               />
             )}
             <RadioInput
               labelName='Specific medications?'
               name='medications'
+              id='medications'
               options={[
                 { label: 'Yes', value: 'yes' },
                 { label: 'No', value: 'no' },
@@ -309,20 +333,23 @@ const Form = () => {
             {formData.medications === 'yes' && (
               <TextInput
                 labelName='Specific medications?'
+                name='medications_list'
+                id='medications_list'
                 placeholder='e.g. Benazepril, Moexipril , Prozac'
                 type='text'
-                name='medications_list'
               />
             )}
             <TextAreaInput
               labelName='History of mental health, COPD, heart procedures, cancer, HIV?'
-              placeholder='Enter history here'
               name='medical_history'
+              id='medical_history'
+              placeholder='Enter history here'
               required={false}
             />
             <RadioInput
               labelName='Preferred doctors?'
               name='preferred_doctors'
+              id='preferred_doctors'
               options={[
                 { label: 'Yes', value: 'yes' },
                 { label: 'No', value: 'no' },
@@ -331,16 +358,18 @@ const Form = () => {
             {formData.preferred_doctors === 'yes' && (
               <TextInput
                 labelName='Doctor Name'
+                name='preferred_doctors_name'
+                id='preferred_doctors_name'
                 placeholder='e.g. Dr. Lino Fernandez'
                 type='text'
-                name='preferred_doctors_name'
               />
             )}
             <TextInput
               labelName='Monthly budget?'
+              name='monthly_budget'
+              id='monthly_budget'
               placeholder='e.g. $150'
               type='text'
-              name='monthly_budget'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               currency={true}
             />
@@ -348,52 +377,64 @@ const Form = () => {
           <Divider />
           <>
             <h5 className='text-xl font-medium text-gray-900 dark:text-white'>Quote Breakdown</h5>
-            <TextInput labelName='Plan Name' placeholder='e.g. John' type='text' name='first_name' />
+            <TextInput
+              labelName='Plan Name'
+              name='plan_name'
+              id='plan_name'
+              placeholder='e.g. Florida Blue'
+              type='text'
+            />
             <TextInput
               labelName='PCP Copay:'
+              name='pcp_copay'
+              id='pcp_copay'
               placeholder='e.g. $150'
               type='text'
-              name='pcp_copay'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               currency={true}
             />
             <TextInput
               labelName='Specialist Copay'
+              name='specialist_copay'
+              id='specialist_copay'
               placeholder='e.g. $150'
               type='text'
-              name='specialist_copay'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               currency={true}
             />
             <TextInput
               labelName='Generic Meds Copay'
+              name='generic_meds_copay'
+              id='generic_meds_copay'
               placeholder='e.g. $50'
               type='text'
-              name='generic_meds_copay'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               currency={true}
             />
             <TextInput
               labelName='Annual Deductible'
+              name='annual_deductible'
+              id='annual_deductible'
               placeholder='e.g. $1,500'
               type='text'
-              name='annual_deductible'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               currency={true}
             />
             <TextInput
               labelName='Max Out of Pocket'
+              name='max_out_of_pocket'
+              id='max_out_of_pocket'
               placeholder='e.g. $5,000'
               type='text'
-              name='max_out_of_pocket'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               currency={true}
             />
             <TextInput
               labelName='All Benefits'
+              name='all_benefits'
+              id='all_benefits'
               placeholder='e.g. $5,000'
               type='text'
-              name='all_benefits'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               currency={true}
             />
@@ -403,48 +444,75 @@ const Form = () => {
             <h5 className='text-xl font-medium text-gray-900 dark:text-white'>Closure</h5>
             <TextInput
               labelName='Phone Number'
+              name='phone_number'
+              id='phone_number'
               placeholder='e.g. 786-305-6789'
               type='tel'
-              name='phone_number'
               pattern='^\d{3}-\d{3}-\d{4}$'
               phone={true}
             />
-            <DateInput labelName='Date of Birth' name='confirmed_date_of_birth' />
-            <TextInput labelName='First Name' placeholder='e.g. John Doe' type='text' name='confirmed_full_name' />
+            <DateInput labelName='CONFIRM Date of Birth' name='confirmed_date_of_birth' />
+            <TextInput
+              labelName='CONFIRM Full Name'
+              name='confirmed_full_name'
+              id='confirmed_full_name'
+              placeholder='e.g. John Doe'
+              type='text'
+            />
             <TextInput
               labelName='Email'
+              name='email'
+              id='email'
               placeholder='e.g. johndoe@gmail.com'
               type='email'
-              name='email'
               pattern='^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})?$'
             />
             <TextInput
-              labelName='Full Address'
+              labelName='Street Address (no P.O. boxes)'
+              name='street_address'
+              id='street_address'
               placeholder='e.g. 12345 NW 1st St, Miami, FL, 33186'
               type='text'
-              name='address'
+            />
+            <TextInput labelName='City' name='city' id='city' placeholder='e.g. Miami' type='text' />
+            <TextInput
+              labelName='CONFIRM State'
+              name='confirmed_state'
+              id='confirmed_state'
+              placeholder='e.g. Florida'
+              type='text'
+            />
+            <TextInput
+              labelName='CONFIRM Zip Code'
+              name='confirmed_zip_code'
+              id='confirmed_zip_code'
+              placeholder='e.g. 33193'
+              type='text'
             />
             <TextInput
               labelName='Height'
+              name='height'
+              id='height'
               placeholder="e.g. 5'11"
               type='text'
-              name='height'
               pattern="^\\d{1,2}'(?:1[0-2]|0?[1-9])$"
               height={true}
             />
             <TextInput
               labelName='Weight'
+              name='weight'
+              id='weight'
               placeholder='e.g. 150 lbs'
               type='text'
-              name='weight'
               pattern='^\d+(\.\d+)? lbs$'
               weight={true}
             />
             <TextInput
               labelName='Social Security Number'
+              name='ssn'
+              id='ssn'
               placeholder='e.g. 123-45-6789'
               type='text'
-              name='ssn'
               pattern='^\d{3}-\d{2}-\d{4}$'
               socialSecurity={true}
             />
@@ -454,34 +522,38 @@ const Form = () => {
             <h5 className='text-xl font-medium text-gray-900 dark:text-white'>Disclosure</h5>
             <TextInput
               labelName='Monthly Total'
+              name='monthly_total'
+              id='monthly_total'
               placeholder='e.g. $100'
               type='text'
-              name='monthly_total'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               currency={true}
             />
             <TextInput
               labelName='Health Unsubsidized'
+              name='health_unsubsidized'
+              id='health_unsubsidized'
               placeholder='e.g. $1,000'
               type='text'
-              name='health_unsubsidized'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               currency={true}
             />
             <TextInput
               labelName='CIGNA Dental'
+              name='cigna_dental'
+              id='cigna_dental'
               placeholder='e.g. $100'
               type='text'
-              name='cigna_dental'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               required={false}
               currency={true}
             />
             <TextInput
               labelName='Americo Death Benefit'
+              name='americo_death_benefit'
+              id='americo_death_benefit'
               placeholder='e.g. $50,000'
               type='text'
-              name='americo_death_benefit'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               currency={true}
             />
@@ -491,25 +563,28 @@ const Form = () => {
             <h5 className='text-xl font-medium text-gray-900 dark:text-white'>Totals</h5>
             <TextInput
               labelName='Total Pre-Subsidy'
+              name='total_pre_subsidy'
+              id='total_pre_subsidy'
               placeholder='e.g. $50,000'
               type='text'
-              name='total_pre_subsidy'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               currency={true}
             />
             <TextInput
               labelName='Qualified Subsidy'
+              name='qualified_subsidy'
+              id='qualified_subsidy'
               placeholder='e.g. $50,000'
               type='text'
-              name='qualified_subsidy'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               currency={true}
             />
             <TextInput
               labelName='Total Post-Subsidy'
+              name='total_post_subsidy'
+              id='total_post_subsidy'
               placeholder='e.g. $50,000'
               type='text'
-              name='total_post_subsidy'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               currency={true}
             />
@@ -520,6 +595,7 @@ const Form = () => {
             <RadioInput
               labelName='Checking or savings?'
               name='checking_or_savings'
+              id='checking_or_savings'
               options={[
                 { label: 'Checking', value: 'checking' },
                 { label: 'Savings', value: 'savings' },
@@ -527,25 +603,28 @@ const Form = () => {
             />
             <TextInput
               labelName='Routing Number'
+              name='routing_number'
+              id='routing_number'
               placeholder='e.g. 123456789'
               type='text'
-              name='routing_number'
               pattern=''
               routingNumber={true}
             />
             <TextInput
               labelName='Account Number'
+              name='account_number'
+              id='account_number'
               placeholder='e.g. 123456789012'
               type='text'
-              name='account_number'
               pattern=''
               accountNumber={true}
             />
             <TextInput
               labelName='Name of Account Holder'
+              name='name_of_account_holder'
+              id='name_of_account_holder'
               placeholder='e.g. John Doe'
               type='text'
-              name='name_of_account_holder'
             />
           </>
           <Divider />

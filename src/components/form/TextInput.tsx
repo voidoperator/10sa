@@ -3,6 +3,7 @@ import { useFormData } from '../contexts/FormContext';
 import type { FormDataType, TextInputProps } from '../../types/formdata';
 
 const TextInput: React.FC<TextInputProps> = ({
+  id,
   labelName,
   placeholder,
   type,
@@ -147,16 +148,16 @@ const TextInput: React.FC<TextInputProps> = ({
         {required && <span className='ml-1 after:content-["*"] after:text-gray-900 after:dark:text-gray-300' />}
       </label>
       <input
+        id={id}
         pattern={pattern}
         type={type}
         name={name}
-        id={name}
         placeholder={placeholder}
         required={required}
         className='focus:rinasdfg-blue-500 focus:border-blue-500 dark:focus:ring-blue-500 dark:focus:border-blue-500 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white'
         onChange={handleChange}
         value={value}
-        autoComplete='off'
+        autoComplete='no'
       />
     </div>
   );
