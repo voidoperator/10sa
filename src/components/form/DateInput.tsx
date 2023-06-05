@@ -4,9 +4,15 @@ import { useFormData } from '../contexts/FormContext';
 import type { DateValueType } from 'react-tailwindcss-datepicker/dist/types';
 import type { DateInputProps, DateValue } from '../../types/formdata';
 
-const DateInput: React.FC<DateInputProps> = ({ labelName, name, showAge = false, required = true }) => {
+const DateInput: React.FC<DateInputProps> = ({
+  labelName,
+  name,
+  showAge = true,
+  required = true,
+  additional = false,
+}) => {
   const { formData, setFormData } = useFormData();
-  const [age, setAge] = useState<number | null>(null);
+  const [userAge, setUserAge] = useState<number>(0);
   const [value, setValue] = useState<DateValue>({
     startDate: null,
     endDate: null,
@@ -15,15 +21,30 @@ const DateInput: React.FC<DateInputProps> = ({ labelName, name, showAge = false,
   const handleValueChange = (newDate: DateValueType, e?: HTMLInputElement | null) => {
     if (newDate === null) {
       setValue({ startDate: null, endDate: null });
-      setAge(null);
+      setUserAge(0);
     } else if (typeof newDate === 'object' && newDate.hasOwnProperty('startDate')) {
       setValue(newDate as DateValue);
-      const { startDate } = newDate;
-      const [year, month, day] = startDate!.toString().split('-');
+      const startDate = newDate.startDate ?? '';
+      const [year = '', month = '', day = ''] = startDate.toString().split('-');
       const formatDate = `${month}-${day}-${year}`;
-      const age = calculateAge(new Date(startDate as string));
-      setAge(age);
-      setFormData({ ...formData, [name]: formatDate });
+      const calcAge = Number(calculateAge(new Date(startDate)));
+      setUserAge(calcAge);
+
+      if (additional) {
+        const dependentIndex = parseInt(labelName.split(' ')[1]) - 1;
+
+        let additionalInsuredList = formData.additional_insured_list || [];
+
+        additionalInsuredList[dependentIndex] = {
+          ...additionalInsuredList[dependentIndex],
+          id: dependentIndex,
+          date_of_birth: formatDate,
+          age: calcAge,
+        };
+        setFormData({ ...formData, additional_insured_list: additionalInsuredList });
+      } else {
+        setFormData({ ...formData, [name]: formatDate, age: calcAge });
+      }
     }
   };
 
@@ -49,8 +70,8 @@ const DateInput: React.FC<DateInputProps> = ({ labelName, name, showAge = false,
           {labelName}
           {required && <span className='ml-1 after:content-["*"] after:text-gray-900 after:dark:text-gray-300' />}
         </label>
-        {value.startDate && age !== null && showAge && (
-          <p className='text-sm text-gray-900 dark:text-white font-bold'>Age: {age}</p>
+        {value.startDate && userAge !== null && showAge && (
+          <p className='text-sm text-gray-900 dark:text-white font-bold'>Age: {userAge}</p>
         )}
       </div>
       <Datepicker

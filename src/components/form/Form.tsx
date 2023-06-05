@@ -13,10 +13,18 @@ const Divider = tw.div`
   h-[1px] w-full bg-black/75 dark:bg-white/75 my-0 sm:my-10 hidden sm:block
 `;
 
+const initialDependentState = {
+  id: 0,
+  full_name: '',
+  date_of_birth: '',
+  relationship: '',
+  age: 0,
+  ssn: '',
+};
+
 const Form = () => {
   const { formData, setFormData } = useFormData();
   const [isLoading, setIsLoading] = useState(true);
-  const [dependents, setDependents] = useState([{ name: '', dob: '' }]);
 
   useEffect(() => {
     setIsLoading(false);
@@ -28,17 +36,41 @@ const Form = () => {
     }
   }, [formData.married, setFormData]);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    // console.log(formData);
+  useEffect(() => {
+    if (
+      formData.additional_insured === 'yes' &&
+      (!formData.additional_insured_list || formData.additional_insured_list.length === 0)
+    ) {
+      setFormData({
+        ...formData,
+        additional_insured_list: [initialDependentState],
+      });
+    }
+  }, [formData.additional_insured]);
+
+  const handleHouseholdCheck = () => {
+    const { household_size } = formData;
+    if (Number(household_size) <= (formData.additional_insured_list?.length ?? 0) + 1) {
+      return true;
+    }
+    return false;
   };
 
   const addDependent = () => {
-    setDependents([...dependents, { name: '', dob: '' }]);
+    if (!handleHouseholdCheck()) {
+      const newDependent = { ...initialDependentState, id: formData.additional_insured_list.length };
+      setFormData({
+        ...formData,
+        additional_insured_list: [...formData.additional_insured_list, newDependent],
+      });
+    }
   };
 
   const removeDependent = (index: number) => {
-    setDependents(dependents.filter((_, i) => i !== index));
+    setFormData({
+      ...formData,
+      additional_insured_list: formData.additional_insured_list.filter((_, i) => i !== index),
+    });
   };
 
   if (isLoading)
@@ -54,7 +86,9 @@ const Form = () => {
     <div className='flex items-center justify-center min-h-screen py-20'>
       <div className='w-full max-w-4xl p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700'>
         {JSON.stringify(formData)}
-        <form className='space-y-6' onSubmit={(e) => handleSubmit(e)}>
+        <br />
+        <br />
+        <form className='space-y-6'>
           <>
             <h5 className='text-xl font-medium text-gray-900 dark:text-white'>Customer Details</h5>
             <TextInput labelName='First Name' placeholder='e.g. John' type='text' name='first_name' />
@@ -87,12 +121,13 @@ const Form = () => {
               labelName='Why are they looking for coverage?'
               placeholder='Enter reason here'
               name='coverage_reason'
+              required={false}
             />
           </>
           <Divider />
           <>
             <h5 className='text-xl font-medium text-gray-900 dark:text-white'>Customer Questionare</h5>
-            <DateInput labelName='Date of Birth' name='date_of_birth' showAge={true} />
+            <DateInput labelName='Date of Birth' name='date_of_birth' />
             <RadioInput
               labelName='Tobacco User?'
               name='tobacco_use'
@@ -125,80 +160,122 @@ const Form = () => {
                 },
               ]}
             />
-            {/* {formData.married === 'yes' && (
-              <>
-                <div className='flex flex-col gap-4 px-6 py-5 border rounded-xl border-black/10 dark:border-white/10 w-full h-full'>
-                  <TextInput
-                    labelName='Spouse Full Name'
-                    placeholder='e.g. Jane Doe'
-                    type='text'
-                    name='spouse_full_name'
-                  />
-                  <DateInput labelName="Spouse's Date of Birth" name='spouse_date_of_birth' showAge={true} />
-                </div>
-              </>
-            )} */}
+            <TextInput
+              labelName='Household size?'
+              placeholder='e.g. 4'
+              type='number'
+              name='household_size'
+              pattern='/^\d{9}$/'
+            />
             <RadioInput
-              labelName='Dependents? (declared on taxes)'
-              name='dependents'
+              labelName='Additional insured/dependents? (part of household)'
+              name='additional_insured'
               options={[
                 { label: 'Yes', value: 'yes' },
                 { label: 'No', value: 'no' },
               ]}
             />
-            {formData.dependents === 'yes' &&
-              dependents.map((_, i) => (
-                <div
-                  key={`dependent_${i + 1}_info`}
-                  className='flex relative flex-col gap-4 px-6 py-5 border rounded-xl border-black/10 dark:border-white/10 w-full h-full'
-                >
-                  <TextInput
-                    labelName={`Dependent ${i + 1} Full Name`}
-                    placeholder='e.g. Jane Doe'
-                    type='text'
-                    name={`dependent_${i + 1}_full_name`}
-                  />
-                  <DateInput
-                    labelName={`Dependent ${i + 1} Date of Birth`}
-                    name={`dependent_${i + 1}_date_of_birth`}
-                    showAge={true}
-                  />
-                  <button
-                    key={`dependent_${i + 1}_button`}
-                    type='button'
-                    className='w-6 absolute top-2 right-2 text-white fill-black dark:fill-white opacity-70 hover:opacity-100 transition-all'
-                    onClick={() => removeDependent(i)}
+            {formData.additional_insured === 'yes' &&
+              formData.additional_insured_list?.map((_, i) => {
+                return (
+                  <div
+                    key={`dependent_${i + 1}_info`}
+                    className='flex relative flex-col gap-4 px-6 py-5 border rounded-xl border-black/10 dark:border-white/10 w-full h-full'
                   >
-                    <svg
-                      xmlns='http://www.w3.org/2000/svg'
-                      clipRule='evenodd'
-                      fillRule='evenodd'
-                      strokeLinejoin='round'
-                      strokeMiterlimit='2'
-                      viewBox='0 0 24 24'
+                    <TextInput
+                      labelName={`Dependent ${i + 1} Full Name`}
+                      placeholder='e.g. Jane Doe'
+                      type='text'
+                      name='full_name'
+                      additional={true}
+                    />
+                    <TextInput
+                      labelName={`Dependent ${i + 1} Relationship`}
+                      placeholder='e.g. Son, Daughter, Husband, Wife'
+                      type='text'
+                      name='relationship'
+                      additional={true}
+                    />
+                    <DateInput labelName={`Dependent ${i + 1} Date of Birth`} name='date_of_birth' additional={true} />
+                    <TextInput
+                      labelName={`Dependent ${i + 1} Social Security Number`}
+                      placeholder='e.g. 123-45-6789'
+                      type='text'
+                      name='ssn'
+                      pattern='^\d{3}-\d{2}-\d{4}$'
+                      socialSecurity={true}
+                      additional={true}
+                    />
+                    <TextInput
+                      labelName={`Dependent ${i + 1} State ID Number`}
+                      placeholder='e.g. L12-123-12-123-0'
+                      type='text'
+                      name='ssn'
+                      pattern='^[A-Za-z]\d{2}-\d{3}-\d{2}-\d{3}-\d$'
+                      driverLicense={true}
+                      required={false}
+                      additional={true}
+                    />
+                    {formData.additional_insured_list?.[i] && formData.additional_insured_list[i].age >= 18 && (
+                      <>
+                        <TextInput
+                          labelName={`Dependent ${i + 1} Height`}
+                          placeholder="e.g. 5'11"
+                          type='text'
+                          name='height'
+                          pattern="^\\d{1,2}'(?:1[0-2]|0?[1-9])$"
+                          height={true}
+                          additional={true}
+                        />
+                        <TextInput
+                          labelName={`Dependent ${i + 1} Weight`}
+                          placeholder='e.g. 150 (lbs.)'
+                          type='text'
+                          name='weight'
+                          pattern='^\d{1,3}(?:\.\d)?$'
+                          weight={true}
+                          additional={true}
+                        />
+                      </>
+                    )}
+                    <button
+                      key={`dependent_${i + 1}_button`}
+                      type='button'
+                      className='w-6 absolute top-2 right-2 text-white fill-black dark:fill-white opacity-70 hover:opacity-100 transition-all'
+                      onClick={() => removeDependent(i)}
                     >
-                      <path
+                      <svg
                         xmlns='http://www.w3.org/2000/svg'
-                        d='m12.002 2.005c5.518 0 9.998 4.48 9.998 9.997 0 5.518-4.48 9.998-9.998 9.998-5.517 0-9.997-4.48-9.997-9.998 0-5.517 4.48-9.997 9.997-9.997zm0 8.933-2.721-2.722c-.146-.146-.339-.219-.531-.219-.404 0-.75.324-.75.749 0 .193.073.384.219.531l2.722 2.722-2.728 2.728c-.147.147-.22.34-.22.531 0 .427.35.75.751.75.192 0 .384-.073.53-.219l2.728-2.728 2.729 2.728c.146.146.338.219.53.219.401 0 .75-.323.75-.75 0-.191-.073-.384-.22-.531l-2.727-2.728 2.717-2.717c.146-.147.219-.338.219-.531 0-.425-.346-.75-.75-.75-.192 0-.385.073-.531.22z'
-                        fillRule='nonzero'
-                      />
-                    </svg>
-                  </button>
-                </div>
-              ))}
-            {formData.dependents === 'yes' && (
+                        clipRule='evenodd'
+                        fillRule='evenodd'
+                        strokeLinejoin='round'
+                        strokeMiterlimit='2'
+                        viewBox='0 0 24 24'
+                      >
+                        <path
+                          xmlns='http://www.w3.org/2000/svg'
+                          d='m12.002 2.005c5.518 0 9.998 4.48 9.998 9.997 0 5.518-4.48 9.998-9.998 9.998-5.517 0-9.997-4.48-9.997-9.998 0-5.517 4.48-9.997 9.997-9.997zm0 8.933-2.721-2.722c-.146-.146-.339-.219-.531-.219-.404 0-.75.324-.75.749 0 .193.073.384.219.531l2.722 2.722-2.728 2.728c-.147.147-.22.34-.22.531 0 .427.35.75.751.75.192 0 .384-.073.53-.219l2.728-2.728 2.729 2.728c.146.146.338.219.53.219.401 0 .75-.323.75-.75 0-.191-.073-.384-.22-.531l-2.727-2.728 2.717-2.717c.146-.147.219-.338.219-.531 0-.425-.346-.75-.75-.75-.192 0-.385.073-.531.22z'
+                          fillRule='nonzero'
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                );
+              })}
+            {formData.additional_insured === 'yes' && (
               <div className='flex items-center justify-center gap-6'>
                 <button
+                  disabled={handleHouseholdCheck()}
                   type='button'
                   onClick={addDependent}
-                  className='mx-6 w-1/2 transition-all text-white bg-blue-700 shadow-xl hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
+                  className='mx-6 w-1/2 transition-all text-white disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:cursor-not-allowed bg-blue-700 shadow-xl hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
                 >
                   Add More Dependents
                 </button>
               </div>
             )}
             <TextInput
-              labelName='Annual household income'
+              labelName='Annual household NET income? (after taxes)'
               placeholder='e.g. $25,000'
               type='text'
               name='annual_household_income'
@@ -326,13 +403,13 @@ const Form = () => {
             <h5 className='text-xl font-medium text-gray-900 dark:text-white'>Closure</h5>
             <TextInput
               labelName='Phone Number'
-              placeholder='e.g. (786) 305-6789'
+              placeholder='e.g. 786-305-6789'
               type='tel'
               name='phone_number'
-              pattern='^\(\d{3}\) \d{3}-\d{4}$'
+              pattern='^\d{3}-\d{3}-\d{4}$'
               phone={true}
             />
-            <DateInput labelName='Date of Birth' name='confirmed_date_of_birth' showAge={true} />
+            <DateInput labelName='Date of Birth' name='confirmed_date_of_birth' />
             <TextInput labelName='First Name' placeholder='e.g. John Doe' type='text' name='confirmed_full_name' />
             <TextInput
               labelName='Email'

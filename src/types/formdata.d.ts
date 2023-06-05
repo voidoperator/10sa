@@ -6,12 +6,13 @@ export type FormDataType = {
   zip_code: string;
   coverage_reason: string;
   date_of_birth: string;
+  age: number;
   tobacco_use: string;
   married: string;
   taxes_filing_status: string;
-  spouse_full_name?: string;
-  spouse_date_of_birth?: string;
-  dependents: string;
+  household_size: string;
+  additional_insured: string;
+  additional_insured_list: InsuredList[];
   annual_household_income: string;
   pre_existing_conditions: string;
   pre_existing_conditions_list: string;
@@ -43,6 +44,18 @@ export type FormDataType = {
   americo_death_benefit: string;
 };
 
+export type InsuredList = {
+  id: number;
+  full_name: string;
+  relationship: string;
+  date_of_birth: string;
+  age: number;
+  ssn: string;
+  driver_license_number?: string;
+  height?: string;
+  weight?: string;
+};
+
 export type TextInputProps = {
   labelName: string;
   placeholder: string;
@@ -53,8 +66,10 @@ export type TextInputProps = {
   currency?: boolean;
   phone?: boolean;
   socialSecurity?: boolean;
+  driverLicense?: boolean;
   height?: boolean;
   weight?: boolean;
+  additional?: boolean;
 };
 
 export type RadioInputProps = {
@@ -87,6 +102,7 @@ export type DateInputProps = {
   name: string;
   showAge?: boolean;
   required?: boolean;
+  additional?: boolean;
 };
 
 export type DateValue = {
