@@ -13,6 +13,8 @@ const TextInput: React.FC<TextInputProps> = ({
   phone = false,
   socialSecurity = false,
   driverLicense = false,
+  routingNumber = false,
+  accountNumber = false,
   height = false,
   weight = false,
   additional = false,
@@ -37,6 +39,30 @@ const TextInput: React.FC<TextInputProps> = ({
         const numericValue = Number(value);
         value = new Intl.NumberFormat('en-US').format(numericValue);
         value = `$${value}${decimalPart}`;
+      }
+    }
+
+    if (routingNumber) {
+      value = value.replace(/\D/g, '');
+      if (value.length > 9) {
+        value = value.substring(0, 9);
+      }
+      const match = value.match(/^(\d{0,9})$/);
+      if (match) {
+        value = `${match[1] ? match[1] : ''}`;
+        value = value.trim();
+      }
+    }
+
+    if (accountNumber) {
+      value = value.replace(/\D/g, '');
+      if (value.length > 12) {
+        value = value.substring(0, 12);
+      }
+      const match = value.match(/^(\d{0,12})$/);
+      if (match) {
+        value = `${match[1] ? match[1] : ''}`;
+        value = value.trim();
       }
     }
 

@@ -7,7 +7,9 @@ import TextAreaInput from './TextAreaInput';
 import DateInput from './DateInput';
 import { useFormData } from '../contexts/FormContext';
 import { states } from '../../utility/utility';
-// import type { FormDataType } from '../../types/formdata';
+import { MutualOfOmahaIcon } from '../icons/MutualOfOmahaIcon';
+import { AmericoIcon } from '../icons/AmericoIcon';
+import { CloseIcon } from '../icons/CloseIcon';
 
 const Divider = tw.div`
   h-[1px] w-full bg-black/75 dark:bg-white/75 my-0 sm:my-10 hidden sm:block
@@ -176,12 +178,23 @@ const Form = () => {
               ]}
             />
             {formData.additional_insured === 'yes' &&
-              formData.additional_insured_list?.map((_, i) => {
+              formData.additional_insured_list?.map((dependent, i) => {
+                console.log(dependent.age);
                 return (
                   <div
                     key={`dependent_${i + 1}_info`}
                     className='flex relative flex-col gap-4 px-6 py-5 border rounded-xl border-black/10 dark:border-white/10 w-full h-full'
                   >
+                    {dependent.age >= 18 && dependent.age <= 19 && (
+                      <div className='flex items-center justify-center text-black dark:text-white'>
+                        <MutualOfOmahaIcon twClasses={'h-10'} />
+                      </div>
+                    )}
+                    {dependent.age >= 20 && (
+                      <div className='flex items-center justify-center text-black dark:text-white'>
+                        <AmericoIcon twClasses={'h-10'} />
+                      </div>
+                    )}
                     <TextInput
                       labelName={`Dependent ${i + 1} Full Name`}
                       placeholder='e.g. Jane Doe'
@@ -241,23 +254,10 @@ const Form = () => {
                     <button
                       key={`dependent_${i + 1}_button`}
                       type='button'
-                      className='w-6 absolute top-2 right-2 text-white fill-black dark:fill-white opacity-70 hover:opacity-100 transition-all'
+                      className='w-6 absolute top-2 right-2  opacity-70 hover:opacity-100 transition-all'
                       onClick={() => removeDependent(i)}
                     >
-                      <svg
-                        xmlns='http://www.w3.org/2000/svg'
-                        clipRule='evenodd'
-                        fillRule='evenodd'
-                        strokeLinejoin='round'
-                        strokeMiterlimit='2'
-                        viewBox='0 0 24 24'
-                      >
-                        <path
-                          xmlns='http://www.w3.org/2000/svg'
-                          d='m12.002 2.005c5.518 0 9.998 4.48 9.998 9.997 0 5.518-4.48 9.998-9.998 9.998-5.517 0-9.997-4.48-9.997-9.998 0-5.517 4.48-9.997 9.997-9.997zm0 8.933-2.721-2.722c-.146-.146-.339-.219-.531-.219-.404 0-.75.324-.75.749 0 .193.073.384.219.531l2.722 2.722-2.728 2.728c-.147.147-.22.34-.22.531 0 .427.35.75.751.75.192 0 .384-.073.53-.219l2.728-2.728 2.729 2.728c.146.146.338.219.53.219.401 0 .75-.323.75-.75 0-.191-.073-.384-.22-.531l-2.727-2.728 2.717-2.717c.146-.147.219-.338.219-.531 0-.425-.346-.75-.75-.75-.192 0-.385.073-.531.22z'
-                          fillRule='nonzero'
-                        />
-                      </svg>
+                      <CloseIcon twClasses='text-black fill-black dark:text-white dark:fill-white' />
                     </button>
                   </div>
                 );
@@ -512,6 +512,40 @@ const Form = () => {
               name='total_post_subsidy'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               currency={true}
+            />
+          </>
+          <Divider />
+          <>
+            <h5 className='text-xl font-medium text-gray-900 dark:text-white'>Payment Method</h5>
+            <RadioInput
+              labelName='Checking or savings?'
+              name='checking_or_savings'
+              options={[
+                { label: 'Checking', value: 'checking' },
+                { label: 'Savings', value: 'savings' },
+              ]}
+            />
+            <TextInput
+              labelName='Routing Number'
+              placeholder='e.g. 123456789'
+              type='text'
+              name='routing_number'
+              pattern=''
+              routingNumber={true}
+            />
+            <TextInput
+              labelName='Account Number'
+              placeholder='e.g. 123456789012'
+              type='text'
+              name='account_number'
+              pattern=''
+              accountNumber={true}
+            />
+            <TextInput
+              labelName='Name of Account Holder'
+              placeholder='e.g. John Doe'
+              type='text'
+              name='name_of_account_holder'
             />
           </>
           <Divider />

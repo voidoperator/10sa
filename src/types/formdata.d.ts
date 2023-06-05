@@ -64,6 +64,8 @@ export type TextInputProps = {
   required?: boolean;
   pattern?: string;
   currency?: boolean;
+  routingNumber?: boolean;
+  accountNumber?: boolean;
   phone?: boolean;
   socialSecurity?: boolean;
   driverLicense?: boolean;
