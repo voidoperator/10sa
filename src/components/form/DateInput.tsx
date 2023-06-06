@@ -7,6 +7,7 @@ import type { DateInputProps, DateValue } from '../../types/formData';
 const DateInput: React.FC<DateInputProps> = ({
   labelName,
   name,
+  id,
   showAge = true,
   required = true,
   additional = false,
@@ -63,10 +64,7 @@ const DateInput: React.FC<DateInputProps> = ({
   return (
     <div>
       <div className='inline-flex justify-between w-full'>
-        <label
-          htmlFor={name}
-          className='inline-flex items-center mb-2 text-sm font-medium text-gray-900 dark:text-white'
-        >
+        <label htmlFor={id} className='inline-flex items-center mb-2 text-sm font-medium text-gray-900 dark:text-white'>
           {labelName}
           {required && <span className='ml-1 after:content-["*"] after:text-gray-900 after:dark:text-gray-300' />}
         </label>
@@ -75,6 +73,7 @@ const DateInput: React.FC<DateInputProps> = ({
         )}
       </div>
       <Datepicker
+        inputId={id}
         showFooter={true}
         maxDate={new Date(Date.now())}
         value={value}

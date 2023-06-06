@@ -42,6 +42,7 @@ export type FormDataType = {
   health_unsubsidized: string;
   cigna_dental: string;
   americo_death_benefit: string;
+  monthly_health_premium: string;
 };
 
 export type InsuredList = {
@@ -65,6 +66,7 @@ export type TextInputProps = {
   required?: boolean;
   pattern?: string;
   currency?: boolean;
+  zip_code?: boolean;
   routingNumber?: boolean;
   accountNumber?: boolean;
   phone?: boolean;
@@ -106,6 +108,7 @@ export type DropDownInputProps = {
 export type DateInputProps = {
   labelName: string;
   name: string;
+  id: string;
   showAge?: boolean;
   required?: boolean;
   additional?: boolean;
@@ -114,4 +117,11 @@ export type DateInputProps = {
 export type DateValue = {
   startDate: Date | null;
   endDate: Date | null;
+};
+
+export type DetailConfirmationProps = {
+  id: string;
+  detail: string;
+  labelName: string;
+  error?: boolean;
 };

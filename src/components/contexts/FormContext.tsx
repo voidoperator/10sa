@@ -45,6 +45,7 @@ const initialFormData: FormDataType = {
   health_unsubsidized: '',
   cigna_dental: '',
   americo_death_benefit: '',
+  monthly_health_premium: '',
 };
 
 interface FormContextData {

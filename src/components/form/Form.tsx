@@ -5,11 +5,26 @@ import RadioInput from './RadioInput';
 import DropDownInput from './DropDownInput';
 import TextAreaInput from './TextAreaInput';
 import DateInput from './DateInput';
+import DetailConfirmation from './DetailConfirmation';
 import { useFormData } from '../contexts/FormContext';
-import { states } from '../../utility/utility';
+import { unitedStates, preferredCarriers, toTitleCase } from '../../utility/utility';
 import { MutualOfOmahaIcon } from '../icons/MutualOfOmahaIcon';
 import { AmericoIcon } from '../icons/AmericoIcon';
 import { CloseIcon } from '../icons/CloseIcon';
+import { CarrierIcon, CarrierIconKey } from '../icons/CarrierIcons';
+
+// multiply all americos by teh value of the selected ADB policy
+
+// ADB Amount	Monthly Premium	Annual Premium
+// $100,000	  $27.00	$284.21
+// $150,000	  $35.00	$368.42
+// $200,000	  $42.00	$442.11
+// $250,000	  $48.00	$505.26
+
+// if age 60 or above, no mutual and no americo
+
+// add API integration under zipcode where correct county is returned. example: 77493 => harris county
+// https://www.unitedstateszipcodes.org/
 
 const Divider = tw.div`
   h-[1px] w-full bg-black/75 dark:bg-white/75 my-0 sm:my-10 hidden sm:block
@@ -26,7 +41,8 @@ const initialDependentState = {
 
 const Form = () => {
   const { formData, setFormData } = useFormData();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [carriers, setCarriers] = useState<string[]>([]);
 
   useEffect(() => {
     setIsLoading(false);
@@ -47,8 +63,17 @@ const Form = () => {
         ...formData,
         additional_insured_list: [initialDependentState],
       });
+    } else {
+      setFormData({ ...formData, additional_insured_list: [] });
     }
   }, [formData.additional_insured]);
+
+  useEffect(() => {
+    const { state } = formData;
+    if (state) {
+      setCarriers(preferredCarriers[state as keyof typeof preferredCarriers]);
+    }
+  }, [formData.state]);
 
   const handleHouseholdCheck = () => {
     const { household_size } = formData;
@@ -75,6 +100,17 @@ const Form = () => {
     });
   };
 
+  function parseCurrency(input: any) {
+    return parseFloat((input || '0').replace(/[^\d\.]/g, ''));
+  }
+
+  const applyingForCoverage =
+    1 + (formData.additional_insured_list?.length ? formData.additional_insured_list.length : 0);
+  const americoAmount =
+    (formData.additional_insured_list?.length ? formData.additional_insured_list.length + 1 : 1) * 48;
+  const monthlyHealthPremium = parseCurrency(formData.monthly_health_premium);
+  const grandTotal = americoAmount + monthlyHealthPremium;
+
   if (isLoading)
     return (
       <div className='flex items-center justify-center min-h-screen py-20'>
@@ -86,10 +122,62 @@ const Form = () => {
 
   return (
     <div className='flex items-center justify-center min-h-screen py-20'>
-      <div className='w-full max-w-4xl p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700'>
-        {JSON.stringify(formData)}
-        <br />
-        <br />
+      <div className='fixed top-0 right-0 z-50 w-1/4 h-screen bg-white dark:bg-gray-800 p-8 flex flex-col gap-4 border-l dark:border-white/50 border-black/50'>
+        <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl'>
+          <TextInput
+            id='monthly_health_premium'
+            name='monthly_health_premium'
+            placeholder='e.g. $8.14'
+            type='text'
+            labelName='Monthly Health Premium:'
+            required={false}
+            currency={true}
+          />
+        </div>
+        {formData.household_size && (
+          <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl'>
+            Household size: {formData.household_size}
+          </div>
+        )}
+        {formData.additional_insured && (
+          <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl'>
+            {'Applying for coverage: '}
+            {applyingForCoverage}
+          </div>
+        )}
+        {formData.additional_insured && (
+          <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl'>
+            {'Americo amount: $'}
+            {americoAmount}
+          </div>
+        )}
+        {formData.additional_insured_list && formData.monthly_health_premium && (
+          <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl'>
+            {'Monthly Grand Total: $'}
+            {grandTotal.toFixed(2)}
+          </div>
+        )}
+        {formData.state && (
+          <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl w-full'>
+            <div>Preferred carriers for {toTitleCase(formData.state)}:</div>
+            <ul className='flex flex-wrap gap-2 justify-center pt-3'>
+              {carriers &&
+                carriers.map((carrier, i) => {
+                  return (
+                    <li
+                      key={carrier + i}
+                      title={carrier}
+                      className='rounded-full px-2 py-1 font-medium text-base w-32 text-white fill-white'
+                    >
+                      <CarrierIcon icon={carrier as CarrierIconKey} twClasses={`max-w-xs text-black dark:text-white`} />
+                    </li>
+                  );
+                })}
+            </ul>
+          </div>
+        )}
+      </div>
+      <div className='mr-64 w-full max-w-xl p-4 bg-white dark:bg-gray-800 border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:border-gray-700'>
         <form className='space-y-6' autoComplete='off' autoCapitalize='on'>
           <>
             <h5 className='text-xl font-medium text-gray-900 dark:text-white'>Customer Details</h5>
@@ -118,15 +206,16 @@ const Form = () => {
               name='state'
               id='state'
               defaultOption='Please select a state'
-              options={states}
+              options={unitedStates}
             />
             <TextInput
               labelName='Zip Code'
               name='zip_code'
               id='zip_code'
-              placeholder='e.g. 12345'
-              type='number'
-              pattern='/^\d{5}(-\d{4})?$/'
+              placeholder='e.g. 12345 or 12345-6789'
+              type='text'
+              pattern='^\d{5}(-\d{4})?$'
+              zip_code={true}
             />
             <TextAreaInput
               labelName='Why are they looking for coverage?'
@@ -139,7 +228,17 @@ const Form = () => {
           <Divider />
           <>
             <h5 className='text-xl font-medium text-gray-900 dark:text-white'>Customer Questionare</h5>
-            <DateInput labelName='Date of Birth' name='date_of_birth' />
+            {formData.age >= 18 && formData.age <= 19 && (
+              <div className='flex items-center justify-center text-black dark:text-white'>
+                <MutualOfOmahaIcon twClasses={'h-10'} />
+              </div>
+            )}
+            {formData.age >= 20 && (
+              <div className='flex items-center justify-center text-black dark:text-white'>
+                <AmericoIcon twClasses={'h-10'} />
+              </div>
+            )}
+            <DateInput labelName='Date of Birth' name='date_of_birth' id='date_of_birth' />
             <RadioInput
               labelName='Tobacco User?'
               name='tobacco_use'
@@ -212,7 +311,7 @@ const Form = () => {
                     <TextInput
                       labelName={`Dependent ${i + 1} Full Name`}
                       name='full_name'
-                      id={'full_name_' + i}
+                      id={'full_name_' + (i + 1)}
                       placeholder='e.g. Jane Doe'
                       type='text'
                       additional={true}
@@ -220,12 +319,17 @@ const Form = () => {
                     <TextInput
                       labelName={`Dependent ${i + 1} Relationship`}
                       name='relationship'
-                      id={'relationship_' + i}
+                      id={'relationship_' + (i + 1)}
                       placeholder='e.g. Son, Daughter, Husband, Wife'
                       type='text'
                       additional={true}
                     />
-                    <DateInput labelName={`Dependent ${i + 1} Date of Birth`} name='date_of_birth' additional={true} />
+                    <DateInput
+                      labelName={`Dependent ${i + 1} Date of Birth`}
+                      name='date_of_birth'
+                      id={'date_of_birth_' + (i + 1)}
+                      additional={true}
+                    />
                     <TextInput
                       labelName={`Dependent ${i + 1} Social Security Number`}
                       name='ssn'
@@ -236,23 +340,22 @@ const Form = () => {
                       socialSecurity={true}
                       additional={true}
                     />
-                    <TextInput
-                      labelName={`Dependent ${i + 1} State ID Number`}
-                      name='driver_license'
-                      id={'driver_license_' + i}
-                      placeholder='e.g. L12-123-12-123-0'
-                      type='text'
-                      pattern='^[A-Za-z]\d{2}-\d{3}-\d{2}-\d{3}-\d$'
-                      driverLicense={true}
-                      required={false}
-                      additional={true}
-                    />
                     {formData.additional_insured_list?.[i] && formData.additional_insured_list[i].age >= 18 && (
                       <>
                         <TextInput
+                          labelName={`Dependent ${i + 1} State ID Number`}
+                          name='driver_license'
+                          id={'driver_license_' + (i + 1)}
+                          placeholder='e.g. L12-123-12-123-0'
+                          type='text'
+                          pattern='^[A-Za-z]\d{2}-\d{3}-\d{2}-\d{3}-\d$'
+                          driverLicense={true}
+                          additional={true}
+                        />
+                        <TextInput
                           labelName={`Dependent ${i + 1} Height`}
                           name='height'
-                          id={'height_' + i}
+                          id={'height_' + (i + 1)}
                           placeholder="e.g. 5'11"
                           type='text'
                           pattern="^\\d{1,2}'(?:1[0-2]|0?[1-9])$"
@@ -262,7 +365,7 @@ const Form = () => {
                         <TextInput
                           labelName={`Dependent ${i + 1} Weight`}
                           name='weight'
-                          id={'weight_' + i}
+                          id={'weight_' + (i + 1)}
                           placeholder='e.g. 150 (lbs.)'
                           type='text'
                           pattern='^\d{1,3}(?:\.\d)?$'
@@ -451,14 +554,27 @@ const Form = () => {
               pattern='^\d{3}-\d{3}-\d{4}$'
               phone={true}
             />
-            <DateInput labelName='CONFIRM Date of Birth' name='confirmed_date_of_birth' />
-            <TextInput
-              labelName='CONFIRM Full Name'
-              name='confirmed_full_name'
-              id='confirmed_full_name'
-              placeholder='e.g. John Doe'
-              type='text'
-            />
+            {formData.date_of_birth && (
+              <DetailConfirmation
+                detail={formData.date_of_birth}
+                labelName='Confirm Date of Birth'
+                id='confirm_date_of_birth'
+              />
+            )}
+            {formData.first_name && formData.last_name ? (
+              <DetailConfirmation
+                detail={toTitleCase(formData.first_name) + ' ' + toTitleCase(formData.last_name)}
+                labelName='Confirm Full Name'
+                id='confirm_full_name'
+              />
+            ) : (
+              <DetailConfirmation
+                detail={'First or Last Name Missing'}
+                labelName='First or Last Name Missing'
+                id='full_name_missing'
+                error={true}
+              />
+            )}
             <TextInput
               labelName='Email'
               name='email'
@@ -475,20 +591,21 @@ const Form = () => {
               type='text'
             />
             <TextInput labelName='City' name='city' id='city' placeholder='e.g. Miami' type='text' />
-            <TextInput
-              labelName='CONFIRM State'
-              name='confirmed_state'
-              id='confirmed_state'
-              placeholder='e.g. Florida'
-              type='text'
-            />
-            <TextInput
-              labelName='CONFIRM Zip Code'
-              name='confirmed_zip_code'
-              id='confirmed_zip_code'
-              placeholder='e.g. 33193'
-              type='text'
-            />
+            {formData.state ? (
+              <DetailConfirmation detail={toTitleCase(formData.state)} labelName='Confirm State' id='confirm_state' />
+            ) : (
+              <DetailConfirmation detail={'State Missing'} labelName='State Missing' id='state_missing' error={true} />
+            )}
+            {formData.zip_code ? (
+              <DetailConfirmation detail={formData.zip_code} labelName='Confirm Zip Code' id='confirm_zip_code' />
+            ) : (
+              <DetailConfirmation
+                detail='Zip Code Missing'
+                labelName='Zip Code Missing'
+                id='zip_code_missing'
+                error={true}
+              />
+            )}
             <TextInput
               labelName='Height'
               name='height'
@@ -502,9 +619,9 @@ const Form = () => {
               labelName='Weight'
               name='weight'
               id='weight'
-              placeholder='e.g. 150 lbs'
+              placeholder='e.g. 150'
               type='text'
-              pattern='^\d+(\.\d+)? lbs$'
+              pattern='^\d+(\.\d+)$'
               weight={true}
             />
             <TextInput

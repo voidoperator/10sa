@@ -10,6 +10,7 @@ const TextInput: React.FC<TextInputProps> = ({
   name,
   required = true,
   pattern = undefined,
+  zip_code = false,
   currency = false,
   phone = false,
   socialSecurity = false,
@@ -40,6 +41,21 @@ const TextInput: React.FC<TextInputProps> = ({
         const numericValue = Number(value);
         value = new Intl.NumberFormat('en-US').format(numericValue);
         value = `$${value}${decimalPart}`;
+      }
+    }
+
+    if (zip_code) {
+      value = value.replace(/[^0-9-]/g, '');
+      let parts = value.split('-');
+      parts[0] = parts[0].substring(0, 5);
+      if (parts[1]) {
+        parts[1] = parts[1].substring(0, 4);
+      }
+      value = parts.join('-');
+      const match = value.match(/^(\d{0,5})(-\d{0,4})?$/);
+      if (match) {
+        value = `${match[1] ? match[1] : ''}${match[2] ? match[2] : ''}`;
+        value = value.trim();
       }
     }
 
@@ -84,10 +100,9 @@ const TextInput: React.FC<TextInputProps> = ({
       if (value.length > 9) {
         value = value.substring(0, 9);
       }
-      const match = value.match(/^(\d{0,3})(\d{0,2})(\d{0,4})$/);
+      const match = value.match(/^(\d{1,3})(\d{0,2})(\d{0,4})?$/);
       if (match) {
-        value = `${match[1]}-${match[2]}-${match[3]}`;
-        value = value.replace(/-$/, '');
+        value = `${match[1] ? match[1] : ''}${match[2] ? '-' + match[2] : ''}${match[3] ? '-' + match[3] : ''}`;
       }
     }
 
@@ -154,7 +169,7 @@ const TextInput: React.FC<TextInputProps> = ({
         name={name}
         placeholder={placeholder}
         required={required}
-        className='focus:rinasdfg-blue-500 focus:border-blue-500 dark:focus:ring-blue-500 dark:focus:border-blue-500 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white'
+        className='focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-500 dark:focus:border-blue-500 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white'
         onChange={handleChange}
         value={value}
         autoComplete='no'
