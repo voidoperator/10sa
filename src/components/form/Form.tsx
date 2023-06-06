@@ -12,16 +12,7 @@ import { MutualOfOmahaIcon } from '../icons/MutualOfOmahaIcon';
 import { AmericoIcon } from '../icons/AmericoIcon';
 import { CloseIcon } from '../icons/CloseIcon';
 import { CarrierIcon, CarrierIconKey } from '../icons/CarrierIcons';
-
-// multiply all americos by teh value of the selected ADB policy
-
-// ADB Amount	Monthly Premium	Annual Premium
-// $100,000	  $27.00	$284.21
-// $150,000	  $35.00	$368.42
-// $200,000	  $42.00	$442.11
-// $250,000	  $48.00	$505.26
-
-// if age 60 or above, no mutual and no americo
+import { IneligibleIcon } from '../icons/IneligebleIcon';
 
 // add API integration under zipcode where correct county is returned. example: 77493 => harris county
 // https://www.unitedstateszipcodes.org/
@@ -106,8 +97,9 @@ const Form = () => {
 
   const applyingForCoverage =
     1 + (formData.additional_insured_list?.length ? formData.additional_insured_list.length : 0);
+  const americoPremium = parseCurrency(formData.americo_coverage) || 48;
   const americoAmount =
-    (formData.additional_insured_list?.length ? formData.additional_insured_list.length + 1 : 1) * 48;
+    (formData.additional_insured_list?.length ? formData.additional_insured_list.length + 1 : 1) * americoPremium;
   const monthlyHealthPremium = parseCurrency(formData.monthly_health_premium);
   const grandTotal = americoAmount + monthlyHealthPremium;
 
@@ -134,22 +126,38 @@ const Form = () => {
             currency={true}
           />
         </div>
+        <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl'>
+          <RadioInput
+            id='americo_coverage'
+            name='americo_coverage'
+            labelName='Americo Coverage:'
+            required={false}
+            rowOrCol='col'
+            defaultOption='$48'
+            options={[
+              { label: '$27 Monthly - $100k ADB', value: '$27' },
+              { label: '$35 Monthly - $150k ADB', value: '$35' },
+              { label: '$42 Monthly - $200k ADB', value: '$42' },
+              { label: '$48 Monthly - $250k ADB', value: '$48' },
+            ]}
+          />
+        </div>
         {formData.household_size && (
           <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl'>
             Household size: {formData.household_size}
           </div>
         )}
         {formData.additional_insured && (
-          <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl'>
-            {'Applying for coverage: '}
-            {applyingForCoverage}
-          </div>
-        )}
-        {formData.additional_insured && (
-          <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl'>
-            {'Americo amount: $'}
-            {americoAmount}
-          </div>
+          <>
+            <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl'>
+              {'Applying for coverage: '}
+              {applyingForCoverage}
+            </div>
+            <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl'>
+              {'Americo amount: $'}
+              {americoAmount}
+            </div>
+          </>
         )}
         {formData.additional_insured_list && formData.monthly_health_premium && (
           <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl'>
@@ -167,7 +175,7 @@ const Form = () => {
                     <li
                       key={carrier + i}
                       title={carrier}
-                      className='rounded-full px-2 py-1 font-medium text-base w-32 text-white fill-white'
+                      className='rounded-full px-3 font-medium text-base w-32 text-white fill-white'
                     >
                       <CarrierIcon icon={carrier as CarrierIconKey} twClasses={`max-w-xs text-black dark:text-white`} />
                     </li>
@@ -228,12 +236,17 @@ const Form = () => {
           <Divider />
           <>
             <h5 className='text-xl font-medium text-gray-900 dark:text-white'>Customer Questionare</h5>
-            {formData.age >= 18 && formData.age <= 19 && (
+            {formData.age !== 0 && (formData.age < 18 || formData.age > 59) && (
+              <div className='flex items-center justify-center text-black dark:text-white'>
+                <IneligibleIcon twClasses={'h-10'} />
+              </div>
+            )}
+            {(formData.age === 18 || formData.age === 19) && (
               <div className='flex items-center justify-center text-black dark:text-white'>
                 <MutualOfOmahaIcon twClasses={'h-10'} />
               </div>
             )}
-            {formData.age >= 20 && (
+            {formData.age >= 20 && formData.age <= 59 && (
               <div className='flex items-center justify-center text-black dark:text-white'>
                 <AmericoIcon twClasses={'h-10'} />
               </div>
@@ -298,19 +311,24 @@ const Form = () => {
                     key={`dependent_${i + 1}_info`}
                     className='flex relative flex-col gap-4 px-6 py-5 border rounded-xl border-black/10 dark:border-white/10 w-full h-full'
                   >
-                    {dependent.age >= 18 && dependent.age <= 19 && (
+                    {dependent.age !== 0 && (dependent.age < 18 || dependent.age > 59) && (
+                      <div className='flex items-center justify-center text-black dark:text-white'>
+                        <IneligibleIcon twClasses={'h-10'} />
+                      </div>
+                    )}
+                    {(dependent.age === 18 || dependent.age === 19) && (
                       <div className='flex items-center justify-center text-black dark:text-white'>
                         <MutualOfOmahaIcon twClasses={'h-10'} />
                       </div>
                     )}
-                    {dependent.age >= 20 && (
+                    {dependent.age >= 20 && dependent.age <= 59 && (
                       <div className='flex items-center justify-center text-black dark:text-white'>
                         <AmericoIcon twClasses={'h-10'} />
                       </div>
                     )}
                     <TextInput
                       labelName={`Dependent ${i + 1} Full Name`}
-                      name='full_name'
+                      name={'full_name_' + (i + 1)}
                       id={'full_name_' + (i + 1)}
                       placeholder='e.g. Jane Doe'
                       type='text'
@@ -318,7 +336,7 @@ const Form = () => {
                     />
                     <TextInput
                       labelName={`Dependent ${i + 1} Relationship`}
-                      name='relationship'
+                      name={'relationship_' + (i + 1)}
                       id={'relationship_' + (i + 1)}
                       placeholder='e.g. Son, Daughter, Husband, Wife'
                       type='text'
@@ -326,14 +344,14 @@ const Form = () => {
                     />
                     <DateInput
                       labelName={`Dependent ${i + 1} Date of Birth`}
-                      name='date_of_birth'
+                      name={'date_of_birth_' + (i + 1)}
                       id={'date_of_birth_' + (i + 1)}
                       additional={true}
                     />
                     <TextInput
                       labelName={`Dependent ${i + 1} Social Security Number`}
-                      name='ssn'
-                      id={'ssn_' + i}
+                      name={'ssn_' + (i + 1)}
+                      id={'ssn_' + (i + 1)}
                       placeholder='e.g. 123-45-6789'
                       type='text'
                       pattern='^\d{3}-\d{2}-\d{4}$'

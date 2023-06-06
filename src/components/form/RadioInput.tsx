@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useFormData } from '../contexts/FormContext';
 import tw from 'tailwind-styled-components';
-import type { RadioInputProps } from '../../types/formData';
+import type { RadioInputProps, FormDataType } from '../../types/formData';
 
 const RadioInput: React.FC<RadioInputProps> = ({
   labelName,
@@ -11,8 +11,14 @@ const RadioInput: React.FC<RadioInputProps> = ({
   required = true,
   rowOrCol = 'row',
   value,
+  defaultOption,
 }) => {
   const { formData, setFormData } = useFormData();
+  useEffect(() => {
+    if (defaultOption && !formData[name as keyof FormDataType]) {
+      setFormData({ ...formData, [name]: defaultOption });
+    }
+  }, [defaultOption, formData, name, setFormData]);
   return (
     <div className='flex flex-col'>
       <div>
@@ -31,7 +37,7 @@ const RadioInput: React.FC<RadioInputProps> = ({
               name={name}
               value={option.value.toString()}
               required={required}
-              checked={option.value.toString() === formData[name as keyof typeof formData]}
+              checked={option.value.toString() === formData[name as keyof FormDataType]}
               onChange={(e) => setFormData({ ...formData, [name]: e.target.value })}
               className='rounded-full w-4 h-4 border-gray-300 dark:bg-gray-700 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-500 dark:focus:border-blue-500'
             />

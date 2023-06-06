@@ -43,6 +43,7 @@ export type FormDataType = {
   cigna_dental: string;
   americo_death_benefit: string;
   monthly_health_premium: string;
+  americo_coverage: string;
 };
 
 export type InsuredList = {
@@ -85,6 +86,7 @@ export type RadioInputProps = {
   required?: boolean;
   rowOrCol?: string;
   value?: string;
+  defaultOption?: string;
 };
 
 export type TextAreaProps = {

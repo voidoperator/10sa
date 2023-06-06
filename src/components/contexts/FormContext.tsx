@@ -46,6 +46,7 @@ const initialFormData: FormDataType = {
   cigna_dental: '',
   americo_death_benefit: '',
   monthly_health_premium: '',
+  americo_coverage: '',
 };
 
 interface FormContextData {
