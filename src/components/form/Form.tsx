@@ -16,9 +16,10 @@ import { IneligibleIcon } from '../icons/IneligebleIcon';
 
 // add API integration under zipcode where correct county is returned. example: 77493 => harris county
 // https://www.unitedstateszipcodes.org/
+// 10sa colors: purp = #351f39 || gold = #bda472
 
 const Divider = tw.div`
-  h-[1px] w-full bg-black/75 dark:bg-white/75 my-0 sm:my-10 hidden sm:block
+  h-[1px] w-full bg-[#bda472]/75 my-0 sm:my-10 hidden sm:block
 `;
 
 const initialDependentState = {
@@ -106,7 +107,7 @@ const Form = () => {
   if (isLoading)
     return (
       <div className='flex items-center justify-center min-h-screen py-20'>
-        <div className='flex w-full max-w-4xl p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700 items-center justify-center'>
+        <div className='flex w-full max-w-4xl p-4 border rounded-lg shadow sm:p-6 md:p-8 bg-[#351f39] border-gray-700 items-center justify-center'>
           <div className='text-xl'>Loading...</div>
         </div>
       </div>
@@ -114,8 +115,8 @@ const Form = () => {
 
   return (
     <div className='flex items-center justify-center min-h-screen py-20'>
-      <div className='fixed top-0 right-0 z-50 w-1/4 h-screen bg-white dark:bg-gray-800 p-8 flex flex-col gap-4 border-l dark:border-white/50 border-black/50'>
-        <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl'>
+      <div className='fixed top-0 right-0 z-50 w-1/4 h-screen bg-[#351f39] p-8 flex flex-col gap-4 border-l border-[#bda472]/30'>
+        <div className='border border-[#bda472]/40 p-4 rounded-xl shadow-xl'>
           <TextInput
             id='monthly_health_premium'
             name='monthly_health_premium'
@@ -126,7 +127,7 @@ const Form = () => {
             currency={true}
           />
         </div>
-        <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl'>
+        <div className='border border-[#bda472]/40 p-4 rounded-xl shadow-xl'>
           <RadioInput
             id='americo_coverage'
             name='americo_coverage'
@@ -143,7 +144,7 @@ const Form = () => {
           />
         </div>
         {formData.household_size && (
-          <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl'>
+          <div className='border border-[#bda472]/40 p-4 rounded-xl shadow-xl'>
             Household size: {formData.household_size}
           </div>
         )}
@@ -185,7 +186,7 @@ const Form = () => {
           </div>
         )}
       </div>
-      <div className='mr-64 w-full max-w-xl p-4 bg-white dark:bg-gray-800 border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:border-gray-700'>
+      <div className='mr-64 w-full max-w-xl p-4 bg-[#351f39] border border-[#bda472]/25 rounded-lg shadow sm:p-6 md:p-8'>
         <form className='space-y-6' autoComplete='off' autoCapitalize='on'>
           <>
             <h5 className='text-xl font-medium text-gray-900 dark:text-white'>Customer Details</h5>
@@ -395,10 +396,10 @@ const Form = () => {
                     <button
                       key={`dependent_${i + 1}_button`}
                       type='button'
-                      className='w-6 absolute top-2 right-2  opacity-70 hover:opacity-100 transition-all'
+                      className='w-6 absolute top-2 right-2 opacity-70 hover:opacity-100 transition-all'
                       onClick={() => removeDependent(i)}
                     >
-                      <CloseIcon twClasses='text-black fill-black dark:text-white dark:fill-white' />
+                      <CloseIcon twClasses='text-white fill-white' />
                     </button>
                   </div>
                 );
@@ -409,7 +410,7 @@ const Form = () => {
                   disabled={handleHouseholdCheck()}
                   type='button'
                   onClick={addDependent}
-                  className='mx-6 w-1/2 transition-all text-white disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:cursor-not-allowed bg-blue-700 shadow-xl hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
+                  className='bg-[#bda472]/60 hover:bg-[#7e6e4c] mx-6 w-1/2 transition-all text-white disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:cursor-not-allowed shadow-xl focus:ring-4 focus:outline-none font-medium rounded-full text-sm py-2.5 text-center focus:ring-blue-800'
                 >
                   Add More Dependents
                 </button>
@@ -765,7 +766,7 @@ const Form = () => {
           <Divider />
           <button
             type='submit'
-            className='w-full transition-all text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
+            className='hover:bg-[#7e6e4c] bg-[#bda472]/60 w-full transition-all text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:focus:ring-blue-800'
           >
             Submit
           </button>
