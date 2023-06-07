@@ -7,9 +7,9 @@ const TextAreaInput: React.FC<TextAreaProps> = ({ labelName, placeholder, name, 
   const { formData, setFormData } = useFormData();
   return (
     <div className='shadow-lg'>
-      <label htmlFor={name} className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+      <label htmlFor={name} className='block mb-2 text-sm font-medium text-white'>
         {labelName}
-        {required && <span className='ml-1 after:content-["*"] after:text-gray-900 after:dark:text-gray-300' />}
+        {required && <span className='ml-1 after:content-["*"] after:text-yellow-300/90' />}
       </label>
       <textarea
         id={name}
@@ -18,7 +18,7 @@ const TextAreaInput: React.FC<TextAreaProps> = ({ labelName, placeholder, name, 
         placeholder={placeholder}
         required={required}
         onChange={(e) => setFormData({ ...formData, [name]: e.target.value })}
-        className='focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-500 dark:focus:border-blue-500 block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white'
+        className='focus:ring-10sa-gold focus:border-10sa-gold block p-2.5 w-full text-sm rounded-lg border bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white'
         autoComplete='no'
       />
     </div>

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
-import type { FormDataType, TextInputProps } from '../../types/formData';
+import type { TextInputProps } from '../../types/formData';
 
 const TextInput: React.FC<TextInputProps> = ({
   id,
@@ -20,9 +20,21 @@ const TextInput: React.FC<TextInputProps> = ({
   height = false,
   weight = false,
   additional = false,
+  city = false,
+  cityValue,
 }) => {
   const [value, setValue] = useState('');
   const { formData, setFormData } = useFormData();
+
+  useEffect(() => {
+    if (city && cityValue) {
+      setValue(cityValue);
+    }
+  }, [city, cityValue]);
+
+  useEffect(() => {
+    if (city && cityValue) setFormData({ ...formData, city: value });
+  }, [value]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let value = event.target.value;
@@ -45,18 +57,8 @@ const TextInput: React.FC<TextInputProps> = ({
     }
 
     if (zip_code) {
-      value = value.replace(/[^0-9-]/g, '');
-      let parts = value.split('-');
-      parts[0] = parts[0].substring(0, 5);
-      if (parts[1]) {
-        parts[1] = parts[1].substring(0, 4);
-      }
-      value = parts.join('-');
-      const match = value.match(/^(\d{0,5})(-\d{0,4})?$/);
-      if (match) {
-        value = `${match[1] ? match[1] : ''}${match[2] ? match[2] : ''}`;
-        value = value.trim();
-      }
+      value = value.replace(/\D/g, ''); // allow only digits
+      value = value.substring(0, 5); // allow only 5 digits
     }
 
     if (routingNumber) {
@@ -158,9 +160,9 @@ const TextInput: React.FC<TextInputProps> = ({
 
   return (
     <div className='shadow-lg'>
-      <label htmlFor={name} className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+      <label htmlFor={name} className='block mb-2 text-sm font-medium text-white'>
         {labelName}
-        {required && <span className='ml-1 after:content-["*"] after:text-gray-900 after:dark:text-gray-300' />}
+        {required && <span className='ml-1 after:content-["*"] after:text-yellow-300/90' />}
       </label>
       <input
         id={id}
@@ -169,7 +171,7 @@ const TextInput: React.FC<TextInputProps> = ({
         name={name}
         placeholder={placeholder}
         required={required}
-        className='focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-500 dark:focus:border-blue-500 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white'
+        className='focus:ring-10sa-gold focus:border-10sa-gold border text-sm rounded-lg block w-full p-2.5 bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white'
         onChange={handleChange}
         value={value}
         autoComplete='no'

@@ -28,11 +28,11 @@ const config: GatsbyConfig = {
     {
       resolve: 'gatsby-plugin-manifest',
       options: {
-        name: 'void(0)',
-        short_name: 'void(0)',
+        name: '10 Steps Ahead',
+        short_name: '10SA',
         start_url: '/',
-        background_color: '#2B282E',
-        icon: 'src/images/vz-icon.png',
+        background_color: '#0f0f0f',
+        icon: 'src/images/10sa-icon.png',
       },
     },
     {

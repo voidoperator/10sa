@@ -64,12 +64,12 @@ const DateInput: React.FC<DateInputProps> = ({
   return (
     <div>
       <div className='inline-flex justify-between w-full'>
-        <label htmlFor={id} className='inline-flex items-center mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+        <label htmlFor={id} className='inline-flex items-center mb-2 text-sm font-medium text-white'>
           {labelName}
-          {required && <span className='ml-1 after:content-["*"] after:text-gray-900 after:dark:text-gray-300' />}
+          {required && <span className='ml-1 after:content-["*"] after:text-gray-900' />}
         </label>
         {value.startDate && userAge !== null && showAge && (
-          <p className='text-sm text-gray-900 dark:text-white font-bold'>Age: {userAge}</p>
+          <p className='text-sm text-white font-bold'>Age: {userAge}</p>
         )}
       </div>
       <Datepicker
@@ -84,7 +84,7 @@ const DateInput: React.FC<DateInputProps> = ({
         useRange={false}
         placeholder={'Enter or select a date: MM/DD/YYYY'}
         inputClassName={
-          'w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white'
+          'w-full border text-sm rounded-lg bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white'
         }
       />
     </div>

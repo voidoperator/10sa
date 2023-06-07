@@ -3,6 +3,7 @@ import { FormProvider } from '../components/contexts/FormContext';
 import { graphql, useStaticQuery } from 'gatsby';
 import Seo from '../components/Seo';
 import Form from '../components/form/Form';
+import { TenStepsAheadLogo } from '../components/icons/TenStepsAheadLogo';
 
 const IndexPage = () => {
   // const contentfulData = useStaticQuery(
@@ -23,6 +24,9 @@ const IndexPage = () => {
   return (
     <FormProvider>
       <Seo subtitle='10 Steps Ahead - Lead' />
+      <div className='flex items-center justify-center pt-10 mr-64'>
+        <TenStepsAheadLogo twClasses='w-full 4xl:max-w-4xl 3xl:max-w-3xl 2xl:max-w-3xl xl:max-w-2xl lg:max-w-xl' />
+      </div>
       <Form />
     </FormProvider>
   );

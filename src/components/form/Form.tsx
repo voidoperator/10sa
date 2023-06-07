@@ -10,15 +10,17 @@ import { useFormData } from '../contexts/FormContext';
 import { unitedStates, preferredCarriers, toTitleCase } from '../../utility/utility';
 import { MutualOfOmahaIcon } from '../icons/MutualOfOmahaIcon';
 import { AmericoIcon } from '../icons/AmericoIcon';
+import { HealthSherpaSymbol, AmericoSymbol, MutualOfOmahaSymbol } from '../icons/NavIcons';
 import { CloseIcon } from '../icons/CloseIcon';
 import { CarrierIcon, CarrierIconKey } from '../icons/CarrierIcons';
 import { IneligibleIcon } from '../icons/IneligebleIcon';
+import { getZipcodeData, ZipcodeDataType } from '../../utility/getZipcodeData';
 
-// add API integration under zipcode where correct county is returned. example: 77493 => harris county
-// https://www.unitedstateszipcodes.org/
+// only calculate americo grand total's if eligeble
+// add nav icon to https://www3.mutualofomaha.com/mobile-quotes/#/gad
 
 const Divider = tw.div`
-  h-[1px] w-full bg-black/75 dark:bg-white/75 my-0 sm:my-10 hidden sm:block
+  h-[1px] w-full bg-10sa-gold/75 my-0 sm:my-10 hidden sm:block
 `;
 
 const initialDependentState = {
@@ -33,7 +35,10 @@ const initialDependentState = {
 const Form = () => {
   const { formData, setFormData } = useFormData();
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isAmerico, setIsAmerico] = useState<boolean>(true);
   const [carriers, setCarriers] = useState<string[]>([]);
+  const [zipcodeData, setZipcodeData] = useState<ZipcodeDataType | undefined>(undefined);
+  const americoToggleRef = useRef(null);
 
   useEffect(() => {
     setIsLoading(false);
@@ -66,6 +71,22 @@ const Form = () => {
     }
   }, [formData.state]);
 
+  useEffect(() => {
+    const { zip_code } = formData;
+    if (!zip_code || zip_code.length < 5) return;
+    if (zip_code && zip_code.length === 5) {
+      const zipcodeLookupData = getZipcodeData(zip_code);
+      if (zipcodeLookupData) {
+        setZipcodeData(zipcodeLookupData);
+        setFormData({
+          ...formData,
+          county: zipcodeLookupData.county,
+          state: zipcodeLookupData.state,
+        });
+      }
+    }
+  }, [formData.zip_code]);
+
   const handleHouseholdCheck = () => {
     const { household_size } = formData;
     if (Number(household_size) <= (formData.additional_insured_list?.length ?? 0) + 1) {
@@ -95,27 +116,77 @@ const Form = () => {
     return parseFloat((input || '0').replace(/[^\d\.]/g, ''));
   }
 
+  const eligibleAdditionalInsuredList =
+    formData.additional_insured_list?.filter((member) => member.age >= 20 && member.age <= 59) || [];
+
   const applyingForCoverage =
     1 + (formData.additional_insured_list?.length ? formData.additional_insured_list.length : 0);
+
+  const eligibleCount = (formData.age >= 20 && formData.age <= 59 ? 1 : 0) + eligibleAdditionalInsuredList.length;
+
   const americoPremium = parseCurrency(formData.americo_coverage) || 48;
-  const americoAmount =
-    (formData.additional_insured_list?.length ? formData.additional_insured_list.length + 1 : 1) * americoPremium;
+  const americoAmount = eligibleCount * americoPremium;
+
   const monthlyHealthPremium = parseCurrency(formData.monthly_health_premium);
   const grandTotal = americoAmount + monthlyHealthPremium;
+
+  const toggleLabel = isAmerico ? 'Americo' : 'Mutual of Omaha';
+
+  const handleToggle = () => {
+    setIsAmerico((prev) => !prev);
+    setFormData({
+      ...formData,
+      americo_coverage: '$0',
+    });
+  };
 
   if (isLoading)
     return (
       <div className='flex items-center justify-center min-h-screen py-20'>
-        <div className='flex w-full max-w-4xl p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700 items-center justify-center'>
+        <div className='flex w-full max-w-4xl p-4 border rounded-lg shadow sm:p-6 md:p-8 bg-10sa-purple border-10sa-gold/40 items-center justify-center'>
           <div className='text-xl'>Loading...</div>
         </div>
       </div>
     );
 
   return (
-    <div className='flex items-center justify-center min-h-screen py-20'>
-      <div className='fixed top-0 right-0 z-50 w-1/4 h-screen bg-white dark:bg-gray-800 p-8 flex flex-col gap-4 border-l dark:border-white/50 border-black/50'>
-        <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl'>
+    <main className='flex items-center justify-center min-h-screen py-20'>
+      <nav className='flex flex-col fixed top-8 left-8 gap-8 shadow-xl'>
+        <a
+          className='bg-10sa-gold hover:blur-sm transition-all rounded-full p-2'
+          href='https://www.healthsherpa.com/'
+          target='_blank'
+          title='HealthSherpa'
+        >
+          <HealthSherpaSymbol twClasses='w-10' />
+        </a>
+        <a
+          className='bg-10sa-gold hover:blur-sm transition-all rounded-full p-2'
+          href='https://account.americoagent.com/'
+          target='_blank'
+          title='Americo - Submit'
+        >
+          <AmericoSymbol twClasses='w-10' />
+        </a>
+        <a
+          className='bg-10sa-gold hover:blur-sm transition-all rounded-full p-2'
+          href='https://producer.mutualofomaha.com/enterprise/portal/!ut/p/z1/hY7BDoIwEES_hQNXdiMWibdGE1HxLO7FgKkFUygplf6-jXoxEZ3b7ryZDBAUQF05NrK0je5K5e8TJefVhmfzRY6YstkaOe6zlLE4xgOD4z-AvI0T4ujz9ESmGrbJG_jRsQOSSlevubyr4lQCGXEVRpjobvy7trYfliGG6JyLpNZSieii2xC_RWo9WCg-SejbAm9MjTkPgge1lLo5/dz/d5/L2dBISEvZ0FBIS9nQSEh/'
+          target='_blank'
+          title='Mutual Of Omaha - Submit'
+        >
+          <MutualOfOmahaSymbol twClasses='w-10 fill-mutual' />
+        </a>
+        <a
+          className='bg-10sa-gold hover:blur-sm transition-all rounded-full p-2'
+          href='https://www3.mutualofomaha.com/mobile-quotes/#/gad'
+          target='_blank'
+          title='Mutual Of Omaha - Quote'
+        >
+          <MutualOfOmahaSymbol twClasses='w-10 fill-red-900' />
+        </a>
+      </nav>
+      <section className='fixed top-0 right-0 z-50 w-1/4 h-screen bg-10sa-purple p-8 flex flex-col gap-4 border-l border-10sa-gold/30'>
+        <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
           <TextInput
             id='monthly_health_premium'
             name='monthly_health_premium'
@@ -126,47 +197,62 @@ const Form = () => {
             currency={true}
           />
         </div>
-        <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl'>
-          <RadioInput
-            id='americo_coverage'
-            name='americo_coverage'
-            labelName='Americo Coverage:'
-            required={false}
-            rowOrCol='col'
-            defaultOption='$48'
-            options={[
-              { label: '$27 Monthly - $100k ADB', value: '$27' },
-              { label: '$35 Monthly - $150k ADB', value: '$35' },
-              { label: '$42 Monthly - $200k ADB', value: '$42' },
-              { label: '$48 Monthly - $250k ADB', value: '$48' },
-            ]}
-          />
+        <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+          <label className='relative inline-flex items-center cursor-pointer'>
+            <input type='checkbox' className='sr-only peer' checked={isAmerico} onChange={handleToggle} />
+            <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600" />
+            <span className='ml-3 text-sm font-medium text-gray-900 dark:text-gray-300'>{toggleLabel}</span>
+          </label>
         </div>
+        {isAmerico && (
+          <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+            <RadioInput
+              id='americo_coverage'
+              name='americo_coverage'
+              labelName='Americo Coverage:'
+              required={false}
+              rowOrCol='col'
+              defaultOption='$48'
+              options={[
+                { label: '$27 Monthly - $100k ADB', value: '$27' },
+                { label: '$35 Monthly - $150k ADB', value: '$35' },
+                { label: '$42 Monthly - $200k ADB', value: '$42' },
+                { label: '$48 Monthly - $250k ADB', value: '$48' },
+              ]}
+            />
+          </div>
+        )}
         {formData.household_size && (
-          <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl'>
+          <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
             Household size: {formData.household_size}
           </div>
         )}
-        {formData.additional_insured && (
+        {isAmerico && eligibleCount > 0 && (
+          <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+            {'Americo sales: '}
+            {eligibleCount.toString()}
+          </div>
+        )}
+        {isAmerico && formData.additional_insured && formData.additional_insured && (
           <>
-            <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl'>
+            <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
               {'Applying for coverage: '}
               {applyingForCoverage}
             </div>
-            <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl'>
+            <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
               {'Americo amount: $'}
               {americoAmount}
             </div>
           </>
         )}
-        {formData.additional_insured_list && formData.monthly_health_premium && (
-          <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl'>
+        {isAmerico && eligibleCount > 0 && formData.monthly_health_premium && (
+          <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
             {'Monthly Grand Total: $'}
-            {grandTotal.toFixed(2)}
+            {grandTotal.toFixed(2).toString()}
           </div>
         )}
         {formData.state && (
-          <div className='border border-gray-700/50 dark:border-gray-500/50 p-4 rounded-xl shadow-xl w-full'>
+          <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl w-full'>
             <div>Preferred carriers for {toTitleCase(formData.state)}:</div>
             <ul className='flex flex-wrap gap-2 justify-center pt-3'>
               {carriers &&
@@ -177,18 +263,22 @@ const Form = () => {
                       title={carrier}
                       className='rounded-full px-3 font-medium text-base w-32 text-white fill-white'
                     >
-                      <CarrierIcon icon={carrier as CarrierIconKey} twClasses={`max-w-xs text-black dark:text-white`} />
+                      <CarrierIcon icon={carrier as CarrierIconKey} twClasses={`max-w-xs text-white`} />
                     </li>
                   );
                 })}
             </ul>
           </div>
         )}
-      </div>
-      <div className='mr-64 w-full max-w-xl p-4 bg-white dark:bg-gray-800 border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:border-gray-700'>
+      </section>
+      <section className='4xl:max-w-4xl 3xl:max-w-3xl xl:max-w-xl lg:max-w-lg mr-64 w-full p-4 bg-10sa-purple border border-10sa-gold/25 rounded-lg shadow sm:p-6 md:p-8'>
+        <h1 className='text-2xl font-medium text-white text-center'>Lead Form</h1>
+        {/* <Divider />
+        {JSON.stringify(formData)} */}
+        <Divider />
         <form className='space-y-6' autoComplete='off' autoCapitalize='on'>
           <>
-            <h5 className='text-xl font-medium text-gray-900 dark:text-white'>Customer Details</h5>
+            <h5 className='text-xl font-medium text-white'>Customer Details</h5>
             <TextInput labelName='First Name' name='first_name' id='first_name' placeholder='e.g. John' type='text' />
             <TextInput labelName='Last Name' name='last_name' id='last_name' placeholder='e.g. Doe' type='text' />
             <RadioInput
@@ -209,6 +299,34 @@ const Form = () => {
                 { label: 'No', value: 'no' },
               ]}
             />
+            <TextInput
+              labelName='Zip Code'
+              name='zip_code'
+              id='zip_code'
+              placeholder='e.g. 12345'
+              type='text'
+              pattern='^\d{5}$'
+              zip_code={true}
+            />
+            {zipcodeData && !zipcodeData.decommissioned && zipcodeData.type === 'STANDARD' && (
+              <DetailConfirmation labelName='County:' detail={zipcodeData.county} id='county' />
+            )}
+            {zipcodeData && zipcodeData.decommissioned && (
+              <DetailConfirmation
+                labelName='County:'
+                detail={`${zipcodeData.county} - (Decommissioned)`}
+                id='county'
+                error={true}
+              />
+            )}
+            {zipcodeData && zipcodeData.type === 'PO BOX' && (
+              <DetailConfirmation
+                labelName='County:'
+                detail={`${zipcodeData.county} - (P.O. Box)`}
+                id='county'
+                error={true}
+              />
+            )}
             <DropDownInput
               labelName='State'
               name='state'
@@ -217,13 +335,13 @@ const Form = () => {
               options={unitedStates}
             />
             <TextInput
-              labelName='Zip Code'
-              name='zip_code'
-              id='zip_code'
-              placeholder='e.g. 12345 or 12345-6789'
+              labelName='City'
+              name='city'
+              id='city'
+              placeholder='e.g. Miami'
               type='text'
-              pattern='^\d{5}(-\d{4})?$'
-              zip_code={true}
+              city={true}
+              cityValue={zipcodeData?.primary_city}
             />
             <TextAreaInput
               labelName='Why are they looking for coverage?'
@@ -235,19 +353,19 @@ const Form = () => {
           </>
           <Divider />
           <>
-            <h5 className='text-xl font-medium text-gray-900 dark:text-white'>Customer Questionare</h5>
+            <h5 className='text-xl font-medium text-white'>Customer Questionare</h5>
             {formData.age !== 0 && (formData.age < 18 || formData.age > 59) && (
-              <div className='flex items-center justify-center text-black dark:text-white'>
+              <div className='flex items-center justify-center text-white'>
                 <IneligibleIcon twClasses={'h-10'} />
               </div>
             )}
             {(formData.age === 18 || formData.age === 19) && (
-              <div className='flex items-center justify-center text-black dark:text-white'>
+              <div className='flex items-center justify-center text-white'>
                 <MutualOfOmahaIcon twClasses={'h-10'} />
               </div>
             )}
             {formData.age >= 20 && formData.age <= 59 && (
-              <div className='flex items-center justify-center text-black dark:text-white'>
+              <div className='flex items-center justify-center text-white'>
                 <AmericoIcon twClasses={'h-10'} />
               </div>
             )}
@@ -309,20 +427,20 @@ const Form = () => {
                 return (
                   <div
                     key={`dependent_${i + 1}_info`}
-                    className='flex relative flex-col gap-4 px-6 py-5 border rounded-xl border-black/10 dark:border-white/10 w-full h-full'
+                    className='flex relative flex-col gap-4 px-6 py-5 border rounded-xl border-white/10 w-full h-full'
                   >
                     {dependent.age !== 0 && (dependent.age < 18 || dependent.age > 59) && (
-                      <div className='flex items-center justify-center text-black dark:text-white'>
+                      <div className='flex items-center justify-center text-white'>
                         <IneligibleIcon twClasses={'h-10'} />
                       </div>
                     )}
                     {(dependent.age === 18 || dependent.age === 19) && (
-                      <div className='flex items-center justify-center text-black dark:text-white'>
+                      <div className='flex items-center justify-center text-white'>
                         <MutualOfOmahaIcon twClasses={'h-10'} />
                       </div>
                     )}
                     {dependent.age >= 20 && dependent.age <= 59 && (
-                      <div className='flex items-center justify-center text-black dark:text-white'>
+                      <div className='flex items-center justify-center text-white'>
                         <AmericoIcon twClasses={'h-10'} />
                       </div>
                     )}
@@ -395,10 +513,10 @@ const Form = () => {
                     <button
                       key={`dependent_${i + 1}_button`}
                       type='button'
-                      className='w-6 absolute top-2 right-2  opacity-70 hover:opacity-100 transition-all'
+                      className='w-6 absolute top-2 right-2 opacity-70 hover:opacity-100 transition-all'
                       onClick={() => removeDependent(i)}
                     >
-                      <CloseIcon twClasses='text-black fill-black dark:text-white dark:fill-white' />
+                      <CloseIcon twClasses='text-white fill-white' />
                     </button>
                   </div>
                 );
@@ -409,7 +527,7 @@ const Form = () => {
                   disabled={handleHouseholdCheck()}
                   type='button'
                   onClick={addDependent}
-                  className='mx-6 w-1/2 transition-all text-white disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:cursor-not-allowed bg-blue-700 shadow-xl hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
+                  className='bg-10sa-gold/60 hover:bg-10sa-gold mx-6 w-1/2 transition-all text-white disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:cursor-not-allowed shadow-xl focus:ring-4 focus:outline-none font-medium rounded-full text-sm py-2.5 text-center focus:ring-blue-800'
                 >
                   Add More Dependents
                 </button>
@@ -497,7 +615,7 @@ const Form = () => {
           </>
           <Divider />
           <>
-            <h5 className='text-xl font-medium text-gray-900 dark:text-white'>Quote Breakdown</h5>
+            <h5 className='text-xl font-medium text-white'>Quote Breakdown</h5>
             <TextInput
               labelName='Plan Name'
               name='plan_name'
@@ -562,7 +680,7 @@ const Form = () => {
           </>
           <Divider />
           <>
-            <h5 className='text-xl font-medium text-gray-900 dark:text-white'>Closure</h5>
+            <h5 className='text-xl font-medium text-white'>Closure</h5>
             <TextInput
               labelName='Phone Number'
               name='phone_number'
@@ -590,6 +708,7 @@ const Form = () => {
                 detail={'First or Last Name Missing'}
                 labelName='First or Last Name Missing'
                 id='full_name_missing'
+                name='first_name'
                 error={true}
               />
             )}
@@ -602,17 +721,33 @@ const Form = () => {
               pattern='^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})?$'
             />
             <TextInput
-              labelName='Street Address (no P.O. boxes)'
+              labelName='Street Address (no P.O. box)'
               name='street_address'
               id='street_address'
               placeholder='e.g. 12345 NW 1st St, Miami, FL, 33186'
               type='text'
             />
-            <TextInput labelName='City' name='city' id='city' placeholder='e.g. Miami' type='text' />
+            {formData.city ? (
+              <DetailConfirmation detail={formData.city} labelName='Confirm City' id='confirm_city' />
+            ) : (
+              <DetailConfirmation
+                detail='City Missing'
+                labelName='City Missing'
+                id='city_missing'
+                name='city'
+                error={true}
+              />
+            )}
             {formData.state ? (
               <DetailConfirmation detail={toTitleCase(formData.state)} labelName='Confirm State' id='confirm_state' />
             ) : (
-              <DetailConfirmation detail={'State Missing'} labelName='State Missing' id='state_missing' error={true} />
+              <DetailConfirmation
+                detail={'State Missing'}
+                labelName='State Missing'
+                id='state_missing'
+                name='state'
+                error={true}
+              />
             )}
             {formData.zip_code ? (
               <DetailConfirmation detail={formData.zip_code} labelName='Confirm Zip Code' id='confirm_zip_code' />
@@ -621,6 +756,7 @@ const Form = () => {
                 detail='Zip Code Missing'
                 labelName='Zip Code Missing'
                 id='zip_code_missing'
+                name='zip_code'
                 error={true}
               />
             )}
@@ -654,7 +790,7 @@ const Form = () => {
           </>
           <Divider />
           <>
-            <h5 className='text-xl font-medium text-gray-900 dark:text-white'>Disclosure</h5>
+            <h5 className='text-xl font-medium text-white'>Disclosure</h5>
             <TextInput
               labelName='Monthly Total'
               name='monthly_total'
@@ -695,7 +831,7 @@ const Form = () => {
           </>
           <Divider />
           <>
-            <h5 className='text-xl font-medium text-gray-900 dark:text-white'>Totals</h5>
+            <h5 className='text-xl font-medium text-white'>Totals</h5>
             <TextInput
               labelName='Total Pre-Subsidy'
               name='total_pre_subsidy'
@@ -726,7 +862,7 @@ const Form = () => {
           </>
           <Divider />
           <>
-            <h5 className='text-xl font-medium text-gray-900 dark:text-white'>Payment Method</h5>
+            <h5 className='text-xl font-medium text-white'>Payment Method</h5>
             <RadioInput
               labelName='Checking or savings?'
               name='checking_or_savings'
@@ -765,13 +901,13 @@ const Form = () => {
           <Divider />
           <button
             type='submit'
-            className='w-full transition-all text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
+            className='hover:bg-10sa-gold bg-10sa-gold/60 w-full transition-all text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center focus:ring-blue-800'
           >
             Submit
           </button>
         </form>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 
