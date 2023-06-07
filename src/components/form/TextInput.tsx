@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
-import type { FormDataType, TextInputProps } from '../../types/formData';
+import type { TextInputProps } from '../../types/formData';
 
 const TextInput: React.FC<TextInputProps> = ({
   id,
@@ -26,6 +26,16 @@ const TextInput: React.FC<TextInputProps> = ({
   const [value, setValue] = useState('');
   const { formData, setFormData } = useFormData();
 
+  useEffect(() => {
+    if (city && cityValue) {
+      setValue(cityValue);
+    }
+  }, [city, cityValue]);
+
+  useEffect(() => {
+    if (city && cityValue) setFormData({ ...formData, city: value });
+  }, [value]);
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let value = event.target.value;
 
@@ -47,18 +57,8 @@ const TextInput: React.FC<TextInputProps> = ({
     }
 
     if (zip_code) {
-      value = value.replace(/[^0-9-]/g, '');
-      let parts = value.split('-');
-      parts[0] = parts[0].substring(0, 5);
-      if (parts[1]) {
-        parts[1] = parts[1].substring(0, 4);
-      }
-      value = parts.join('-');
-      const match = value.match(/^(\d{0,5})(-\d{0,4})?$/);
-      if (match) {
-        value = `${match[1] ? match[1] : ''}${match[2] ? match[2] : ''}`;
-        value = value.trim();
-      }
+      value = value.replace(/\D/g, ''); // allow only digits
+      value = value.substring(0, 5); // allow only 5 digits
     }
 
     if (routingNumber) {
@@ -173,7 +173,7 @@ const TextInput: React.FC<TextInputProps> = ({
         required={required}
         className='focus:ring-10sa-gold focus:border-10sa-gold border text-sm rounded-lg block w-full p-2.5 bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white'
         onChange={handleChange}
-        value={city ? cityValue : value}
+        value={value}
         autoComplete='no'
       />
     </div>

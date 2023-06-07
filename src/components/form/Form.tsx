@@ -10,6 +10,7 @@ import { useFormData } from '../contexts/FormContext';
 import { unitedStates, preferredCarriers, toTitleCase } from '../../utility/utility';
 import { MutualOfOmahaIcon } from '../icons/MutualOfOmahaIcon';
 import { AmericoIcon } from '../icons/AmericoIcon';
+import { HealthSherpaSymbol, AmericoSymbol, MutualOfOmahaSymbol } from '../icons/NavIcons';
 import { CloseIcon } from '../icons/CloseIcon';
 import { CarrierIcon, CarrierIconKey } from '../icons/CarrierIcons';
 import { IneligibleIcon } from '../icons/IneligebleIcon';
@@ -72,18 +73,16 @@ const Form = () => {
     if (!zip_code || zip_code.length < 5) return;
     if (zip_code && zip_code.length === 5) {
       const zipcodeLookupData = getZipcodeData(zip_code);
-      setZipcodeData(zipcodeLookupData);
-      setFormData({
-        ...formData,
-        county: zipcodeLookupData.county,
-        state: zipcodeLookupData.state,
-      });
+      if (zipcodeLookupData) {
+        setZipcodeData(zipcodeLookupData);
+        setFormData({
+          ...formData,
+          county: zipcodeLookupData.county,
+          state: zipcodeLookupData.state,
+        });
+      }
     }
   }, [formData.zip_code]);
-
-  useEffect(() => {
-    console.log(zipcodeData);
-  }, [zipcodeData]);
 
   const handleHouseholdCheck = () => {
     const { household_size } = formData;
@@ -133,6 +132,29 @@ const Form = () => {
 
   return (
     <main className='flex items-center justify-center min-h-screen py-20'>
+      <div className='flex flex-col fixed top-8 left-8 gap-8 shadow-xl'>
+        <a
+          className='bg-10sa-gold hover:blur-sm transition-all rounded-full p-2'
+          href='https://www.healthsherpa.com/'
+          target='_blank'
+        >
+          <HealthSherpaSymbol twClasses='w-10' />
+        </a>
+        <a
+          className='bg-10sa-gold hover:blur-sm transition-all rounded-full p-2'
+          href='https://quote.americo.com/'
+          target='_blank'
+        >
+          <AmericoSymbol twClasses='w-10' />
+        </a>
+        <a
+          className='bg-10sa-gold hover:blur-sm transition-all rounded-full p-2'
+          href='https://quote.americo.com/'
+          target='_blank'
+        >
+          <MutualOfOmahaSymbol twClasses='w-10' />
+        </a>
+      </div>
       <section className='fixed top-0 right-0 z-50 w-1/4 h-screen bg-10sa-purple p-8 flex flex-col gap-4 border-l border-10sa-gold/30'>
         <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
           <TextInput
@@ -204,10 +226,10 @@ const Form = () => {
           </div>
         )}
       </section>
-      <section className='mr-64 w-full max-w-xl p-4 bg-10sa-purple border border-10sa-gold/25 rounded-lg shadow sm:p-6 md:p-8'>
+      <section className='4xl:max-w-4xl 3xl:max-w-3xl xl:max-w-xl lg:max-w-lg mr-64 w-full p-4 bg-10sa-purple border border-10sa-gold/25 rounded-lg shadow sm:p-6 md:p-8'>
         <h1 className='text-2xl font-medium text-white text-center'>Lead Form</h1>
-        <Divider />
-        {JSON.stringify(formData)}
+        {/* <Divider />
+        {JSON.stringify(formData)} */}
         <Divider />
         <form className='space-y-6' autoComplete='off' autoCapitalize='on'>
           <>
@@ -236,9 +258,9 @@ const Form = () => {
               labelName='Zip Code'
               name='zip_code'
               id='zip_code'
-              placeholder='e.g. 12345 or 12345-6789'
+              placeholder='e.g. 12345'
               type='text'
-              pattern='^\d{5}(-\d{4})?$'
+              pattern='^\d{5}$'
               zip_code={true}
             />
             {zipcodeData && !zipcodeData.decommissioned && zipcodeData.type === 'STANDARD' && (

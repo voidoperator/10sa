@@ -25,7 +25,7 @@ const IndexPage = () => {
     <FormProvider>
       <Seo subtitle='10 Steps Ahead - Lead' />
       <div className='flex items-center justify-center pt-10 mr-64'>
-        <TenStepsAheadLogo twClasses='w-full' />
+        <TenStepsAheadLogo twClasses='w-full 4xl:max-w-4xl 3xl:max-w-3xl 2xl:max-w-3xl xl:max-w-2xl lg:max-w-xl' />
       </div>
       <Form />
     </FormProvider>

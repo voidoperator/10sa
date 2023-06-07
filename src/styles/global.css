@@ -21,3 +21,23 @@ input[type='number']::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
+.mutual_of_omaha {
+  fill: #003a70;
+}
+
+.americo_1 {
+  fill: #0c233f;
+}
+
+.americo_2 {
+  fill: #e2383f;
+}
+
+.health_sherpa_1 {
+  fill: #0883c5;
+}
+
+.health_sherpa_2 {
+  fill: #1b4989;
+}
