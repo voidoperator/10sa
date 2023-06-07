@@ -2,8 +2,10 @@ export type FormDataType = {
   first_name: string;
   last_name: string;
   plan_type: string;
-  state: string;
   zip_code: string;
+  county: string;
+  state: string;
+  city: string;
   coverage_reason: string;
   date_of_birth: string;
   age: number;
@@ -76,6 +78,8 @@ export type TextInputProps = {
   height?: boolean;
   weight?: boolean;
   additional?: boolean;
+  city?: boolean;
+  cityValue?: string;
 };
 
 export type RadioInputProps = {
@@ -125,5 +129,6 @@ export type DetailConfirmationProps = {
   id: string;
   detail: string;
   labelName: string;
+  name?: string;
   error?: boolean;
 };

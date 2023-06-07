@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
 import type { DetailConfirmationProps } from '../../types/formData';
 
-const DetailConfirmation: React.FC<DetailConfirmationProps> = ({ id, detail, labelName, error = false }) => {
-  const textColor = error ? 'text-red-500 dark:text-red-500' : 'text-gray-900 dark:text-white';
+const DetailConfirmation: React.FC<DetailConfirmationProps> = ({ id, detail, labelName, name, error = false }) => {
+  const textColor = error ? 'text-red-500' : 'text-white';
   return (
     <div className='shadow-lg'>
-      <label className={`${textColor} block mb-2 text-sm font-medium`}>{labelName}</label>
+      <label className={`${textColor} block mb-2 text-sm font-medium`} htmlFor={error ? name : ''}>
+        {labelName}
+      </label>
       <span
         id={id}
-        className={`${textColor} focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-500 dark:focus:border-blue-500 border text-sm rounded-lg block w-full p-2.5 bg-[#503158] border-[#bda472]/40 placeholder-gray-400`}
+        className={`${textColor} focus:ring-10sa-gold focus:border-10sa-gold border text-sm rounded-lg block w-full p-2.5 bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400`}
       >
         {detail}
       </span>

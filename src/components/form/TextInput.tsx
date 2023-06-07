@@ -20,6 +20,8 @@ const TextInput: React.FC<TextInputProps> = ({
   height = false,
   weight = false,
   additional = false,
+  city = false,
+  cityValue,
 }) => {
   const [value, setValue] = useState('');
   const { formData, setFormData } = useFormData();
@@ -158,9 +160,9 @@ const TextInput: React.FC<TextInputProps> = ({
 
   return (
     <div className='shadow-lg'>
-      <label htmlFor={name} className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+      <label htmlFor={name} className='block mb-2 text-sm font-medium text-white'>
         {labelName}
-        {required && <span className='ml-1 after:content-["*"] after:text-gray-900 after:dark:text-gray-300' />}
+        {required && <span className='ml-1 after:content-["*"] after:text-yellow-300/90' />}
       </label>
       <input
         id={id}
@@ -169,9 +171,9 @@ const TextInput: React.FC<TextInputProps> = ({
         name={name}
         placeholder={placeholder}
         required={required}
-        className='focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-500 dark:focus:border-blue-500 border text-sm rounded-lg block w-full p-2.5 bg-[#503158] border-[#bda472]/40 placeholder-gray-400 text-white'
+        className='focus:ring-10sa-gold focus:border-10sa-gold border text-sm rounded-lg block w-full p-2.5 bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white'
         onChange={handleChange}
-        value={value}
+        value={city ? cityValue : value}
         autoComplete='no'
       />
     </div>

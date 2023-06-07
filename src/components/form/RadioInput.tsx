@@ -22,14 +22,14 @@ const RadioInput: React.FC<RadioInputProps> = ({
   return (
     <div className='flex flex-col'>
       <div>
-        <label id={id} className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+        <label id={id} className='block mb-2 text-sm font-medium text-white'>
           {labelName}
-          {required && <span className='ml-1 after:content-["*"] after:text-gray-900 after:dark:text-gray-300' />}
+          {required && <span className='ml-1 after:content-["*"] after:text-yellow-300/90' />}
         </label>
       </div>
       <div className={`flex ${rowOrCol === 'row' ? 'flex-row' : 'flex-col'} items-start rounded-full gap-3`}>
         {options.map((option, index) => (
-          <div key={index}>
+          <div key={index} className=''>
             <input
               key={`${name}_${index + 1}`}
               type='radio'
@@ -39,11 +39,11 @@ const RadioInput: React.FC<RadioInputProps> = ({
               required={required}
               checked={option.value.toString() === formData[name as keyof FormDataType]}
               onChange={(e) => setFormData({ ...formData, [name]: e.target.value })}
-              className='rounded-full w-4 h-4 border-gray-300 dark:bg-gray-700 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-500 dark:focus:border-blue-500'
+              className='cursor-pointer rounded-full w-4 h-4 bg-gray-700 border-10sa-gold/50 focus:ring-10sa-gold focus:border-10sa-gold checked:fill-red-500'
             />
             <label
               htmlFor={`${name}_${index + 1}`}
-              className='rounded-full ml-2 text-sm font-medium text-gray-900 dark:text-gray-300'
+              className='cursor-pointer rounded-full ml-2 text-sm font-medium text-gray-300'
             >
               {option.label}
             </label>
