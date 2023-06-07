@@ -16,7 +16,8 @@ import { CarrierIcon, CarrierIconKey } from '../icons/CarrierIcons';
 import { IneligibleIcon } from '../icons/IneligebleIcon';
 import { getZipcodeData, ZipcodeDataType } from '../../utility/getZipcodeData';
 
-// add API integration under zipcode where correct county is returned. example: 77493 => harris county
+// only calculate americo grand total's if eligeble
+// add nav icon to https://www3.mutualofomaha.com/mobile-quotes/#/gad
 
 const Divider = tw.div`
   h-[1px] w-full bg-10sa-gold/75 my-0 sm:my-10 hidden sm:block
@@ -34,8 +35,10 @@ const initialDependentState = {
 const Form = () => {
   const { formData, setFormData } = useFormData();
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isAmerico, setIsAmerico] = useState<boolean>(true);
   const [carriers, setCarriers] = useState<string[]>([]);
   const [zipcodeData, setZipcodeData] = useState<ZipcodeDataType | undefined>(undefined);
+  const americoToggleRef = useRef(null);
 
   useEffect(() => {
     setIsLoading(false);
@@ -113,13 +116,29 @@ const Form = () => {
     return parseFloat((input || '0').replace(/[^\d\.]/g, ''));
   }
 
+  const eligibleAdditionalInsuredList =
+    formData.additional_insured_list?.filter((member) => member.age >= 20 && member.age <= 59) || [];
+
   const applyingForCoverage =
     1 + (formData.additional_insured_list?.length ? formData.additional_insured_list.length : 0);
+
+  const eligibleCount = (formData.age >= 20 && formData.age <= 59 ? 1 : 0) + eligibleAdditionalInsuredList.length;
+
   const americoPremium = parseCurrency(formData.americo_coverage) || 48;
-  const americoAmount =
-    (formData.additional_insured_list?.length ? formData.additional_insured_list.length + 1 : 1) * americoPremium;
+  const americoAmount = eligibleCount * americoPremium;
+
   const monthlyHealthPremium = parseCurrency(formData.monthly_health_premium);
   const grandTotal = americoAmount + monthlyHealthPremium;
+
+  const toggleLabel = isAmerico ? 'Americo' : 'Mutual of Omaha';
+
+  const handleToggle = () => {
+    setIsAmerico((prev) => !prev);
+    setFormData({
+      ...formData,
+      americo_coverage: '$0',
+    });
+  };
 
   if (isLoading)
     return (
@@ -132,29 +151,40 @@ const Form = () => {
 
   return (
     <main className='flex items-center justify-center min-h-screen py-20'>
-      <div className='flex flex-col fixed top-8 left-8 gap-8 shadow-xl'>
+      <nav className='flex flex-col fixed top-8 left-8 gap-8 shadow-xl'>
         <a
           className='bg-10sa-gold hover:blur-sm transition-all rounded-full p-2'
           href='https://www.healthsherpa.com/'
           target='_blank'
+          title='HealthSherpa'
         >
           <HealthSherpaSymbol twClasses='w-10' />
         </a>
         <a
           className='bg-10sa-gold hover:blur-sm transition-all rounded-full p-2'
-          href='https://quote.americo.com/'
+          href='https://account.americoagent.com/'
           target='_blank'
+          title='Americo - Submit'
         >
           <AmericoSymbol twClasses='w-10' />
         </a>
         <a
           className='bg-10sa-gold hover:blur-sm transition-all rounded-full p-2'
-          href='https://quote.americo.com/'
+          href='https://producer.mutualofomaha.com/enterprise/portal/!ut/p/z1/hY7BDoIwEES_hQNXdiMWibdGE1HxLO7FgKkFUygplf6-jXoxEZ3b7ryZDBAUQF05NrK0je5K5e8TJefVhmfzRY6YstkaOe6zlLE4xgOD4z-AvI0T4ujz9ESmGrbJG_jRsQOSSlevubyr4lQCGXEVRpjobvy7trYfliGG6JyLpNZSieii2xC_RWo9WCg-SejbAm9MjTkPgge1lLo5/dz/d5/L2dBISEvZ0FBIS9nQSEh/'
           target='_blank'
+          title='Mutual Of Omaha - Submit'
         >
-          <MutualOfOmahaSymbol twClasses='w-10' />
+          <MutualOfOmahaSymbol twClasses='w-10 fill-mutual' />
         </a>
-      </div>
+        <a
+          className='bg-10sa-gold hover:blur-sm transition-all rounded-full p-2'
+          href='https://www3.mutualofomaha.com/mobile-quotes/#/gad'
+          target='_blank'
+          title='Mutual Of Omaha - Quote'
+        >
+          <MutualOfOmahaSymbol twClasses='w-10 fill-red-900' />
+        </a>
+      </nav>
       <section className='fixed top-0 right-0 z-50 w-1/4 h-screen bg-10sa-purple p-8 flex flex-col gap-4 border-l border-10sa-gold/30'>
         <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
           <TextInput
@@ -168,27 +198,42 @@ const Form = () => {
           />
         </div>
         <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
-          <RadioInput
-            id='americo_coverage'
-            name='americo_coverage'
-            labelName='Americo Coverage:'
-            required={false}
-            rowOrCol='col'
-            defaultOption='$48'
-            options={[
-              { label: '$27 Monthly - $100k ADB', value: '$27' },
-              { label: '$35 Monthly - $150k ADB', value: '$35' },
-              { label: '$42 Monthly - $200k ADB', value: '$42' },
-              { label: '$48 Monthly - $250k ADB', value: '$48' },
-            ]}
-          />
+          <label className='relative inline-flex items-center cursor-pointer'>
+            <input type='checkbox' className='sr-only peer' checked={isAmerico} onChange={handleToggle} />
+            <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600" />
+            <span className='ml-3 text-sm font-medium text-gray-900 dark:text-gray-300'>{toggleLabel}</span>
+          </label>
         </div>
+        {isAmerico && (
+          <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+            <RadioInput
+              id='americo_coverage'
+              name='americo_coverage'
+              labelName='Americo Coverage:'
+              required={false}
+              rowOrCol='col'
+              defaultOption='$48'
+              options={[
+                { label: '$27 Monthly - $100k ADB', value: '$27' },
+                { label: '$35 Monthly - $150k ADB', value: '$35' },
+                { label: '$42 Monthly - $200k ADB', value: '$42' },
+                { label: '$48 Monthly - $250k ADB', value: '$48' },
+              ]}
+            />
+          </div>
+        )}
         {formData.household_size && (
           <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
             Household size: {formData.household_size}
           </div>
         )}
-        {formData.additional_insured && (
+        {isAmerico && eligibleCount > 0 && (
+          <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+            {'Americo sales: '}
+            {eligibleCount.toString()}
+          </div>
+        )}
+        {isAmerico && formData.additional_insured && formData.additional_insured && (
           <>
             <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
               {'Applying for coverage: '}
@@ -200,10 +245,10 @@ const Form = () => {
             </div>
           </>
         )}
-        {formData.additional_insured_list && formData.monthly_health_premium && (
+        {isAmerico && eligibleCount > 0 && formData.monthly_health_premium && (
           <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
             {'Monthly Grand Total: $'}
-            {grandTotal.toFixed(2)}
+            {grandTotal.toFixed(2).toString()}
           </div>
         )}
         {formData.state && (

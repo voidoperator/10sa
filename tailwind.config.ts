@@ -36,6 +36,7 @@ export default {
         '10sa-purple': '#351f39',
         '10sa-gold': '#bda472',
         '10sa-deep-purple': '#503158',
+        mutual: '#003a70',
       },
     },
   },
