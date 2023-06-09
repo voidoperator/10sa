@@ -10,15 +10,16 @@ const RadioInput: React.FC<RadioInputProps> = ({
   options,
   required = true,
   rowOrCol = 'row',
-  value,
   defaultOption,
 }) => {
   const { formData, setFormData } = useFormData();
+
   useEffect(() => {
     if (defaultOption && !formData[name as keyof FormDataType]) {
       setFormData({ ...formData, [name]: defaultOption });
     }
   }, [defaultOption, formData, name, setFormData]);
+
   return (
     <div className='flex flex-col'>
       <div>

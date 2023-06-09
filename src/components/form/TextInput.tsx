@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
-import type { TextInputProps } from '../../types/formData';
+import type { FormDataType, TextInputProps } from '../../types/formData';
 
 const TextInput: React.FC<TextInputProps> = ({
   id,
@@ -20,6 +20,7 @@ const TextInput: React.FC<TextInputProps> = ({
   height = false,
   weight = false,
   additional = false,
+  currencyMutual = false,
   city = false,
   cityValue,
 }) => {
@@ -57,8 +58,8 @@ const TextInput: React.FC<TextInputProps> = ({
     }
 
     if (zip_code) {
-      value = value.replace(/\D/g, ''); // allow only digits
-      value = value.substring(0, 5); // allow only 5 digits
+      value = value.replace(/\D/g, '');
+      value = value.substring(0, 5);
     }
 
     if (routingNumber) {
@@ -158,6 +159,37 @@ const TextInput: React.FC<TextInputProps> = ({
     }
   };
 
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    if (!currencyMutual) return;
+
+    let numValue = parseInt(event.target.value.replace(/[^0-9]/g, ''), 10);
+
+    if (isNaN(numValue)) {
+      setValue('');
+      const newFormData = { ...formData };
+      delete newFormData[name as keyof FormDataType];
+      setFormData(newFormData);
+      return;
+    }
+
+    numValue = Math.round(numValue / 10000) * 10000;
+
+    if (numValue < 50000) numValue = 50000;
+    if (numValue > 500000) numValue = 500000;
+
+    const formattedValue = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(numValue);
+
+    if (formattedValue) {
+      setValue(formattedValue);
+      setFormData({ ...formData, [name]: formattedValue });
+    }
+  };
+
   return (
     <div className='shadow-lg'>
       <label htmlFor={name} className='block mb-2 text-sm font-medium text-white'>
@@ -173,8 +205,9 @@ const TextInput: React.FC<TextInputProps> = ({
         required={required}
         className='focus:ring-10sa-gold focus:border-10sa-gold border text-sm rounded-lg block w-full p-2.5 bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white'
         onChange={handleChange}
-        value={value}
+        onBlur={handleBlur}
         autoComplete='no'
+        value={value}
       />
     </div>
   );

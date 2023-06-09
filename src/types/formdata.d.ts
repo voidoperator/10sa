@@ -15,6 +15,7 @@ export type FormDataType = {
   household_size: string;
   additional_insured: string;
   additional_insured_list: InsuredList[];
+  applying_for_coverage: number;
   annual_household_income: string;
   pre_existing_conditions: string;
   pre_existing_conditions_list: string;
@@ -42,10 +43,13 @@ export type FormDataType = {
   ssn: string;
   monthly_total: string;
   health_unsubsidized: string;
-  cigna_dental: string;
-  americo_death_benefit: string;
+  cigna_dental?: string;
+  life_adb_provider: string;
   monthly_health_premium: string;
-  americo_coverage: string;
+  americo_death_benefit?: string;
+  americo_coverage?: string;
+  mutual_face_amount?: string;
+  mutual_quote_gender?: string;
 };
 
 export type InsuredList = {
@@ -77,9 +81,10 @@ export type TextInputProps = {
   driverLicense?: boolean;
   height?: boolean;
   weight?: boolean;
-  additional?: boolean;
+  currencyMutual?: boolean;
   city?: boolean;
   cityValue?: string;
+  additional?: boolean;
 };
 
 export type RadioInputProps = {
@@ -89,7 +94,6 @@ export type RadioInputProps = {
   options: { label: string; value: string }[];
   required?: boolean;
   rowOrCol?: string;
-  value?: string;
   defaultOption?: string;
 };
 
@@ -131,4 +135,13 @@ export type DetailConfirmationProps = {
   labelName: string;
   name?: string;
   error?: boolean;
+};
+
+export type GroupButtonProps = {
+  id: string;
+  labelName: string;
+  defaultOption?: string;
+  required?: boolean;
+  name: string;
+  options: { label: string; value: string }[];
 };

@@ -15,9 +15,7 @@ import { CloseIcon } from '../icons/CloseIcon';
 import { CarrierIcon, CarrierIconKey } from '../icons/CarrierIcons';
 import { IneligibleIcon } from '../icons/IneligebleIcon';
 import { getZipcodeData, ZipcodeDataType } from '../../utility/getZipcodeData';
-
-// only calculate americo grand total's if eligeble
-// add nav icon to https://www3.mutualofomaha.com/mobile-quotes/#/gad
+import GroupButton from './GroupButton';
 
 const Divider = tw.div`
   h-[1px] w-full bg-10sa-gold/75 my-0 sm:my-10 hidden sm:block
@@ -32,13 +30,77 @@ const initialDependentState = {
   ssn: '',
 };
 
+const parseCurrency = (input: any) => {
+  return parseFloat((input || '0').replace(/[^\d\.]/g, ''));
+};
+
 const Form = () => {
   const { formData, setFormData } = useFormData();
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isAmerico, setIsAmerico] = useState<boolean>(true);
   const [carriers, setCarriers] = useState<string[]>([]);
   const [zipcodeData, setZipcodeData] = useState<ZipcodeDataType | undefined>(undefined);
-  const americoToggleRef = useRef(null);
+  const [grandTotal, setGrandTotal] = useState<string>('');
+  const [americoAmount, setAmericoAmount] = useState<string>('');
+  const [mutualAmount, setMutualAmount] = useState<string>('');
+  const [eligibleMutualCount, setEligibleMutualCount] = useState<number>(0);
+  const [eligibleAmericoCount, setEligibleAmericoCount] = useState<number>(0);
+
+  useEffect(() => {
+    const eligibleAdditionalInsuredList =
+      formData.additional_insured_list?.filter((member) => member.age >= 20 && member.age <= 59) || [];
+
+    const eligibleAmericoCount =
+      (formData.age >= 20 && formData.age <= 59 ? 1 : 0) + eligibleAdditionalInsuredList.length;
+
+    const americoPremium = parseCurrency(formData.americo_coverage) || 48;
+    const americoMonthlyAmount = eligibleAmericoCount * americoPremium;
+
+    const monthlyHealthPremium = parseCurrency(formData.monthly_health_premium) || 0;
+
+    let mutual_of_omaha_premium = 0;
+
+    if (formData.mutual_quote_gender && formData.mutual_face_amount) {
+      const coverageAmount = parseInt(formData.mutual_face_amount.replace(/[^0-9]/g, ''), 10) || 0;
+      const multiplier = (coverageAmount - 50000) / 10000;
+
+      if (formData.mutual_quote_gender === 'male') {
+        mutual_of_omaha_premium = 10.29 + multiplier * 1.18;
+      } else if (formData.mutual_quote_gender === 'female') {
+        mutual_of_omaha_premium = 7.53 + multiplier * 0.63;
+      }
+
+      mutual_of_omaha_premium = parseFloat(mutual_of_omaha_premium.toFixed(2));
+    }
+
+    const eligibleMutualInsuredList =
+      formData.additional_insured_list?.filter((member) => member.age === 18 || member.age === 19) || [];
+    const eligibleMutualCount = (formData.age === 18 || formData.age === 19 ? 1 : 0) + eligibleMutualInsuredList.length;
+    const mutualMonthlyAmount = eligibleMutualCount * mutual_of_omaha_premium;
+
+    const grandTotal =
+      formData.life_adb_provider === 'americo'
+        ? americoMonthlyAmount + monthlyHealthPremium
+        : mutualMonthlyAmount + monthlyHealthPremium;
+
+    setEligibleAmericoCount(eligibleAmericoCount);
+    setEligibleMutualCount(eligibleMutualCount);
+    setAmericoAmount(americoMonthlyAmount.toString());
+    setMutualAmount(mutualMonthlyAmount.toString());
+    setGrandTotal(grandTotal.toFixed(2).toString());
+  }, [
+    formData.additional_insured,
+    formData.additional_insured_list,
+    formData.life_adb_provider,
+    formData.mutual_quote_gender,
+    formData.mutual_face_amount,
+    formData.monthly_health_premium,
+  ]);
+
+  useEffect(() => {
+    const applyingForCoverage =
+      1 + (formData.additional_insured_list?.length ? formData.additional_insured_list.length : 0);
+    setFormData({ ...formData, applying_for_coverage: applyingForCoverage });
+  }, [formData.additional_insured, formData.additional_insured_list]);
 
   useEffect(() => {
     setIsLoading(false);
@@ -87,6 +149,24 @@ const Form = () => {
     }
   }, [formData.zip_code]);
 
+  useEffect(() => {
+    if (formData.life_adb_provider === 'mutual') {
+      const newFormData = { ...formData };
+      delete newFormData.americo_coverage;
+      setFormData(newFormData);
+    }
+    if (formData.life_adb_provider === 'americo') {
+      const newFormData = { ...formData };
+      delete newFormData.mutual_quote_gender;
+      delete newFormData.mutual_face_amount;
+      setFormData(newFormData);
+    }
+  }, [formData.life_adb_provider]);
+
+  useEffect(() => {
+    console.log('grandTotal', grandTotal);
+  }, [grandTotal]);
+
   const handleHouseholdCheck = () => {
     const { household_size } = formData;
     if (Number(household_size) <= (formData.additional_insured_list?.length ?? 0) + 1) {
@@ -109,34 +189,6 @@ const Form = () => {
     setFormData({
       ...formData,
       additional_insured_list: formData.additional_insured_list.filter((_, i) => i !== index),
-    });
-  };
-
-  function parseCurrency(input: any) {
-    return parseFloat((input || '0').replace(/[^\d\.]/g, ''));
-  }
-
-  const eligibleAdditionalInsuredList =
-    formData.additional_insured_list?.filter((member) => member.age >= 20 && member.age <= 59) || [];
-
-  const applyingForCoverage =
-    1 + (formData.additional_insured_list?.length ? formData.additional_insured_list.length : 0);
-
-  const eligibleCount = (formData.age >= 20 && formData.age <= 59 ? 1 : 0) + eligibleAdditionalInsuredList.length;
-
-  const americoPremium = parseCurrency(formData.americo_coverage) || 48;
-  const americoAmount = eligibleCount * americoPremium;
-
-  const monthlyHealthPremium = parseCurrency(formData.monthly_health_premium);
-  const grandTotal = americoAmount + monthlyHealthPremium;
-
-  const toggleLabel = isAmerico ? 'Americo' : 'Mutual of Omaha';
-
-  const handleToggle = () => {
-    setIsAmerico((prev) => !prev);
-    setFormData({
-      ...formData,
-      americo_coverage: '$0',
     });
   };
 
@@ -193,18 +245,23 @@ const Form = () => {
             placeholder='e.g. $8.14'
             type='text'
             labelName='Monthly Health Premium:'
-            required={false}
+            required={true}
             currency={true}
           />
         </div>
         <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
-          <label className='relative inline-flex items-center cursor-pointer'>
-            <input type='checkbox' className='sr-only peer' checked={isAmerico} onChange={handleToggle} />
-            <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600" />
-            <span className='ml-3 text-sm font-medium text-gray-900 dark:text-gray-300'>{toggleLabel}</span>
-          </label>
+          <GroupButton
+            labelName='Life ADB Provider:'
+            name='life_adb_provider'
+            id='life_adb_provider'
+            options={[
+              { label: 'Americo', value: 'americo' },
+              { label: 'Mutual', value: 'mutual' },
+            ]}
+            defaultOption='americo'
+          />
         </div>
-        {isAmerico && (
+        {formData.life_adb_provider === 'americo' && (
           <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
             <RadioInput
               id='americo_coverage'
@@ -222,22 +279,48 @@ const Form = () => {
             />
           </div>
         )}
+        {formData.life_adb_provider === 'mutual' && (
+          <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+            <GroupButton
+              id='mutual_quote_gender'
+              labelName='Gender:'
+              name='mutual_quote_gender'
+              options={[
+                { label: 'Male', value: 'male' },
+                { label: 'Female', value: 'female' },
+              ]}
+            />
+          </div>
+        )}
+        {formData.life_adb_provider === 'mutual' && formData.mutual_quote_gender === 'male' && (
+          <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+            <TextInput
+              id='mutual_face_amount'
+              name='mutual_face_amount'
+              labelName='Mutual Face Amount:'
+              placeholder='$50k - $500k'
+              type='text'
+              currency={true}
+              currencyMutual={true}
+            />
+          </div>
+        )}
         {formData.household_size && (
           <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
             Household size: {formData.household_size}
           </div>
         )}
-        {isAmerico && eligibleCount > 0 && (
+        {formData.life_adb_provider === 'americo' && eligibleAmericoCount > 0 && (
           <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
             {'Americo sales: '}
-            {eligibleCount.toString()}
+            {eligibleAmericoCount}
           </div>
         )}
-        {isAmerico && formData.additional_insured && formData.additional_insured && (
+        {formData.life_adb_provider === 'americo' && formData.additional_insured && (
           <>
             <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
               {'Applying for coverage: '}
-              {applyingForCoverage}
+              {formData.applying_for_coverage}
             </div>
             <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
               {'Americo amount: $'}
@@ -245,12 +328,32 @@ const Form = () => {
             </div>
           </>
         )}
-        {isAmerico && eligibleCount > 0 && formData.monthly_health_premium && (
+        {formData.life_adb_provider === 'mutual' && eligibleMutualCount > 0 && (
           <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
-            {'Monthly Grand Total: $'}
-            {grandTotal.toFixed(2).toString()}
+            {'Mutual of Omaha sales: '}
+            {eligibleMutualCount.toString()}
           </div>
         )}
+        {formData.life_adb_provider === 'mutual' && formData.additional_insured && (
+          <>
+            <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+              {'Applying for coverage: '}
+              {formData.applying_for_coverage}
+            </div>
+            <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+              {'Mutual of Omaha amount: $'}
+              {mutualAmount}
+            </div>
+          </>
+        )}
+        {formData.life_adb_provider &&
+          formData.monthly_health_premium &&
+          (eligibleAmericoCount > 0 || eligibleMutualCount > 0) && (
+            <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+              {'Monthly Grand Total: $'}
+              {grandTotal}
+            </div>
+          )}
         {formData.state && (
           <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl w-full'>
             <div>Preferred carriers for {toTitleCase(formData.state)}:</div>
@@ -273,8 +376,10 @@ const Form = () => {
       </section>
       <section className='4xl:max-w-4xl 3xl:max-w-3xl xl:max-w-xl lg:max-w-lg mr-64 w-full p-4 bg-10sa-purple border border-10sa-gold/25 rounded-lg shadow sm:p-6 md:p-8'>
         <h1 className='text-2xl font-medium text-white text-center'>Lead Form</h1>
-        {/* <Divider />
-        {JSON.stringify(formData)} */}
+        <Divider />
+        {JSON.stringify(formData)
+          .split(/,(?!\d)/)
+          .join(', ')}
         <Divider />
         <form className='space-y-6' autoComplete='off' autoCapitalize='on'>
           <>
@@ -393,7 +498,7 @@ const Form = () => {
               name='taxes_filing_status'
               id='taxes_filing_status'
               rowOrCol='col'
-              value={formData.taxes_filing_status}
+              defaultOption={formData.taxes_filing_status}
               options={[
                 { label: 'Single', value: 'single' },
                 { label: 'Married filing jointly', value: 'married_filing_jointly' },
@@ -901,7 +1006,7 @@ const Form = () => {
           <Divider />
           <button
             type='submit'
-            className='hover:bg-10sa-gold bg-10sa-gold/60 w-full transition-all text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center focus:ring-blue-800'
+            className='hover:bg-10sa-gold/60 bg-10sa-deep-purple border-10sa-gold/25 active:bg-10sa-gold/100 w-full transition-all text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center focus:ring-blue-800'
           >
             Submit
           </button>

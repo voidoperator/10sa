@@ -7,6 +7,8 @@ const initialFormData: FormDataType = {
   plan_type: '',
   state: '',
   zip_code: '',
+  county: '',
+  city: '',
   coverage_reason: '',
   date_of_birth: '',
   age: 0,
@@ -47,6 +49,9 @@ const initialFormData: FormDataType = {
   americo_death_benefit: '',
   monthly_health_premium: '',
   americo_coverage: '',
+  mutual_of_omaha_coverage: '',
+  mutual_quote_gender: '',
+  life_adb_provider: '',
 };
 
 interface FormContextData {
