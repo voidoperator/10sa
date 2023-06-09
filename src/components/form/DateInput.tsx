@@ -86,7 +86,7 @@ const DateInput: React.FC<DateInputProps> = ({
         useRange={false}
         placeholder={'Enter or select a date: MM/DD/YYYY'}
         inputClassName={
-          'w-full border text-sm rounded-lg bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white'
+          'form-input w-full border text-sm rounded-lg bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white'
         }
       />
     </div>

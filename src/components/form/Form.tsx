@@ -163,10 +163,6 @@ const Form = () => {
     }
   }, [formData.life_adb_provider]);
 
-  useEffect(() => {
-    console.log('grandTotal', grandTotal);
-  }, [grandTotal]);
-
   const handleHouseholdCheck = () => {
     const { household_size } = formData;
     if (Number(household_size) <= (formData.additional_insured_list?.length ?? 0) + 1) {
@@ -203,7 +199,6 @@ const Form = () => {
 
   return (
     <main className='flex items-center justify-center min-h-screen py-20'>
-      <div className='bg-10sa-deep-purple border-10sa-gold/40 border text-sm rounded-lg block p-2.5 placeholder-gray-400 text-white focus:ring-10sa-gold focus:border-10sa-gold' />
       <nav className='flex flex-col fixed top-8 left-8 gap-8 shadow-xl'>
         <a
           className='bg-10sa-gold hover:blur-sm transition-all rounded-full p-2'
@@ -378,13 +373,6 @@ const Form = () => {
       <section className='4xl:max-w-4xl 3xl:max-w-3xl xl:max-w-xl lg:max-w-lg mr-64 w-full p-4 bg-10sa-purple border border-10sa-gold/25 rounded-lg shadow sm:p-6 md:p-8'>
         <h1 className='text-2xl font-medium text-white text-center'>Lead Form</h1>
         <Divider />
-        <SelectCreateable
-          id='occupation'
-          labelName='Occupation:'
-          name='occupation'
-          options={occupations}
-          placeholder='Please select an occupation...'
-        />
         {JSON.stringify(formData)
           .split(/,(?!\d)/)
           .join(', ')}
@@ -729,6 +717,13 @@ const Form = () => {
               type='text'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               currency={true}
+            />
+            <SelectCreateable
+              id='occupation'
+              labelName='Occupation:'
+              name='occupation'
+              options={occupations}
+              placeholder='Please select an occupation...'
             />
             <RadioInput
               labelName='Pre-existing conditions?'
