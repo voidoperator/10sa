@@ -5,9 +5,9 @@ import type { DateValueType } from 'react-tailwindcss-datepicker/dist/types';
 import type { DateInputProps, DateValue } from '../../types/formData';
 
 const DateInput: React.FC<DateInputProps> = ({
+  id,
   labelName,
   name,
-  id,
   showAge = true,
   required = true,
   additional = false,
@@ -31,8 +31,8 @@ const DateInput: React.FC<DateInputProps> = ({
       const calcAge = Number(calculateAge(new Date(startDate)));
       setUserAge(calcAge);
 
-      if (additional) {
-        const dependentIndex = parseInt(labelName.split(' ')[1]) - 1;
+      if (additional && typeof id === 'number') {
+        const dependentIndex = id;
 
         let additionalInsuredList = formData.additional_insured_list || [];
 
@@ -61,10 +61,12 @@ const DateInput: React.FC<DateInputProps> = ({
     return Math.abs(ageDate.getUTCFullYear() - 1970);
   };
 
+  const formatId = additional && typeof id === 'number' ? name + '_' + (id + 1) : name;
+
   return (
     <div>
       <div className='inline-flex justify-between w-full'>
-        <label htmlFor={id} className='inline-flex items-center mb-2 text-sm font-medium text-white'>
+        <label htmlFor={formatId} className='inline-flex items-center mb-2 text-sm font-medium text-white'>
           {labelName}
           {required && <span className='ml-1 after:content-["*"] after:text-gray-900' />}
         </label>
@@ -73,7 +75,7 @@ const DateInput: React.FC<DateInputProps> = ({
         )}
       </div>
       <Datepicker
-        inputId={id}
+        inputId={formatId}
         showFooter={true}
         maxDate={new Date(Date.now())}
         value={value}

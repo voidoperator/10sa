@@ -1,21 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import tw from 'tailwind-styled-components';
 import TextInput from './TextInput';
 import RadioInput from './RadioInput';
 import DropDownInput from './DropDownInput';
 import TextAreaInput from './TextAreaInput';
 import DateInput from './DateInput';
+import GroupButton from './GroupButton';
 import DetailConfirmation from './DetailConfirmation';
 import { useFormData } from '../contexts/FormContext';
-import { unitedStates, preferredCarriers, toTitleCase } from '../../utility/utility';
+import { getZipcodeData, ZipcodeDataType } from '../../utility/getZipcodeData';
+import { unitedStates, preferredCarriers, countries, occupations } from '../../utility/staticData';
+import { toTitleCase, parseCurrency } from '../../utility/utility';
 import { MutualOfOmahaIcon } from '../icons/MutualOfOmahaIcon';
 import { AmericoIcon } from '../icons/AmericoIcon';
 import { HealthSherpaSymbol, AmericoSymbol, MutualOfOmahaSymbol } from '../icons/NavIcons';
 import { CloseIcon } from '../icons/CloseIcon';
 import { CarrierIcon, CarrierIconKey } from '../icons/CarrierIcons';
 import { IneligibleIcon } from '../icons/IneligebleIcon';
-import { getZipcodeData, ZipcodeDataType } from '../../utility/getZipcodeData';
-import GroupButton from './GroupButton';
+import SelectCreateable from './SelectCreateable';
 
 const Divider = tw.div`
   h-[1px] w-full bg-10sa-gold/75 my-0 sm:my-10 hidden sm:block
@@ -28,10 +30,6 @@ const initialDependentState = {
   relationship: '',
   age: 0,
   ssn: '',
-};
-
-const parseCurrency = (input: any) => {
-  return parseFloat((input || '0').replace(/[^\d\.]/g, ''));
 };
 
 const Form = () => {
@@ -88,12 +86,14 @@ const Form = () => {
     setMutualAmount(mutualMonthlyAmount.toString());
     setGrandTotal(grandTotal.toFixed(2).toString());
   }, [
+    JSON.stringify(formData.additional_insured_list),
     formData.additional_insured,
-    formData.additional_insured_list,
+    formData.monthly_health_premium,
     formData.life_adb_provider,
     formData.mutual_quote_gender,
     formData.mutual_face_amount,
-    formData.monthly_health_premium,
+    formData.americo_coverage,
+    formData.age,
   ]);
 
   useEffect(() => {
@@ -203,6 +203,7 @@ const Form = () => {
 
   return (
     <main className='flex items-center justify-center min-h-screen py-20'>
+      <div className='bg-10sa-deep-purple border-10sa-gold/40 border text-sm rounded-lg block p-2.5 placeholder-gray-400 text-white focus:ring-10sa-gold focus:border-10sa-gold' />
       <nav className='flex flex-col fixed top-8 left-8 gap-8 shadow-xl'>
         <a
           className='bg-10sa-gold hover:blur-sm transition-all rounded-full p-2'
@@ -214,7 +215,7 @@ const Form = () => {
         </a>
         <a
           className='bg-10sa-gold hover:blur-sm transition-all rounded-full p-2'
-          href='https://account.americoagent.com/'
+          href='https://tools.americoagent.com/'
           target='_blank'
           title='Americo - Submit'
         >
@@ -292,7 +293,7 @@ const Form = () => {
             />
           </div>
         )}
-        {formData.life_adb_provider === 'mutual' && formData.mutual_quote_gender === 'male' && (
+        {formData.life_adb_provider === 'mutual' && formData.mutual_quote_gender && (
           <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
             <TextInput
               id='mutual_face_amount'
@@ -310,36 +311,36 @@ const Form = () => {
             Household size: {formData.household_size}
           </div>
         )}
-        {formData.life_adb_provider === 'americo' && eligibleAmericoCount > 0 && (
-          <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
-            {'Americo sales: '}
-            {eligibleAmericoCount}
-          </div>
-        )}
         {formData.life_adb_provider === 'americo' && formData.additional_insured && (
           <>
             <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
               {'Applying for coverage: '}
               {formData.applying_for_coverage}
             </div>
+            {formData.life_adb_provider === 'americo' && eligibleAmericoCount > 0 && (
+              <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+                {'Americo sales: '}
+                {eligibleAmericoCount.toString()}
+              </div>
+            )}
             <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
               {'Americo amount: $'}
               {americoAmount}
             </div>
           </>
         )}
-        {formData.life_adb_provider === 'mutual' && eligibleMutualCount > 0 && (
-          <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
-            {'Mutual of Omaha sales: '}
-            {eligibleMutualCount.toString()}
-          </div>
-        )}
         {formData.life_adb_provider === 'mutual' && formData.additional_insured && (
           <>
             <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
               {'Applying for coverage: '}
-              {formData.applying_for_coverage}
+              {formData.applying_for_coverage.toString()}
             </div>
+            {formData.life_adb_provider === 'mutual' && eligibleMutualCount > 0 && (
+              <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+                {'Mutual of Omaha sales: '}
+                {eligibleMutualCount.toString()}
+              </div>
+            )}
             <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
               {'Mutual of Omaha amount: $'}
               {mutualAmount}
@@ -377,6 +378,13 @@ const Form = () => {
       <section className='4xl:max-w-4xl 3xl:max-w-3xl xl:max-w-xl lg:max-w-lg mr-64 w-full p-4 bg-10sa-purple border border-10sa-gold/25 rounded-lg shadow sm:p-6 md:p-8'>
         <h1 className='text-2xl font-medium text-white text-center'>Lead Form</h1>
         <Divider />
+        <SelectCreateable
+          id='occupation'
+          labelName='Occupation:'
+          name='occupation'
+          options={occupations}
+          placeholder='Please select an occupation...'
+        />
         {JSON.stringify(formData)
           .split(/,(?!\d)/)
           .join(', ')}
@@ -387,7 +395,7 @@ const Form = () => {
             <TextInput labelName='First Name' name='first_name' id='first_name' placeholder='e.g. John' type='text' />
             <TextInput labelName='Last Name' name='last_name' id='last_name' placeholder='e.g. Doe' type='text' />
             <RadioInput
-              labelName='Type of Plan'
+              labelName='Type of Plan:'
               name='plan_type'
               id='plan_type'
               options={[
@@ -405,7 +413,7 @@ const Form = () => {
               ]}
             />
             <TextInput
-              labelName='Zip Code'
+              labelName='Zip Code:'
               name='zip_code'
               id='zip_code'
               placeholder='e.g. 12345'
@@ -433,14 +441,14 @@ const Form = () => {
               />
             )}
             <DropDownInput
-              labelName='State'
+              labelName='State:'
               name='state'
               id='state'
               defaultOption='Please select a state'
               options={unitedStates}
             />
             <TextInput
-              labelName='City'
+              labelName='City:'
               name='city'
               id='city'
               placeholder='e.g. Miami'
@@ -474,7 +482,7 @@ const Form = () => {
                 <AmericoIcon twClasses={'h-10'} />
               </div>
             )}
-            <DateInput labelName='Date of Birth' name='date_of_birth' id='date_of_birth' />
+            <DateInput labelName='Date of Birth:' name='date_of_birth' id='date_of_birth' />
             <RadioInput
               labelName='Tobacco User?'
               name='tobacco_use'
@@ -494,7 +502,7 @@ const Form = () => {
               ]}
             />
             <RadioInput
-              labelName='Taxes filing status?'
+              labelName='Taxes filing status:'
               name='taxes_filing_status'
               id='taxes_filing_status'
               rowOrCol='col'
@@ -511,7 +519,7 @@ const Form = () => {
               ]}
             />
             <TextInput
-              labelName='Household size?'
+              labelName='Household size:'
               name='household_size'
               id='household_size'
               placeholder='e.g. 4'
@@ -550,31 +558,31 @@ const Form = () => {
                       </div>
                     )}
                     <TextInput
-                      labelName={`Dependent ${i + 1} Full Name`}
-                      name={'full_name_' + (i + 1)}
-                      id={'full_name_' + (i + 1)}
+                      id={i}
+                      labelName={`Dependent ${i + 1} Full Name:`}
+                      name={'full_name'}
                       placeholder='e.g. Jane Doe'
                       type='text'
                       additional={true}
                     />
                     <TextInput
-                      labelName={`Dependent ${i + 1} Relationship`}
-                      name={'relationship_' + (i + 1)}
-                      id={'relationship_' + (i + 1)}
-                      placeholder='e.g. Son, Daughter, Husband, Wife'
+                      id={i}
+                      labelName={`Dependent ${i + 1} Relationship:`}
+                      name={'relationship'}
+                      placeholder='e.g. Son, Daughter, Spouse'
                       type='text'
                       additional={true}
                     />
                     <DateInput
-                      labelName={`Dependent ${i + 1} Date of Birth`}
-                      name={'date_of_birth_' + (i + 1)}
-                      id={'date_of_birth_' + (i + 1)}
+                      id={i}
+                      name={'date_of_birth'}
+                      labelName={`Dependent ${i + 1} Date of Birth:`}
                       additional={true}
                     />
                     <TextInput
-                      labelName={`Dependent ${i + 1} Social Security Number`}
-                      name={'ssn_' + (i + 1)}
-                      id={'ssn_' + (i + 1)}
+                      id={i}
+                      labelName={`Dependent ${i + 1} Social Security Number:`}
+                      name={'ssn'}
                       placeholder='e.g. 123-45-6789'
                       type='text'
                       pattern='^\d{3}-\d{2}-\d{4}$'
@@ -584,19 +592,78 @@ const Form = () => {
                     {formData.additional_insured_list?.[i] && formData.additional_insured_list[i].age >= 18 && (
                       <>
                         <TextInput
-                          labelName={`Dependent ${i + 1} State ID Number`}
-                          name='driver_license'
-                          id={'driver_license_' + (i + 1)}
+                          id={i}
+                          labelName={`Dependent ${i + 1} State ID Number:`}
+                          name={'driver_license'}
                           placeholder='e.g. L12-123-12-123-0'
                           type='text'
                           pattern='^[A-Za-z]\d{2}-\d{3}-\d{2}-\d{3}-\d$'
                           driverLicense={true}
                           additional={true}
                         />
+                        <DropDownInput
+                          id={i}
+                          labelName={`Dependent ${i + 1} Country of Birth:`}
+                          name={'country_of_birth'}
+                          defaultOption='Please select a country'
+                          options={countries}
+                          additional={true}
+                        />
+                        {formData.additional_insured_list[i].country_of_birth === 'United States Of America' && (
+                          <DropDownInput
+                            id={i}
+                            labelName={`Dependent ${i + 1} State of Birth:`}
+                            name={'state_of_birth'}
+                            defaultOption='Please select a state'
+                            options={unitedStates}
+                            additional={true}
+                          />
+                        )}
+                        <DropDownInput
+                          id={i}
+                          labelName={`Dependent ${i + 1} Employment Status:`}
+                          name={'employment_status'}
+                          defaultOption='Please select an employment status'
+                          options={[
+                            {
+                              label: 'Employed',
+                              value: 'employed',
+                            },
+                            {
+                              label: 'Disabled',
+                              value: 'disabled',
+                            },
+                            {
+                              label: 'Student',
+                              value: 'student',
+                            },
+                            {
+                              label: 'Retired',
+                              value: 'retired',
+                            },
+                            {
+                              label: 'Stay-at-home-person',
+                              value: 'stay-at-home-person',
+                            },
+                            {
+                              label: 'Unemployed',
+                              value: 'unemployed',
+                            },
+                          ]}
+                          additional={true}
+                        />
+                        {/* <DropDownInput
+                          id={i}
+                          labelName={`Dependent ${i + 1} Occupation:`}
+                          name={'occupation'}
+                          defaultOption='Please select an occupation'
+                          options={unitedStates}
+                          additional={true}
+                        /> */}
                         <TextInput
-                          labelName={`Dependent ${i + 1} Height`}
-                          name='height'
-                          id={'height_' + (i + 1)}
+                          id={i}
+                          labelName={`Dependent ${i + 1} Height:`}
+                          name={'height'}
                           placeholder="e.g. 5'11"
                           type='text'
                           pattern="^\\d{1,2}'(?:1[0-2]|0?[1-9])$"
@@ -604,17 +671,33 @@ const Form = () => {
                           additional={true}
                         />
                         <TextInput
-                          labelName={`Dependent ${i + 1} Weight`}
-                          name='weight'
-                          id={'weight_' + (i + 1)}
+                          id={i}
+                          labelName={`Dependent ${i + 1} Weight:`}
+                          name={'weight'}
                           placeholder='e.g. 150 (lbs.)'
                           type='text'
                           pattern='^\d{1,3}(?:\.\d)?$'
                           weight={true}
                           additional={true}
                         />
+                        <TextInput
+                          id={i}
+                          labelName={`Dependent ${i + 1} Beneficiary:`}
+                          name={'dependent_beneficiary'}
+                          placeholder='e.g. John Doe'
+                          type='text'
+                          additional={true}
+                        />
                       </>
                     )}
+                    <TextAreaInput
+                      id={i}
+                      labelName='Notes:'
+                      name='notes_dependent'
+                      placeholder='Enter notes here'
+                      additional={true}
+                      required={false}
+                    />
                     <button
                       key={`dependent_${i + 1}_button`}
                       type='button'
@@ -639,7 +722,7 @@ const Form = () => {
               </div>
             )}
             <TextInput
-              labelName='Annual household NET income? (after taxes)'
+              labelName='Annual household NET income (after taxes):'
               name='annual_household_income'
               id='annual_household_income'
               placeholder='e.g. $25,000'
@@ -658,7 +741,7 @@ const Form = () => {
             />
             {formData.pre_existing_conditions === 'yes' && (
               <TextInput
-                labelName='Pre-existing conditions?'
+                labelName='Pre-existing conditions:'
                 name='pre_existing_conditions_list'
                 id='pre_existing_conditions_list'
                 placeholder='e.g. Coronary Disease, Cancer, Lupus'
@@ -676,7 +759,7 @@ const Form = () => {
             />
             {formData.medications === 'yes' && (
               <TextInput
-                labelName='Specific medications?'
+                labelName='Specific medications:'
                 name='medications_list'
                 id='medications_list'
                 placeholder='e.g. Benazepril, Moexipril , Prozac'
@@ -701,7 +784,7 @@ const Form = () => {
             />
             {formData.preferred_doctors === 'yes' && (
               <TextInput
-                labelName='Doctor Name'
+                labelName='Doctor Name:'
                 name='preferred_doctors_name'
                 id='preferred_doctors_name'
                 placeholder='e.g. Dr. Lino Fernandez'
@@ -709,7 +792,7 @@ const Form = () => {
               />
             )}
             <TextInput
-              labelName='Monthly budget?'
+              labelName='Monthly budget:'
               name='monthly_budget'
               id='monthly_budget'
               placeholder='e.g. $150'
@@ -722,7 +805,7 @@ const Form = () => {
           <>
             <h5 className='text-xl font-medium text-white'>Quote Breakdown</h5>
             <TextInput
-              labelName='Plan Name'
+              labelName='Plan Name:'
               name='plan_name'
               id='plan_name'
               placeholder='e.g. Florida Blue'
@@ -738,7 +821,7 @@ const Form = () => {
               currency={true}
             />
             <TextInput
-              labelName='Specialist Copay'
+              labelName='Specialist Copay:'
               name='specialist_copay'
               id='specialist_copay'
               placeholder='e.g. $150'
@@ -747,7 +830,7 @@ const Form = () => {
               currency={true}
             />
             <TextInput
-              labelName='Generic Meds Copay'
+              labelName='Generic Meds Copay:'
               name='generic_meds_copay'
               id='generic_meds_copay'
               placeholder='e.g. $50'
@@ -756,7 +839,7 @@ const Form = () => {
               currency={true}
             />
             <TextInput
-              labelName='Annual Deductible'
+              labelName='Annual Deductible:'
               name='annual_deductible'
               id='annual_deductible'
               placeholder='e.g. $1,500'
@@ -765,7 +848,7 @@ const Form = () => {
               currency={true}
             />
             <TextInput
-              labelName='Max Out of Pocket'
+              labelName='Max Out of Pocket:'
               name='max_out_of_pocket'
               id='max_out_of_pocket'
               placeholder='e.g. $5,000'
@@ -774,7 +857,7 @@ const Form = () => {
               currency={true}
             />
             <TextInput
-              labelName='All Benefits'
+              labelName='All Benefits:'
               name='all_benefits'
               id='all_benefits'
               placeholder='e.g. $5,000'
@@ -787,7 +870,7 @@ const Form = () => {
           <>
             <h5 className='text-xl font-medium text-white'>Closure</h5>
             <TextInput
-              labelName='Phone Number'
+              labelName='Phone Number:'
               name='phone_number'
               id='phone_number'
               placeholder='e.g. 786-305-6789'
@@ -804,9 +887,9 @@ const Form = () => {
             )}
             {formData.first_name && formData.last_name ? (
               <DetailConfirmation
-                detail={toTitleCase(formData.first_name) + ' ' + toTitleCase(formData.last_name)}
-                labelName='Confirm Full Name'
+                labelName='Confirm Full Name:'
                 id='confirm_full_name'
+                detail={toTitleCase(formData.first_name) + ' ' + toTitleCase(formData.last_name)}
               />
             ) : (
               <DetailConfirmation
@@ -818,7 +901,7 @@ const Form = () => {
               />
             )}
             <TextInput
-              labelName='Email'
+              labelName='Email:'
               name='email'
               id='email'
               placeholder='e.g. johndoe@gmail.com'
@@ -826,14 +909,14 @@ const Form = () => {
               pattern='^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})?$'
             />
             <TextInput
-              labelName='Street Address (no P.O. box)'
+              labelName='Street Address (no P.O. box):'
               name='street_address'
               id='street_address'
               placeholder='e.g. 12345 NW 1st St, Miami, FL, 33186'
               type='text'
             />
             {formData.city ? (
-              <DetailConfirmation detail={formData.city} labelName='Confirm City' id='confirm_city' />
+              <DetailConfirmation detail={formData.city} labelName='Confirm City:' id='confirm_city' />
             ) : (
               <DetailConfirmation
                 detail='City Missing'
@@ -844,7 +927,7 @@ const Form = () => {
               />
             )}
             {formData.state ? (
-              <DetailConfirmation detail={toTitleCase(formData.state)} labelName='Confirm State' id='confirm_state' />
+              <DetailConfirmation detail={toTitleCase(formData.state)} labelName='Confirm State:' id='confirm_state' />
             ) : (
               <DetailConfirmation
                 detail={'State Missing'}
@@ -855,7 +938,7 @@ const Form = () => {
               />
             )}
             {formData.zip_code ? (
-              <DetailConfirmation detail={formData.zip_code} labelName='Confirm Zip Code' id='confirm_zip_code' />
+              <DetailConfirmation detail={formData.zip_code} labelName='Confirm Zip Code:' id='confirm_zip_code' />
             ) : (
               <DetailConfirmation
                 detail='Zip Code Missing'
@@ -866,7 +949,7 @@ const Form = () => {
               />
             )}
             <TextInput
-              labelName='Height'
+              labelName='Height:'
               name='height'
               id='height'
               placeholder="e.g. 5'11"
@@ -875,22 +958,92 @@ const Form = () => {
               height={true}
             />
             <TextInput
-              labelName='Weight'
+              labelName='Weight:'
               name='weight'
               id='weight'
-              placeholder='e.g. 150'
+              placeholder='e.g. 150 (lbs.)'
               type='text'
               pattern='^\d+(\.\d+)$'
               weight={true}
             />
             <TextInput
-              labelName='Social Security Number'
+              labelName='Social Security Number:'
               name='ssn'
               id='ssn'
               placeholder='e.g. 123-45-6789'
               type='text'
               pattern='^\d{3}-\d{2}-\d{4}$'
               socialSecurity={true}
+            />
+            <RadioInput
+              labelName='Citizen or resident?'
+              name='citizen_or_resident'
+              id='citizen_or_resident'
+              options={[
+                { label: 'Citizen', value: 'citizen' },
+                { label: 'Resident', value: 'resident' },
+              ]}
+            />
+          </>
+          <Divider />
+          <>
+            <h5 className='text-xl font-medium text-white'>Beneficiary Information</h5>
+            <TextInput
+              labelName='Beneficiary Full Name:'
+              name='beneficiary_full_name'
+              id='beneficiary_full_name'
+              placeholder='e.g. John Doe'
+              type='text'
+            />
+            <TextInput
+              labelName='Relationship:'
+              name='relationship'
+              id='relationship'
+              placeholder='e.g. Son, Daughter, Spouse'
+              type='text'
+            />
+            <DateInput
+              labelName='Beneficiary Date of Birth:'
+              name='beneficiary_date_of_birth'
+              id='beneficiary_date_of_birth'
+            />
+          </>
+          <Divider />
+          <>
+            <h5 className='text-xl font-medium text-white'>Payment Method</h5>
+            <RadioInput
+              labelName='Checking or savings?'
+              name='checking_or_savings'
+              id='checking_or_savings'
+              options={[
+                { label: 'Checking', value: 'checking' },
+                { label: 'Savings', value: 'savings' },
+              ]}
+            />
+            <TextInput
+              labelName='Routing Number'
+              name='routing_number'
+              id='routing_number'
+              placeholder='e.g. 123456789'
+              type='text'
+              pattern=''
+              routingNumber={true}
+            />
+            <TextInput
+              labelName='Account Number'
+              name='account_number'
+              id='account_number'
+              placeholder='e.g. 123456789012'
+              type='text'
+              pattern=''
+              accountNumber={true}
+            />
+            <TextInput
+              labelName='Name of Account Holder'
+              name='name_of_account_holder'
+              id='name_of_account_holder'
+              placeholder='e.g. John Doe'
+              type='text'
             />
           </>
           <Divider />
@@ -963,44 +1116,6 @@ const Form = () => {
               type='text'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               currency={true}
-            />
-          </>
-          <Divider />
-          <>
-            <h5 className='text-xl font-medium text-white'>Payment Method</h5>
-            <RadioInput
-              labelName='Checking or savings?'
-              name='checking_or_savings'
-              id='checking_or_savings'
-              options={[
-                { label: 'Checking', value: 'checking' },
-                { label: 'Savings', value: 'savings' },
-              ]}
-            />
-            <TextInput
-              labelName='Routing Number'
-              name='routing_number'
-              id='routing_number'
-              placeholder='e.g. 123456789'
-              type='text'
-              pattern=''
-              routingNumber={true}
-            />
-            <TextInput
-              labelName='Account Number'
-              name='account_number'
-              id='account_number'
-              placeholder='e.g. 123456789012'
-              type='text'
-              pattern=''
-              accountNumber={true}
-            />
-            <TextInput
-              labelName='Name of Account Holder'
-              name='name_of_account_holder'
-              id='name_of_account_holder'
-              placeholder='e.g. John Doe'
-              type='text'
             />
           </>
           <Divider />
