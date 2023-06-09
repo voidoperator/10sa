@@ -9,7 +9,8 @@ const TextInput: React.FC<TextInputProps> = ({
   type,
   name,
   required = true,
-  pattern = undefined,
+  pattern = '',
+  additional = false,
   zip_code = false,
   currency = false,
   phone = false,
@@ -19,10 +20,9 @@ const TextInput: React.FC<TextInputProps> = ({
   accountNumber = false,
   height = false,
   weight = false,
-  additional = false,
   currencyMutual = false,
   city = false,
-  cityValue,
+  cityValue = '',
 }) => {
   const [value, setValue] = useState('');
   const { formData, setFormData } = useFormData();
@@ -30,12 +30,9 @@ const TextInput: React.FC<TextInputProps> = ({
   useEffect(() => {
     if (city && cityValue) {
       setValue(cityValue);
+      setFormData({ ...formData, city: value });
     }
-  }, [city, cityValue]);
-
-  useEffect(() => {
-    if (city && cityValue) setFormData({ ...formData, city: value });
-  }, [value]);
+  }, [city, cityValue, value]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let value = event.target.value;
@@ -146,8 +143,12 @@ const TextInput: React.FC<TextInputProps> = ({
     }
 
     setValue(value);
-    if (additional) {
-      const dependentIndex = parseInt(labelName.split(' ')[1]) - 1;
+    if (additional && typeof id === 'number') {
+      const dependentIndex = id;
+      if (name === 'ssn') {
+        console.log(dependentIndex);
+        console.log(typeof dependentIndex);
+      }
       let additionalInsuredList = formData.additional_insured_list || [];
       additionalInsuredList[dependentIndex] = {
         ...additionalInsuredList[dependentIndex],
@@ -190,20 +191,22 @@ const TextInput: React.FC<TextInputProps> = ({
     }
   };
 
+  const formatId = additional && typeof id === 'number' ? name + '_' + (id + 1) : name;
+
   return (
     <div className='shadow-lg'>
-      <label htmlFor={name} className='block mb-2 text-sm font-medium text-white'>
+      <label htmlFor={formatId} className='block mb-2 text-sm font-medium text-white'>
         {labelName}
         {required && <span className='ml-1 after:content-["*"] after:text-yellow-300/90' />}
       </label>
       <input
-        id={id}
+        id={formatId}
         pattern={pattern}
         type={type}
         name={name}
         placeholder={placeholder}
         required={required}
-        className='focus:ring-10sa-gold focus:border-10sa-gold border text-sm rounded-lg block w-full p-2.5 bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white'
+        className='form-input focus:ring-10sa-gold focus:border-10sa-gold border text-sm rounded-lg block w-full p-2.5 bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white'
         onChange={handleChange}
         onBlur={handleBlur}
         autoComplete='no'

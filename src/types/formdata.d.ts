@@ -41,6 +41,7 @@ export type FormDataType = {
   height: string;
   weight: string;
   ssn: string;
+  citizen_or_resident: string;
   monthly_total: string;
   health_unsubsidized: string;
   cigna_dental?: string;
@@ -53,21 +54,24 @@ export type FormDataType = {
 };
 
 export type InsuredList = {
-  id: number;
+  id: number | string;
   full_name: string;
   relationship: string;
   date_of_birth: string;
   age: number;
   ssn: string;
+  country_of_birth?: string;
+  state_of_birth?: string;
   driver_license_number?: string;
   height?: string;
   weight?: string;
+  notes_dependent?: string;
 };
 
 export type TextInputProps = {
-  labelName: string;
+  id: number | string;
   name: string;
-  id: string;
+  labelName: string;
   placeholder: string;
   type: string;
   required?: boolean;
@@ -88,37 +92,40 @@ export type TextInputProps = {
 };
 
 export type RadioInputProps = {
+  id: number | string;
   labelName: string;
   name: string;
-  id: string;
   options: { label: string; value: string }[];
   required?: boolean;
-  rowOrCol?: string;
+  additional?: boolean;
   defaultOption?: string;
+  rowOrCol?: string;
 };
 
 export type TextAreaProps = {
+  id: number | string;
   labelName: string;
   name: string;
-  id: string;
   placeholder: string;
   required?: boolean;
   rows?: number;
+  additional?: boolean;
 };
 
 export type DropDownInputProps = {
+  id: number | string;
   labelName: string;
   name: string;
-  id: string;
   defaultOption: string;
   options: { label: string; value: string }[];
   required?: boolean;
+  additional?: boolean;
 };
 
 export type DateInputProps = {
+  id: number | string;
   labelName: string;
   name: string;
-  id: string;
   showAge?: boolean;
   required?: boolean;
   additional?: boolean;
@@ -130,18 +137,34 @@ export type DateValue = {
 };
 
 export type DetailConfirmationProps = {
-  id: string;
+  id: number | string;
   detail: string;
   labelName: string;
   name?: string;
   error?: boolean;
+  additional?: boolean;
 };
 
 export type GroupButtonProps = {
-  id: string;
+  id: number | string;
   labelName: string;
   defaultOption?: string;
   required?: boolean;
   name: string;
   options: { label: string; value: string }[];
+};
+
+export type SelectCreateableProps = {
+  id: number | string;
+  labelName: string;
+  name: string;
+  placeholder: string;
+  options: { label: string; value: string }[];
+  required?: boolean;
+  additional?: boolean;
+};
+
+export type OptionTypes = {
+  label: string;
+  value: string;
 };
