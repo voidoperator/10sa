@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useFormData } from '../contexts/FormContext';
 import type { DetailConfirmationProps } from '../../types/formData';
 
 const DetailConfirmation: React.FC<DetailConfirmationProps> = ({
