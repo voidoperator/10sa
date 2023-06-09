@@ -51,6 +51,8 @@ export type FormDataType = {
   americo_coverage?: string;
   mutual_face_amount?: string;
   mutual_quote_gender?: string;
+  employment_status: string;
+  occupation: string;
 };
 
 export type InsuredList = {
@@ -66,6 +68,8 @@ export type InsuredList = {
   height?: string;
   weight?: string;
   notes_dependent?: string;
+  employment_status?: string;
+  occupation?: string;
 };
 
 export type TextInputProps = {

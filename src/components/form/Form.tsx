@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import tw from 'tailwind-styled-components';
+import SideNav from '../nav/SideNav';
 import TextInput from './TextInput';
 import RadioInput from './RadioInput';
 import DropDownInput from './DropDownInput';
@@ -13,7 +14,6 @@ import { unitedStates, preferredCarriers, countries, occupations } from '../../u
 import { toTitleCase, parseCurrency } from '../../utility/utility';
 import { MutualOfOmahaIcon } from '../icons/MutualOfOmahaIcon';
 import { AmericoIcon } from '../icons/AmericoIcon';
-import { HealthSherpaSymbol, AmericoSymbol, MutualOfOmahaSymbol } from '../icons/NavIcons';
 import { CloseIcon } from '../icons/CloseIcon';
 import { CarrierIcon, CarrierIconKey } from '../icons/CarrierIcons';
 import { IneligibleIcon } from '../icons/IneligebleIcon';
@@ -199,40 +199,7 @@ const Form = () => {
 
   return (
     <main className='flex items-center justify-center min-h-screen py-20'>
-      <nav className='flex flex-col fixed top-8 left-8 gap-8 shadow-xl'>
-        <a
-          className='bg-10sa-gold hover:blur-sm transition-all rounded-full p-2'
-          href='https://www.healthsherpa.com/'
-          target='_blank'
-          title='HealthSherpa'
-        >
-          <HealthSherpaSymbol twClasses='w-10' />
-        </a>
-        <a
-          className='bg-10sa-gold hover:blur-sm transition-all rounded-full p-2'
-          href='https://tools.americoagent.com/'
-          target='_blank'
-          title='Americo - Submit'
-        >
-          <AmericoSymbol twClasses='w-10' />
-        </a>
-        <a
-          className='bg-10sa-gold hover:blur-sm transition-all rounded-full p-2'
-          href='https://producer.mutualofomaha.com/enterprise/portal/!ut/p/z1/hY7BDoIwEES_hQNXdiMWibdGE1HxLO7FgKkFUygplf6-jXoxEZ3b7ryZDBAUQF05NrK0je5K5e8TJefVhmfzRY6YstkaOe6zlLE4xgOD4z-AvI0T4ujz9ESmGrbJG_jRsQOSSlevubyr4lQCGXEVRpjobvy7trYfliGG6JyLpNZSieii2xC_RWo9WCg-SejbAm9MjTkPgge1lLo5/dz/d5/L2dBISEvZ0FBIS9nQSEh/'
-          target='_blank'
-          title='Mutual Of Omaha - Submit'
-        >
-          <MutualOfOmahaSymbol twClasses='w-10 fill-mutual' />
-        </a>
-        <a
-          className='bg-10sa-gold hover:blur-sm transition-all rounded-full p-2'
-          href='https://www3.mutualofomaha.com/mobile-quotes/#/gad'
-          target='_blank'
-          title='Mutual Of Omaha - Quote'
-        >
-          <MutualOfOmahaSymbol twClasses='w-10 fill-red-900' />
-        </a>
-      </nav>
+      <SideNav />
       <section className='fixed top-0 right-0 z-50 w-1/4 h-screen bg-10sa-purple p-8 flex flex-col gap-4 border-l border-10sa-gold/30'>
         <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
           <TextInput
@@ -640,14 +607,27 @@ const Form = () => {
                           ]}
                           additional={true}
                         />
-                        {/* <DropDownInput
-                          id={i}
-                          labelName={`Dependent ${i + 1} Occupation:`}
-                          name={'occupation'}
-                          defaultOption='Please select an occupation'
-                          options={unitedStates}
-                          additional={true}
-                        /> */}
+                        {formData.additional_insured_list[i].employment_status === 'employed' && (
+                          <SelectCreateable
+                            id={i}
+                            labelName='Occupation:'
+                            name='occupation'
+                            options={occupations}
+                            placeholder='Please select an occupation...'
+                            additional={true}
+                          />
+                        )}
+                        {(formData.additional_insured_list[i].employment_status === 'retired' ||
+                          formData.additional_insured_list[i].employment_status === 'unemployed') && (
+                          <SelectCreateable
+                            id={i}
+                            labelName='Former occupation:'
+                            name='occupation'
+                            options={occupations}
+                            placeholder='Please select an occupation...'
+                            additional={true}
+                          />
+                        )}
                         <TextInput
                           id={i}
                           labelName={`Dependent ${i + 1} Height:`}
