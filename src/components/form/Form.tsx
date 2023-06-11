@@ -25,7 +25,6 @@ import { initialFormData } from '../contexts/FormContext';
 // need a way to restore the data if there was an error
 // console.log error after submit even when successful. about controlled components. maybe just hard refresh entire page on succesful submit
 // when tabbing dependents it goes back UP to the remove button, change that
-// remove driver license format pattern
 
 const Divider = tw.div`
   h-[1px] w-full bg-10sa-gold/75 my-0 sm:my-10 hidden sm:block
@@ -244,9 +243,12 @@ const Form = () => {
         setIsSubmitting(false);
         setSuccessful(true);
         handleCopyToClipboard();
+        // setTimeout(() => {
+        //   setFormData(initialFormData);
+        //   setSuccessful(false);
+        // }, 2000);
         setTimeout(() => {
-          setFormData(initialFormData);
-          setSuccessful(false);
+          window.location.reload();
         }, 2000);
       }
     } catch (error: any) {
@@ -670,11 +672,9 @@ const Form = () => {
                           <TextInput
                             id={i}
                             labelName={`Dependent ${i + 1} State ID Number:`}
-                            name={'driver_license'}
-                            placeholder='e.g. L12-123-12-123-0'
+                            name={'driver_license_number'}
+                            placeholder='e.g. L12312312312'
                             type='text'
-                            pattern='^[A-Za-z]\d{2}-\d{3}-\d{2}-\d{3}-\d$'
-                            driverLicense={true}
                             additional={true}
                           />
                           <DropDownInput
@@ -790,6 +790,7 @@ const Form = () => {
                       <button
                         key={`dependent_${i + 1}_button`}
                         type='button'
+                        tabIndex={-1}
                         className='w-6 absolute top-2 right-2 opacity-70 hover:opacity-100 transition-all'
                         onClick={() => removeDependent(i)}
                       >
@@ -803,6 +804,7 @@ const Form = () => {
                   <button
                     disabled={handleHouseholdCheck()}
                     type='button'
+                    tabIndex={-1}
                     onClick={addDependent}
                     className='bg-10sa-gold/60 hover:bg-10sa-gold mx-6 w-1/2 transition-all text-white disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:cursor-not-allowed shadow-xl focus:ring-4 focus:outline-none font-medium rounded-full text-sm py-2.5 text-center focus:ring-blue-800'
                   >
@@ -812,7 +814,7 @@ const Form = () => {
               )}
               <DropDownInput
                 id='employment_status'
-                labelName='Employment Status:'
+                labelName="Primary's Employment Status:"
                 name={'employment_status'}
                 defaultOption='Please select an employment status'
                 options={[
@@ -846,7 +848,7 @@ const Form = () => {
               {formData.employment_status === 'employed' && (
                 <SelectCreateable
                   id='occupation'
-                  labelName='Occupation:'
+                  labelName="Primary's Occupation:"
                   name='occupation'
                   options={occupations}
                   placeholder='Please select an occupation...'
@@ -856,7 +858,7 @@ const Form = () => {
               {(formData.employment_status === 'retired' || formData.employment_status === 'unemployed') && (
                 <SelectCreateable
                   id='occupation'
-                  labelName='Former occupation:'
+                  labelName="Primary's Former occupation:"
                   name='occupation'
                   options={occupations}
                   placeholder='Please select an occupation...'
@@ -1108,7 +1110,7 @@ const Form = () => {
                 weight={true}
               />
               <TextInput
-                labelName='Social Security Number:'
+                labelName="Primary's Social Security Number:"
                 name='ssn'
                 id='ssn'
                 placeholder='e.g. 123-45-6789'
@@ -1117,14 +1119,12 @@ const Form = () => {
                 socialSecurity={true}
               />
               <TextInput
-                id='driver_license'
-                labelName='Driver License:'
-                name='driver_license'
-                placeholder='e.g. L12-123-12-123-0'
+                id='driver_license_number'
+                labelName="Primary's Driver License:"
+                name='driver_license_number'
+                placeholder='e.g. L12312312312'
                 type='text'
-                pattern='^[A-Za-z]\d{2}-\d{3}-\d{2}-\d{3}-\d$'
                 required={false}
-                driverLicense={true}
               />
               <RadioInput
                 labelName='Resident or citizen?'
@@ -1140,14 +1140,14 @@ const Form = () => {
             <>
               <h5 className='text-xl font-medium text-white'>Beneficiary Information</h5>
               <TextInput
-                labelName='Beneficiary Full Name:'
+                labelName="Primary's Beneficiary Full Name:"
                 name='beneficiary_full_name'
                 id='beneficiary_full_name'
                 placeholder='e.g. John Doe'
                 type='text'
               />
               <TextInput
-                labelName='Relationship:'
+                labelName='Beneficiary Relationship:'
                 name='relationship'
                 id='relationship'
                 placeholder='e.g. Son, Daughter, Spouse'

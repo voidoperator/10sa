@@ -86,7 +86,6 @@ export type TextInputProps = {
   accountNumber?: boolean;
   phone?: boolean;
   socialSecurity?: boolean;
-  driverLicense?: boolean;
   height?: boolean;
   weight?: boolean;
   currencyMutual?: boolean;
