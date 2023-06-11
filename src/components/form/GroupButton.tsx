@@ -26,9 +26,11 @@ const GroupButton: React.FC<GroupButtonProps> = ({ labelName, name, id, defaultO
     setFormData({ ...formData, [name]: target.value });
   };
 
+  const formatId = name;
+
   return (
     <div>
-      <label htmlFor={name} className='block mb-2 text-sm font-medium text-white'>
+      <label htmlFor={formatId} className='block mb-2 text-sm font-medium text-white'>
         {labelName}
         {required && <span className='ml-1 after:content-["*"] after:text-yellow-300/90' />}
       </label>
@@ -39,7 +41,7 @@ const GroupButton: React.FC<GroupButtonProps> = ({ labelName, name, id, defaultO
           const defaultOptionStyle = value === defaultOption ? 'bg-10sa-gold' : 'bg-10sa-deep-purple';
           return (
             <button
-              id={id + index}
+              id={formatId}
               key={value + (index + 1)}
               value={value}
               onClick={(e) => handleClick(e)}

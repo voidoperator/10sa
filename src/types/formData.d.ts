@@ -1,5 +1,7 @@
 export type FormDataType = {
+  google_app_url?: string;
   first_name: string;
+  middle_name?: string;
   last_name: string;
   plan_type: string;
   zip_code: string;
@@ -33,22 +35,20 @@ export type FormDataType = {
   max_out_of_pocket: string;
   all_benefits: string;
   phone_number: string;
-  confirmed_date_of_birth: string;
-  confirmed_first_name: string;
-  confirmed_last_name: string;
   email: string;
   address: string;
   height: string;
   weight: string;
   ssn: string;
-  citizen_or_resident: string;
-  monthly_total: string;
+  driver_license_number?: string;
+  resident_or_citizen: string;
+  monthly_grand_total: string;
   health_unsubsidized: string;
   cigna_dental?: string;
   life_adb_provider: string;
   monthly_health_premium: string;
+  americo_premium?: string;
   americo_death_benefit?: string;
-  americo_coverage?: string;
   mutual_face_amount?: string;
   mutual_quote_gender?: string;
   employment_status: string;
@@ -90,9 +90,10 @@ export type TextInputProps = {
   height?: boolean;
   weight?: boolean;
   currencyMutual?: boolean;
-  city?: boolean;
-  cityValue?: string;
   additional?: boolean;
+  useDefault?: boolean;
+  defaultKey?: string;
+  defaultValue?: string;
 };
 
 export type RadioInputProps = {

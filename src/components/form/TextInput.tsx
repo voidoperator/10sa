@@ -8,8 +8,8 @@ const TextInput: React.FC<TextInputProps> = ({
   placeholder,
   type,
   name,
+  pattern,
   required = true,
-  pattern = '',
   additional = false,
   zip_code = false,
   currency = false,
@@ -21,18 +21,19 @@ const TextInput: React.FC<TextInputProps> = ({
   height = false,
   weight = false,
   currencyMutual = false,
-  city = false,
-  cityValue = '',
+  useDefault = false,
+  defaultKey = '',
+  defaultValue = '',
 }) => {
   const [value, setValue] = useState('');
   const { formData, setFormData } = useFormData();
 
   useEffect(() => {
-    if (city && cityValue) {
-      setValue(cityValue);
-      setFormData({ ...formData, city: value });
+    if (useDefault && defaultKey && defaultValue) {
+      setValue(defaultValue);
+      setFormData({ ...formData, [defaultKey]: defaultValue });
     }
-  }, [city, cityValue, value]);
+  }, [useDefault, defaultKey, defaultValue, value]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let value = event.target.value;
@@ -73,10 +74,10 @@ const TextInput: React.FC<TextInputProps> = ({
 
     if (accountNumber) {
       value = value.replace(/\D/g, '');
-      if (value.length > 12) {
-        value = value.substring(0, 12);
+      if (value.length > 17) {
+        value = value.substring(0, 17);
       }
-      const match = value.match(/^(\d{0,12})$/);
+      const match = value.match(/^(\d{4,17})$/);
       if (match) {
         value = `${match[1] ? match[1] : ''}`;
         value = value.trim();
@@ -145,10 +146,6 @@ const TextInput: React.FC<TextInputProps> = ({
     setValue(value);
     if (additional && typeof id === 'number') {
       const dependentIndex = id;
-      if (name === 'ssn') {
-        console.log(dependentIndex);
-        console.log(typeof dependentIndex);
-      }
       let additionalInsuredList = formData.additional_insured_list || [];
       additionalInsuredList[dependentIndex] = {
         ...additionalInsuredList[dependentIndex],

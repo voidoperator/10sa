@@ -26,10 +26,10 @@ const RadioInput: React.FC<RadioInputProps> = ({
   return (
     <div className='flex flex-col'>
       <div>
-        <label id={formatId} className='block mb-2 text-sm font-medium text-white'>
+        <span id={formatId} className='block mb-2 text-sm font-medium text-white'>
           {labelName}
           {required && <span className='ml-1 after:content-["*"] after:text-yellow-300/90' />}
-        </label>
+        </span>
       </div>
       <div className={`flex ${rowOrCol === 'row' ? 'flex-row' : 'flex-col'} items-start rounded-full gap-3`}>
         {options.map((option, index) => (

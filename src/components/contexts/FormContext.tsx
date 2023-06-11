@@ -1,13 +1,15 @@
 import React, { createContext, useContext, useState, FC, ReactNode, Context } from 'react';
 import type { FormDataType } from '../../types/formData';
 
-const initialFormData: FormDataType = {
+export const initialFormData: FormDataType = {
+  google_app_url: '',
   first_name: '',
+  middle_name: '',
   last_name: '',
   plan_type: '',
-  state: '',
   zip_code: '',
   county: '',
+  state: '',
   city: '',
   coverage_reason: '',
   date_of_birth: '',
@@ -18,6 +20,7 @@ const initialFormData: FormDataType = {
   household_size: '',
   additional_insured: '',
   additional_insured_list: [],
+  applying_for_coverage: 0,
   annual_household_income: '',
   pre_existing_conditions: '',
   pre_existing_conditions_list: '',
@@ -35,23 +38,23 @@ const initialFormData: FormDataType = {
   max_out_of_pocket: '',
   all_benefits: '',
   phone_number: '',
-  confirmed_date_of_birth: '',
-  confirmed_first_name: '',
-  confirmed_last_name: '',
   email: '',
   address: '',
   height: '',
   weight: '',
   ssn: '',
+  resident_or_citizen: '',
   monthly_total: '',
   health_unsubsidized: '',
   cigna_dental: '',
-  americo_death_benefit: '',
-  monthly_health_premium: '',
-  americo_coverage: '',
-  mutual_of_omaha_coverage: '',
-  mutual_quote_gender: '',
   life_adb_provider: '',
+  monthly_health_premium: '',
+  americo_death_benefit: '',
+  americo_coverage: '',
+  mutual_face_amount: '',
+  mutual_quote_gender: '',
+  employment_status: '',
+  occupation: '',
 };
 
 interface FormContextData {
