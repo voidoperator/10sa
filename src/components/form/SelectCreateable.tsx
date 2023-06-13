@@ -53,7 +53,7 @@ const SelectCreateable: React.FC<SelectCreateableProps> = ({
   id,
   options,
   placeholder,
-  required = true,
+  required = false,
   additional = false,
 }) => {
   const { formData, setFormData } = useFormData();

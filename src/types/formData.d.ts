@@ -53,7 +53,26 @@ export type FormDataType = {
   mutual_quote_gender?: string;
   employment_status: string;
   occupation: string;
+  carriers?: Carrier[];
 };
+
+export type State = OptionTypes['value'];
+
+export type PreferredCarriers = Record<State, Carrier[]>;
+
+export type Carrier =
+  | 'None'
+  | 'Aetna'
+  | 'Ambetter'
+  | 'Arizona'
+  | 'Avmed'
+  | 'BlueCross BlueShield'
+  | 'Cigna'
+  | 'Florida Blue'
+  | 'Friday Health Plans'
+  | 'Molina'
+  | 'Oscar'
+  | 'UnitedHealthcare (UHC)';
 
 export type InsuredList = {
   id: number | string;
@@ -93,6 +112,7 @@ export type TextInputProps = {
   useDefault?: boolean;
   defaultKey?: string;
   defaultValue?: string;
+  externalValue?: string;
 };
 
 export type RadioInputProps = {

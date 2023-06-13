@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, FC, ReactNode, Context } fr
 import type { FormDataType } from '../../types/formData';
 
 export const initialFormData: FormDataType = {
-  google_app_url: '',
+  google_app_url: localStorage.getItem('google_app_url') || '',
   first_name: '',
   middle_name: '',
   last_name: '',
@@ -55,6 +55,7 @@ export const initialFormData: FormDataType = {
   mutual_quote_gender: '',
   employment_status: '',
   occupation: '',
+  carriers: [],
 };
 
 interface FormContextData {

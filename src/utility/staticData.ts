@@ -1,6 +1,6 @@
-import { OptionTypes } from '../types/formData';
+import { OptionTypes, PreferredCarriers } from '../types/formData';
 
-export const unitedStates = [
+export const unitedStates: OptionTypes[] = [
   { label: 'Alabama - AL', value: 'alabama' },
   { label: 'Alaska - AK', value: 'alaska' },
   { label: 'Arizona - AZ', value: 'arizona' },
@@ -54,7 +54,7 @@ export const unitedStates = [
   { label: 'Puerto Rico - PR', value: 'puerto_rico' },
 ];
 
-export const preferredCarriers = {
+export const preferredCarriers: PreferredCarriers = {
   //   "None",
   //   "Aetna",
   //   "Ambetter",

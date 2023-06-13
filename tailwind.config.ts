@@ -44,5 +44,6 @@ export default {
     require('@tailwindcss/forms')({ strategy: 'class' }),
     require('@tailwindcss/typography'),
     require('@thoughtbot/tailwindcss-aria-attributes'),
+    require('tailwind-scrollbar')({ nocompatible: true }),
   ],
 } satisfies Config;

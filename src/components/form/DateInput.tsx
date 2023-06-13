@@ -9,7 +9,7 @@ const DateInput: React.FC<DateInputProps> = ({
   labelName,
   name,
   showAge = true,
-  required = true,
+  required = false,
   additional = false,
 }) => {
   const { formData, setFormData } = useFormData();

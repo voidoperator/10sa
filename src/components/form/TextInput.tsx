@@ -9,7 +9,7 @@ const TextInput: React.FC<TextInputProps> = ({
   type,
   name,
   pattern,
-  required = true,
+  required = false,
   additional = false,
   zip_code = false,
   currency = false,
@@ -23,16 +23,23 @@ const TextInput: React.FC<TextInputProps> = ({
   useDefault = false,
   defaultKey = '',
   defaultValue = '',
+  externalValue,
 }) => {
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState<string>('');
   const { formData, setFormData } = useFormData();
 
   useEffect(() => {
-    if (useDefault && defaultKey && defaultValue) {
+    if (useDefault && defaultKey && defaultValue && value === '') {
       setValue(defaultValue);
       setFormData({ ...formData, [defaultKey]: defaultValue });
     }
   }, [useDefault, defaultKey, defaultValue, value]);
+
+  useEffect(() => {
+    if (externalValue !== undefined) {
+      setValue(externalValue);
+    }
+  }, [externalValue]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let value = event.target.value;

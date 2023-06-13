@@ -8,7 +8,7 @@ const RadioInput: React.FC<RadioInputProps> = ({
   name,
   id,
   options,
-  required = true,
+  required = false,
   rowOrCol = 'row',
   defaultOption,
   additional = false,
@@ -26,7 +26,7 @@ const RadioInput: React.FC<RadioInputProps> = ({
   return (
     <div className='flex flex-col'>
       <div>
-        <span id={formatId} className='block mb-2 text-sm font-medium text-white'>
+        <span id={formatId} className='cursor-default block mb-2 text-sm font-medium text-white'>
           {labelName}
           {required && <span className='ml-1 after:content-["*"] after:text-yellow-300/90' />}
         </span>

@@ -1,30 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 import tw from 'tailwind-styled-components';
-import SideNav from '../nav/SideNav';
 import TextInput from './TextInput';
 import RadioInput from './RadioInput';
 import DropDownInput from './DropDownInput';
 import TextAreaInput from './TextAreaInput';
 import DateInput from './DateInput';
-import GroupButton from './GroupButton';
 import DetailConfirmation from './DetailConfirmation';
+import SelectCreateable from './SelectCreateable';
 import { useFormData } from '../contexts/FormContext';
+import { TenStepsAheadLogo } from '../icons/TenStepsAheadLogo';
 import { getZipcodeData, ZipcodeDataType } from '../../utility/getZipcodeData';
-import { unitedStates, preferredCarriers, countries, occupations } from '../../utility/staticData';
-import { toTitleCase, parseCurrency } from '../../utility/utility';
+import { unitedStates, countries, occupations, preferredCarriers } from '../../utility/staticData';
+import { toTitleCase } from '../../utility/utility';
 import { MutualOfOmahaIcon } from '../icons/MutualOfOmahaIcon';
 import { AmericoIcon } from '../icons/AmericoIcon';
 import { CloseIcon } from '../icons/CloseIcon';
-import { CarrierIcon, CarrierIconKey } from '../icons/CarrierIcons';
 import { IneligibleIcon } from '../icons/IneligebleIcon';
-import SelectCreateable from './SelectCreateable';
-import { initialFormData } from '../contexts/FormContext';
-
-// cant delete google api key
-// list of insured not formatted correctly
-// need a way to restore the data if there was an error
-// console.log error after submit even when successful. about controlled components. maybe just hard refresh entire page on succesful submit
-// when tabbing dependents it goes back UP to the remove button, change that
+import { Carrier, PreferredCarriers } from '../../types/formData';
 
 const Divider = tw.div`
   h-[1px] w-full bg-10sa-gold/75 my-0 sm:my-10 hidden sm:block
@@ -41,87 +33,37 @@ const initialDependentState = {
 
 const Form = () => {
   const { formData, setFormData } = useFormData();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [formDataBackup, setFormDataBackup] = useState({ ...formData });
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [successful, setSuccessful] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const [googleKey, setGoogleKey] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
-  const [carriers, setCarriers] = useState<string[]>([]);
+  const [carriersData, setCarriersData] = useState<Carrier[]>([]);
   const [zipcodeData, setZipcodeData] = useState<ZipcodeDataType | undefined>(undefined);
-  const [grandTotal, setGrandTotal] = useState<string>('');
-  const [americoAmount, setAmericoAmount] = useState<string>('');
-  const [mutualAmount, setMutualAmount] = useState<string>('');
-  const [eligibleMutualCount, setEligibleMutualCount] = useState<number>(0);
-  const [eligibleAmericoCount, setEligibleAmericoCount] = useState<number>(0);
 
   useEffect(() => {
-    setIsLoading(false);
-    const googleAppUrl = localStorage.getItem('google_app_url');
-    if (googleAppUrl) {
-      setGoogleKey(googleAppUrl);
+    const savedFormData = localStorage.getItem('formData');
+    const googleKeyUrl = localStorage.getItem('google_app_url');
+    if (savedFormData) {
+      setFormData(JSON.parse(savedFormData));
+    }
+    if (googleKeyUrl) {
+      setTimeout(() => {
+        setFormData({ ...formData, google_app_url: googleKeyUrl });
+      }, 500);
     }
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('formData', JSON.stringify(formData));
+  }, [formData]);
 
   useEffect(() => {
     if (formData.google_app_url) {
       localStorage.setItem('google_app_url', formData.google_app_url);
     }
   }, [formData.google_app_url]);
-
-  useEffect(() => {
-    const eligibleAdditionalInsuredList =
-      formData.additional_insured_list?.filter((member) => member.age >= 20 && member.age <= 59) || [];
-
-    const eligibleAmericoCount =
-      (formData.age >= 20 && formData.age <= 59 ? 1 : 0) + eligibleAdditionalInsuredList.length;
-
-    const americoPremium = parseCurrency(formData.americo_premium) || 48;
-    const americoMonthlyAmount = eligibleAmericoCount * americoPremium;
-
-    const monthlyHealthPremium = parseCurrency(formData.monthly_health_premium) || 0;
-
-    let mutual_of_omaha_premium = 0;
-
-    if (formData.mutual_quote_gender && formData.mutual_face_amount) {
-      const coverageAmount = parseInt(formData.mutual_face_amount.replace(/[^0-9]/g, ''), 10) || 0;
-      const multiplier = (coverageAmount - 50000) / 10000;
-
-      if (formData.mutual_quote_gender === 'male') {
-        mutual_of_omaha_premium = 10.29 + multiplier * 1.18;
-      } else if (formData.mutual_quote_gender === 'female') {
-        mutual_of_omaha_premium = 7.53 + multiplier * 0.63;
-      }
-
-      mutual_of_omaha_premium = parseFloat(mutual_of_omaha_premium.toFixed(2));
-    }
-
-    const eligibleMutualInsuredList =
-      formData.additional_insured_list?.filter((member) => member.age === 18 || member.age === 19) || [];
-    const eligibleMutualCount = (formData.age === 18 || formData.age === 19 ? 1 : 0) + eligibleMutualInsuredList.length;
-    const mutualMonthlyAmount = eligibleMutualCount * mutual_of_omaha_premium;
-
-    const grandTotal =
-      formData.life_adb_provider === 'americo'
-        ? americoMonthlyAmount + monthlyHealthPremium
-        : mutualMonthlyAmount + monthlyHealthPremium;
-
-    setEligibleAmericoCount(eligibleAmericoCount);
-    setEligibleMutualCount(eligibleMutualCount);
-    setAmericoAmount(americoMonthlyAmount.toString());
-    setMutualAmount(mutualMonthlyAmount.toString());
-    setGrandTotal(grandTotal.toFixed(2).toString());
-  }, [
-    JSON.stringify(formData.additional_insured_list),
-    formData.additional_insured,
-    formData.monthly_health_premium,
-    formData.life_adb_provider,
-    formData.mutual_quote_gender,
-    formData.mutual_face_amount,
-    formData.americo_premium,
-    formData.age,
-  ]);
 
   useEffect(() => {
     const applyingForCoverage =
@@ -133,7 +75,7 @@ const Form = () => {
     if (formData.married === 'no') {
       setFormData({ ...formData, taxes_filing_status: 'single' });
     }
-  }, [formData.married, setFormData]);
+  }, [formData.married]);
 
   useEffect(() => {
     if (
@@ -150,41 +92,43 @@ const Form = () => {
   }, [formData.additional_insured]);
 
   useEffect(() => {
-    const { state } = formData;
-    if (state) {
-      setCarriers(preferredCarriers[state as keyof typeof preferredCarriers]);
-    }
-  }, [formData.state]);
-
-  useEffect(() => {
     const { zip_code } = formData;
     if (!zip_code || zip_code.length < 5) return;
     if (zip_code && zip_code.length === 5) {
       const zipcodeLookupData = getZipcodeData(zip_code);
       if (zipcodeLookupData) {
         setZipcodeData(zipcodeLookupData);
-        setFormData({
-          ...formData,
-          county: zipcodeLookupData.county,
-          state: zipcodeLookupData.state,
-        });
+        setCarriersData(preferredCarriers[zipcodeLookupData.state]);
       }
     }
   }, [formData.zip_code]);
 
   useEffect(() => {
-    if (formData.life_adb_provider === 'mutual') {
+    if (!zipcodeData || !carriersData) return;
+    setFormData({
+      ...formData,
+      county: zipcodeData.county,
+      state: zipcodeData.state,
+      city: zipcodeData.primary_city,
+      carriers: carriersData,
+    });
+  }, [zipcodeData, carriersData]);
+
+  useEffect(() => {
+    const { life_adb_provider } = formData;
+    if (!life_adb_provider) return;
+    if (life_adb_provider === 'mutual') {
       const newFormData = { ...formData };
       delete newFormData.americo_premium;
-      setFormData(newFormData);
+      setFormData({ ...newFormData });
     }
-    if (formData.life_adb_provider === 'americo') {
+    if (life_adb_provider === 'americo') {
       const newFormData = { ...formData };
       delete newFormData.mutual_quote_gender;
       delete newFormData.mutual_face_amount;
-      setFormData(newFormData);
+      setFormData({ ...newFormData });
     }
-  }, [formData.life_adb_provider]);
+  }, [formData.life_adb_provider, formData.americo_premium, formData.mutual_face_amount, formData.mutual_quote_gender]);
 
   const handleHouseholdCheck = () => {
     const { household_size } = formData;
@@ -215,6 +159,7 @@ const Form = () => {
     if (!formData) return;
     const formatFormData = { ...formData };
     delete formatFormData.google_app_url;
+    delete formatFormData.carriers;
     navigator.clipboard
       .writeText(JSON.stringify(formatFormData))
       .then(() => {
@@ -230,10 +175,12 @@ const Form = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!formData.google_app_url) return;
+    setFormDataBackup({ ...formData });
     setIsSubmitting(true);
     const baseUrl = formData.google_app_url;
     const formatFormData = { ...formData };
     delete formatFormData.google_app_url;
+    delete formatFormData.carriers;
     try {
       const response = await fetch(baseUrl, {
         method: 'POST',
@@ -243,10 +190,6 @@ const Form = () => {
         setIsSubmitting(false);
         setSuccessful(true);
         handleCopyToClipboard();
-        // setTimeout(() => {
-        //   setFormData(initialFormData);
-        //   setSuccessful(false);
-        // }, 2000);
         setTimeout(() => {
           window.location.reload();
         }, 2000);
@@ -259,17 +202,9 @@ const Form = () => {
         setErrorMessage('');
         setError(false);
       }, 2000);
+      setFormData({ ...formDataBackup });
     }
   };
-
-  if (isLoading)
-    return (
-      <div className='flex items-center justify-center min-h-screen py-20'>
-        <div className='flex w-full max-w-4xl p-4 border rounded-lg shadow sm:p-6 md:p-8 bg-10sa-purple border-10sa-gold/40 items-center justify-center'>
-          <div className='text-xl'>Loading...</div>
-        </div>
-      </div>
-    );
 
   if (isSubmitting)
     return (
@@ -299,149 +234,14 @@ const Form = () => {
       </div>
     );
 
-  if (!isLoading && !isSubmitting && !successful && !error)
+  if (!isSubmitting && !successful && !error)
     return (
-      <main className='flex items-center justify-center min-h-screen py-20'>
-        <SideNav />
-        <section className='fixed top-0 right-0 z-50 w-1/4 h-screen bg-10sa-purple p-8 flex flex-col gap-4 border-l border-10sa-gold/30'>
-          <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
-            <TextInput
-              id='monthly_health_premium'
-              name='monthly_health_premium'
-              placeholder='e.g. $8.14'
-              type='text'
-              labelName='Monthly Health Premium:'
-              required={true}
-              currency={true}
-            />
+      <>
+        <section className='4xl:max-w-4xl 3xl:max-w-3xl xl:max-w-xl lg:max-w-lg w-full p-4 bg-10sa-purple border border-10sa-gold/25 rounded-lg shadow sm:p-6 md:p-8 my-20'>
+          <div className='flex items-center justify-center '>
+            <TenStepsAheadLogo twClasses='w-full 4xl:max-w-4xl 3xl:max-w-3xl 2xl:max-w-3xl xl:max-w-2xl lg:max-w-xl' />
           </div>
-          <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
-            <GroupButton
-              labelName='Life ADB Provider:'
-              name='life_adb_provider'
-              id='life_adb_provider'
-              options={[
-                { label: 'Americo', value: 'americo' },
-                { label: 'Mutual', value: 'mutual' },
-              ]}
-              defaultOption='americo'
-            />
-          </div>
-          {formData.life_adb_provider === 'americo' && (
-            <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
-              <RadioInput
-                id='americo_premium'
-                name='americo_premium'
-                labelName='Americo Coverage:'
-                required={false}
-                rowOrCol='col'
-                defaultOption='$48'
-                options={[
-                  { label: '$27 Monthly - $100k ADB', value: '$27' },
-                  { label: '$35 Monthly - $150k ADB', value: '$35' },
-                  { label: '$42 Monthly - $200k ADB', value: '$42' },
-                  { label: '$48 Monthly - $250k ADB', value: '$48' },
-                ]}
-              />
-            </div>
-          )}
-          {formData.life_adb_provider === 'mutual' && (
-            <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
-              <GroupButton
-                id='mutual_quote_gender'
-                labelName='Gender:'
-                name='mutual_quote_gender'
-                options={[
-                  { label: 'Male', value: 'male' },
-                  { label: 'Female', value: 'female' },
-                ]}
-              />
-            </div>
-          )}
-          {formData.life_adb_provider === 'mutual' && formData.mutual_quote_gender && (
-            <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
-              <TextInput
-                id='mutual_face_amount'
-                name='mutual_face_amount'
-                labelName='Mutual Face Amount:'
-                placeholder='$50k - $500k'
-                type='text'
-                currency={true}
-                currencyMutual={true}
-              />
-            </div>
-          )}
-          {formData.household_size && (
-            <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
-              Household size: {formData.household_size}
-            </div>
-          )}
-          {formData.life_adb_provider === 'americo' && formData.additional_insured && (
-            <>
-              <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
-                {'Applying for coverage: '}
-                {formData.applying_for_coverage}
-              </div>
-              {formData.life_adb_provider === 'americo' && eligibleAmericoCount > 0 && (
-                <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
-                  {'Americo sales: '}
-                  {eligibleAmericoCount.toString()}
-                </div>
-              )}
-              <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
-                {'Americo amount: $'}
-                {americoAmount}
-              </div>
-            </>
-          )}
-          {formData.life_adb_provider === 'mutual' && formData.additional_insured && (
-            <>
-              <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
-                {'Applying for coverage: '}
-                {formData.applying_for_coverage.toString()}
-              </div>
-              {formData.life_adb_provider === 'mutual' && eligibleMutualCount > 0 && (
-                <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
-                  {'Mutual of Omaha sales: '}
-                  {eligibleMutualCount.toString()}
-                </div>
-              )}
-              <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
-                {'Mutual of Omaha amount: $'}
-                {mutualAmount}
-              </div>
-            </>
-          )}
-          {formData.life_adb_provider &&
-            formData.monthly_health_premium &&
-            (eligibleAmericoCount > 0 || eligibleMutualCount > 0) && (
-              <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
-                {'Monthly Grand Total: $'}
-                {grandTotal}
-              </div>
-            )}
-          {formData.state && (
-            <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl w-full'>
-              <div>Preferred carriers for {toTitleCase(formData.state)}:</div>
-              <ul className='flex flex-wrap gap-2 justify-center pt-3'>
-                {carriers &&
-                  carriers.map((carrier, i) => {
-                    return (
-                      <li
-                        key={carrier + i}
-                        title={carrier}
-                        className='rounded-full px-3 font-medium text-base w-32 text-white fill-white'
-                      >
-                        <CarrierIcon icon={carrier as CarrierIconKey} twClasses={`max-w-xs text-white`} />
-                      </li>
-                    );
-                  })}
-              </ul>
-            </div>
-          )}
-        </section>
-        <section className='4xl:max-w-4xl 3xl:max-w-3xl xl:max-w-xl lg:max-w-lg mr-64 w-full p-4 bg-10sa-purple border border-10sa-gold/25 rounded-lg shadow sm:p-6 md:p-8'>
-          <h1 className='text-2xl font-medium text-white text-center'>Lead Form</h1>
+          <h1 className='cursor-default text-2xl font-medium text-white text-center sr-only'>Lead Form</h1>
           <Divider />
           {/* {JSON.stringify(formData)
             .split(/,(?!\d)/)
@@ -455,12 +255,13 @@ const Form = () => {
             required={true}
             useDefault={true}
             defaultKey='google_app_url'
-            defaultValue={googleKey || ''}
+            defaultValue={formData?.google_app_url || ''}
+            externalValue={formData?.google_app_url}
           />
           <Divider />
           <form className='space-y-6' autoComplete='off' autoCapitalize='on' onSubmit={handleSubmit}>
             <>
-              <h5 className='text-xl font-medium text-white'>Customer Details</h5>
+              <h2 className='cursor-default text-xl font-medium text-white'>Customer Details</h2>
               <TextInput labelName='First Name' name='first_name' id='first_name' placeholder='e.g. John' type='text' />
               <TextInput
                 labelName='Middle Name'
@@ -532,7 +333,8 @@ const Form = () => {
                 type='text'
                 useDefault={true}
                 defaultKey='city'
-                defaultValue={zipcodeData?.primary_city}
+                defaultValue={zipcodeData?.primary_city || ''}
+                externalValue={zipcodeData?.primary_city}
               />
               <TextAreaInput
                 labelName='Why are they looking for coverage?'
@@ -544,13 +346,13 @@ const Form = () => {
             </>
             <Divider />
             <>
-              <h5 className='text-xl font-medium text-white'>Customer Questionare</h5>
+              <h2 className='cursor-default text-xl font-medium text-white'>Customer Questionare</h2>
               {formData.age !== 0 && (formData.age < 18 || formData.age > 59) && (
                 <div className='flex items-center justify-center text-white'>
                   <IneligibleIcon twClasses={'h-10'} />
                 </div>
               )}
-              {(formData.age === 18 || formData.age === 19) && (
+              {(formData.age === 18 || formData.age === 19 || formData.age >= 60) && (
                 <div className='flex items-center justify-center text-white'>
                   <MutualOfOmahaIcon twClasses={'h-10'} />
                 </div>
@@ -788,6 +590,7 @@ const Form = () => {
                         required={false}
                       />
                       <button
+                        id='remove-dependent'
                         key={`dependent_${i + 1}_button`}
                         type='button'
                         tabIndex={-1}
@@ -802,6 +605,7 @@ const Form = () => {
               {formData.additional_insured === 'yes' && (
                 <div className='flex items-center justify-center gap-6'>
                   <button
+                    id='add-additional-dependent'
                     disabled={handleHouseholdCheck()}
                     type='button'
                     tabIndex={-1}
@@ -947,7 +751,7 @@ const Form = () => {
             </>
             <Divider />
             <>
-              <h5 className='text-xl font-medium text-white'>Quote Breakdown</h5>
+              <h2 className='cursor-default text-xl font-medium text-white'>Quote Breakdown</h2>
               <TextInput
                 labelName='Plan Name:'
                 name='plan_name'
@@ -1012,7 +816,7 @@ const Form = () => {
             </>
             <Divider />
             <>
-              <h5 className='text-xl font-medium text-white'>Closure</h5>
+              <h2 className='cursor-default text-xl font-medium text-white'>Closure</h2>
               <TextInput
                 labelName='Phone Number:'
                 name='phone_number'
@@ -1092,7 +896,7 @@ const Form = () => {
                 />
               )}
               <TextInput
-                labelName='Height:'
+                labelName="Primary's Height:"
                 name='height'
                 id='height'
                 placeholder="e.g. 5'11"
@@ -1101,7 +905,7 @@ const Form = () => {
                 height={true}
               />
               <TextInput
-                labelName='Weight:'
+                labelName="Primary's Weight:"
                 name='weight'
                 id='weight'
                 placeholder='e.g. 150 (lbs.)'
@@ -1138,7 +942,7 @@ const Form = () => {
             </>
             <Divider />
             <>
-              <h5 className='text-xl font-medium text-white'>Beneficiary Information</h5>
+              <h2 className='cursor-default text-xl font-medium text-white'>Beneficiary Information</h2>
               <TextInput
                 labelName="Primary's Beneficiary Full Name:"
                 name='beneficiary_full_name'
@@ -1161,7 +965,7 @@ const Form = () => {
             </>
             <Divider />
             <>
-              <h5 className='text-xl font-medium text-white'>Payment Method</h5>
+              <h2 className='cursor-default text-xl font-medium text-white'>Payment Method</h2>
               <RadioInput
                 labelName='Checking or savings?'
                 name='checking_or_savings'
@@ -1199,7 +1003,7 @@ const Form = () => {
             </>
             <Divider />
             <>
-              <h5 className='text-xl font-medium text-white'>Disclosure</h5>
+              <h2 className='cursor-default text-xl font-medium text-white'>Disclosure</h2>
               <TextInput
                 labelName='Monthly Grand Total:'
                 name='monthly_grand_total'
@@ -1240,7 +1044,7 @@ const Form = () => {
             </>
             <Divider />
             <>
-              <h5 className='text-xl font-medium text-white'>Totals</h5>
+              <h2 className='cursor-default text-xl font-medium text-white'>Totals</h2>
               <TextInput
                 labelName='Total Pre-Subsidy'
                 name='total_pre_subsidy'
@@ -1287,8 +1091,10 @@ const Form = () => {
             </div>
           </form>
         </section>
-      </main>
+      </>
     );
+
+  return null;
 };
 
 export default Form;
