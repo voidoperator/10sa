@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Creatable from 'react-select/creatable';
 import { useFormData } from '../contexts/FormContext';
-import tw from 'tailwind-styled-components';
+import { MainLabel, RequiredSpan, ShadowDiv } from '../tw/twStyles';
 import type { SelectCreateableProps, OptionTypes } from '../../types/formData';
 import type { OnChangeValue, StylesConfig } from 'react-select';
 
@@ -80,11 +80,11 @@ const SelectCreateable: React.FC<SelectCreateableProps> = ({
   const defaultValue = defaultOption ? { label: defaultOption, value: defaultOption } : undefined;
 
   return (
-    <div className='shadow-lg'>
-      <label htmlFor={formatId} className='block mb-2 text-sm font-medium text-white'>
+    <ShadowDiv>
+      <MainLabel htmlFor={formatId}>
         {labelName}
-        {required && <span className='ml-1 after:content-["*"] after:text-yellow-300/90' />}
-      </label>
+        {required && <RequiredSpan />}
+      </MainLabel>
       <Creatable
         options={options}
         placeholder={placeholder}
@@ -99,7 +99,7 @@ const SelectCreateable: React.FC<SelectCreateableProps> = ({
         onChange={(e) => handleChange(e)}
         value={defaultValue}
       />
-    </div>
+    </ShadowDiv>
   );
 };
 

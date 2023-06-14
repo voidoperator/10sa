@@ -1,7 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
 import tw from 'tailwind-styled-components';
+import { ShadowDiv, MainLabel, RequiredSpan, Select } from '../tw/twStyles';
 import type { DropDownInputProps, FormDataType, InsuredList } from '../../types/formData';
+
+// const MainLabel = tw.label`
+//   block mb-2 text-sm font-medium text-white
+// `;
+// const RequiredSpan = tw.span`
+//   ml-1 after:content-["*"] after:text-yellow-300/90
+// `
+// const Select = tw.select`
+//   form-select bg-10sa-deep-purple border-10sa-gold/40 border text-sm rounded-lg block w-full p-2.5 placeholder-gray-400 text-white focus:ring-10sa-gold focus:border-10sa-gold
+// `
 
 const DropDownInput: React.FC<DropDownInputProps> = ({
   labelName,
@@ -37,19 +48,12 @@ const DropDownInput: React.FC<DropDownInputProps> = ({
       : (formData[name as keyof FormDataType] as string);
 
   return (
-    <div className='shadow-lg'>
-      <label htmlFor={formatId} className='block mb-2 text-sm font-medium text-white'>
+    <ShadowDiv>
+      <MainLabel htmlFor={formatId}>
         {labelName}
-        {required && <span className='ml-1 after:content-["*"] after:text-yellow-300/90' />}
-      </label>
-      <select
-        id={formatId}
-        name={name}
-        required={required}
-        onChange={handleChange}
-        className='form-select bg-10sa-deep-purple border-10sa-gold/40 border text-sm rounded-lg block w-full p-2.5 placeholder-gray-400 text-white focus:ring-10sa-gold focus:border-10sa-gold'
-        value={formatValue || ''}
-      >
+        {required && <RequiredSpan />}
+      </MainLabel>
+      <Select id={formatId} name={name} required={required} onChange={handleChange} value={formatValue || ''}>
         <option value='' disabled>
           {defaultOption}
         </option>
@@ -61,8 +65,8 @@ const DropDownInput: React.FC<DropDownInputProps> = ({
             </option>
           );
         })}
-      </select>
-    </div>
+      </Select>
+    </ShadowDiv>
   );
 };
 

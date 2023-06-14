@@ -1,5 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
+import tw from 'tailwind-styled-components';
+import { ShadowDiv } from '../tw/twStyles';
 import type { DetailConfirmationProps } from '../../types/formData';
+
+const MainLabel = tw.label`
+  block mb-2 text-sm font-medium
+`;
+const SubLabel = tw.label`
+  focus:ring-10sa-gold focus:border-10sa-gold border text-sm rounded-lg block w-full p-2.5 bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400
+`;
 
 const DetailConfirmation: React.FC<DetailConfirmationProps> = ({
   id,
@@ -13,18 +22,14 @@ const DetailConfirmation: React.FC<DetailConfirmationProps> = ({
   const formatId = additional && typeof id === 'number' ? name + '_' + (id + 1) : id.toString();
 
   return (
-    <div className='shadow-lg'>
-      <label className={`${textColor} block mb-2 text-sm font-medium`} htmlFor={name}>
+    <ShadowDiv>
+      <MainLabel className={textColor} htmlFor={name}>
         {labelName}
-      </label>
-      <label
-        id={formatId}
-        htmlFor={name}
-        className={`${textColor} focus:ring-10sa-gold focus:border-10sa-gold border text-sm rounded-lg block w-full p-2.5 bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400`}
-      >
+      </MainLabel>
+      <SubLabel id={formatId} htmlFor={name} className={textColor}>
         {detail}
-      </label>
-    </div>
+      </SubLabel>
+    </ShadowDiv>
   );
 };
 

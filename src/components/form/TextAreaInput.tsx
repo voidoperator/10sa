@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
+import { MainLabel, RequiredSpan, ShadowDiv, TextArea } from '../tw/twStyles';
 import type { TextAreaProps } from '../../types/formData';
-import tw from 'tailwind-styled-components';
 
 const TextAreaInput: React.FC<TextAreaProps> = ({
   id,
@@ -54,23 +54,22 @@ const TextAreaInput: React.FC<TextAreaProps> = ({
   const formatId = additional && typeof id === 'number' ? name + '_' + (id + 1) : name;
 
   return (
-    <div className='shadow-lg'>
-      <label htmlFor={formatId} className='block mb-2 text-sm font-medium text-white'>
+    <ShadowDiv>
+      <MainLabel htmlFor={formatId}>
         {labelName}
-        {required && <span className='ml-1 after:content-["*"] after:text-yellow-300/90' />}
-      </label>
-      <textarea
+        {required && <RequiredSpan />}
+      </MainLabel>
+      <TextArea
         id={formatId}
         name={name}
         rows={rows}
         placeholder={placeholder}
         required={required}
         onChange={handleChange}
-        className='form-textarea focus:ring-10sa-gold focus:border-10sa-gold block p-2.5 w-full text-sm rounded-lg border bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white'
         autoComplete='no'
         value={value}
       />
-    </div>
+    </ShadowDiv>
   );
 };
 

@@ -3,6 +3,10 @@ import Datepicker from 'react-tailwindcss-datepicker';
 import { useFormData } from '../contexts/FormContext';
 import type { DateValueType } from 'react-tailwindcss-datepicker/dist/types';
 import type { DateInputProps, DateValue } from '../../types/formData';
+import { ShadowDiv, DateInputLabelContainer, DateInputLabel, RequiredSpan, AgeContainer } from '../tw/twStyles';
+
+const datePickerInputClasses =
+  'form-input w-full border text-sm rounded-lg bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white';
 
 const DateInput: React.FC<DateInputProps> = ({
   id,
@@ -111,16 +115,14 @@ const DateInput: React.FC<DateInputProps> = ({
   const formatId = additional && typeof id === 'number' ? name + '_' + (id + 1) : name;
 
   return (
-    <div>
-      <div className='inline-flex justify-between w-full'>
-        <label htmlFor={formatId} className='inline-flex items-center mb-2 text-sm font-medium text-white'>
+    <ShadowDiv>
+      <DateInputLabelContainer>
+        <DateInputLabel htmlFor={formatId} className=''>
           {labelName}
-          {required && <span className='ml-1 after:content-["*"] after:text-yellow-300/90' />}
-        </label>
-        {value.startDate && userAge !== null && showAge && (
-          <p className='text-sm text-white font-bold'>Age: {userAge}</p>
-        )}
-      </div>
+          {required && <RequiredSpan />}
+        </DateInputLabel>
+        {value.startDate && userAge !== null && showAge && <AgeContainer>Age: {userAge}</AgeContainer>}
+      </DateInputLabelContainer>
       <Datepicker
         inputId={formatId}
         showFooter={true}
@@ -132,11 +134,9 @@ const DateInput: React.FC<DateInputProps> = ({
         popoverDirection='down'
         useRange={false}
         placeholder={'Enter or select a date: MM/DD/YYYY'}
-        inputClassName={
-          'form-input w-full border text-sm rounded-lg bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white'
-        }
+        inputClassName={datePickerInputClasses}
       />
-    </div>
+    </ShadowDiv>
   );
 };
 

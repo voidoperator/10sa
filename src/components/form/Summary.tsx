@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
+import { SummarySection, SummaryContainer, InputWrapper, SummaryUl, SummaryLi } from '../tw/twStyles';
 import TextInput from './TextInput';
 import GroupButton from './GroupButton';
 import RadioInput from './RadioInput';
@@ -79,9 +80,9 @@ const Summary = () => {
   ]);
 
   return (
-    <section className='relative z-50 min-h-screen w-1/4'>
-      <div className='flex flex-col gap-4 fixed top-0 right-0 border-l bg-10sa-purple border-10sa-gold/30 h-full w-1/4 px-4 py-4 overflow-y-auto scrollbar-thin scrollbar-thumb-10sa-gold scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar-track-10sa-deep-purple'>
-        <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+    <SummarySection>
+      <SummaryContainer>
+        <InputWrapper>
           <TextInput
             id='monthly_health_premium'
             name='monthly_health_premium'
@@ -93,8 +94,8 @@ const Summary = () => {
             defaultKey='monthly_health_premium'
             defaultValue={formData?.monthly_health_premium || ''}
           />
-        </div>
-        <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+        </InputWrapper>
+        <InputWrapper>
           <GroupButton
             id='life_adb_provider'
             labelName='Life ADB Provider:'
@@ -105,9 +106,9 @@ const Summary = () => {
             ]}
             defaultOption={formData?.life_adb_provider || 'americo'}
           />
-        </div>
+        </InputWrapper>
         {formData.life_adb_provider === 'americo' && (
-          <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+          <InputWrapper>
             <RadioInput
               id='americo_premium'
               name='americo_premium'
@@ -122,10 +123,10 @@ const Summary = () => {
               ]}
               defaultOption={formData?.americo_premium || '$48'}
             />
-          </div>
+          </InputWrapper>
         )}
         {formData.life_adb_provider === 'mutual' && (
-          <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+          <InputWrapper>
             <GroupButton
               id='mutual_quote_gender'
               labelName='Gender:'
@@ -136,10 +137,10 @@ const Summary = () => {
               ]}
               defaultOption={formData?.mutual_quote_gender || ''}
             />
-          </div>
+          </InputWrapper>
         )}
         {formData.life_adb_provider === 'mutual' && formData.mutual_quote_gender && (
-          <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+          <InputWrapper>
             <TextInput
               id='mutual_face_amount'
               name='mutual_face_amount'
@@ -151,78 +152,70 @@ const Summary = () => {
               defaultKey='mutual_face_amount'
               defaultValue={formData?.mutual_face_amount || ''}
             />
-          </div>
+          </InputWrapper>
         )}
-        {formData.household_size && (
-          <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
-            Household size: {formData.household_size}
-          </div>
-        )}
+        {formData.household_size && <InputWrapper>Household size: {formData.household_size}</InputWrapper>}
         {formData.life_adb_provider === 'americo' && formData.additional_insured && (
           <>
-            <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+            <InputWrapper>
               {'Applying for coverage: '}
               {formData.applying_for_coverage}
-            </div>
+            </InputWrapper>
             {formData.life_adb_provider === 'americo' && eligibleAmericoCount > 0 && (
-              <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+              <InputWrapper>
                 {'Americo sales: '}
                 {eligibleAmericoCount.toString()}
-              </div>
+              </InputWrapper>
             )}
-            <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+            <InputWrapper>
               {'Americo amount: $'}
               {americoAmount}
-            </div>
+            </InputWrapper>
           </>
         )}
         {formData.life_adb_provider === 'mutual' && formData.additional_insured && (
           <>
-            <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+            <InputWrapper>
               {'Applying for coverage: '}
               {formData.applying_for_coverage.toString()}
-            </div>
+            </InputWrapper>
             {formData.life_adb_provider === 'mutual' && eligibleMutualCount > 0 && (
-              <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+              <InputWrapper>
                 {'Mutual of Omaha sales: '}
                 {eligibleMutualCount.toString()}
-              </div>
+              </InputWrapper>
             )}
-            <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+            <InputWrapper>
               {'Mutual of Omaha amount: $'}
               {mutualAmount}
-            </div>
+            </InputWrapper>
           </>
         )}
         {formData.life_adb_provider &&
           formData.monthly_health_premium &&
           (eligibleAmericoCount > 0 || eligibleMutualCount > 0) && (
-            <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
+            <InputWrapper>
               {'Monthly Grand Total: $'}
               {grandTotal}
-            </div>
+            </InputWrapper>
           )}
         {formData.state && (
-          <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl w-full'>
+          <InputWrapper className='w-full'>
             <div>Preferred carriers for {toTitleCase(formData.state)}:</div>
-            <ul className='flex flex-wrap gap-2 justify-center pt-3'>
+            <SummaryUl>
               {formData.carriers &&
                 formData.carriers.map((carrier, i) => {
                   return (
-                    <li
-                      key={carrier + i}
-                      title={carrier}
-                      className='rounded-full px-3 font-medium text-base w-32 text-white fill-white'
-                    >
-                      <CarrierIcon icon={carrier as CarrierIconKey} twClasses={`max-w-xs text-white`} />
-                    </li>
+                    <SummaryLi key={carrier + i} title={carrier}>
+                      <CarrierIcon icon={carrier as CarrierIconKey} twClasses='max-w-xs text-white' />
+                    </SummaryLi>
                   );
                 })}
-            </ul>
-          </div>
+            </SummaryUl>
+          </InputWrapper>
         )}
-      </div>
-    </section>
+      </SummaryContainer>
+    </SummarySection>
   );
 };
 export default Summary;

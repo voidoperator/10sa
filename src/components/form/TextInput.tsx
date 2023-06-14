@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
+import { MainLabel, RequiredSpan, ShadowDiv, TextField } from '../tw/twStyles';
 import type { FormDataType, TextInputProps } from '../../types/formData';
 
 const TextInput: React.FC<TextInputProps> = ({
@@ -194,27 +195,25 @@ const TextInput: React.FC<TextInputProps> = ({
   const formatId = additional && typeof id === 'number' ? name + '_' + (id + 1) : name;
 
   return (
-    <div className='shadow-lg'>
-      <label htmlFor={formatId} className='block mb-2 text-sm font-medium text-white'>
+    <ShadowDiv>
+      <MainLabel htmlFor={formatId}>
         {labelName}
-        {required && <span className='ml-1 after:content-["*"] after:text-yellow-300/90' />}
-      </label>
-      <input
+        {required && <RequiredSpan />}
+      </MainLabel>
+      <TextField
         id={formatId}
         pattern={pattern}
         type={type}
         name={name}
         placeholder={placeholder}
         required={required}
-        className={`${
-          uppercase && 'capitalize '
-        }form-input focus:ring-10sa-gold focus:border-10sa-gold border text-sm rounded-lg block w-full p-2.5 bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white`}
+        className={uppercase ? 'capitalize' : 'normal-case'}
         onChange={handleChange}
         onBlur={handleBlur}
         autoComplete='no'
         value={value}
       />
-    </div>
+    </ShadowDiv>
   );
 };
 

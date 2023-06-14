@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { FormProvider } from '../components/contexts/FormContext';
 import { graphql, useStaticQuery } from 'gatsby';
+import { FormProvider } from '../components/contexts/FormContext';
+import { MainContainer, MainWrapper, StatusText, IndexContainer } from '../components/tw/twStyles';
 import Seo from '../components/Seo';
 import Form from '../components/form/Form';
 import SideNav from '../components/nav/SideNav';
@@ -31,21 +32,21 @@ const IndexPage = () => {
 
   if (isLoading)
     return (
-      <div className='flex items-center justify-center min-h-screen py-20'>
-        <div className='flex w-full max-w-4xl p-4 border rounded-lg shadow sm:p-6 md:p-8 bg-10sa-purple border-10sa-gold/40 items-center justify-center'>
-          <div className='text-xl'>Loading...</div>
-        </div>
-      </div>
+      <MainContainer>
+        <MainWrapper>
+          <StatusText>Loading...</StatusText>
+        </MainWrapper>
+      </MainContainer>
     );
 
   return (
     <FormProvider>
       <Seo subtitle='Lead Form' />
-      <div className='flex items-start justify-between min-h-screen'>
+      <IndexContainer>
         <SideNav />
         <Form />
         <Summary />
-      </div>
+      </IndexContainer>
     </FormProvider>
   );
 };

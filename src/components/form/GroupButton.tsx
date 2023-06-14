@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { useFormData } from '../contexts/FormContext';
-import tw from 'tailwind-styled-components';
+import { RequiredSpan, ShadowDiv, GroupButtonLabel, GroupButtonContainer, GroupButtonButton } from '../tw/twStyles';
 import type { FormDataType, GroupButtonProps } from '../../types/formData';
 
-const GroupButton: React.FC<GroupButtonProps> = ({ labelName, name, id, defaultOption, options, required = false }) => {
+const GroupButton: React.FC<GroupButtonProps> = ({ labelName, name, id, defaultOption, options, required = true }) => {
   const { formData, setFormData } = useFormData();
 
   useEffect(() => {
@@ -27,30 +27,30 @@ const GroupButton: React.FC<GroupButtonProps> = ({ labelName, name, id, defaultO
   };
 
   return (
-    <div>
-      <span className='block mb-2 text-sm font-medium text-white cursor-default'>
+    <ShadowDiv>
+      <GroupButtonLabel>
         {labelName}
-        {required && <span className='ml-1 after:content-["*"] after:text-yellow-300/90' />}
-      </span>
-      <div className='flex items-center justify-center'>
+        {required && <RequiredSpan />}
+      </GroupButtonLabel>
+      <GroupButtonContainer>
         {options.map((option, index) => {
           const { label, value } = option;
           const leftRightStyle = index ? 'rounded-r-3xl border' : 'rounded-l-3xl border';
           const defaultOptionStyle = value === defaultOption ? 'bg-10sa-gold/60' : 'bg-10sa-deep-purple';
           return (
-            <button
+            <GroupButtonButton
               id={id + '_' + (index + 1)}
               key={value + (index + 1)}
               value={value}
               onClick={(e) => handleClick(e)}
-              className={`${leftRightStyle} ${defaultOptionStyle} w-full hover:bg-10sa-gold/90 active:bg-10sa-gold/100 border-10sa-gold/25 text-white py-2 px-4 transition-all`}
+              className={`${leftRightStyle} ${defaultOptionStyle}`}
             >
               {label}
-            </button>
+            </GroupButtonButton>
           );
         })}
-      </div>
-    </div>
+      </GroupButtonContainer>
+    </ShadowDiv>
   );
 };
 
