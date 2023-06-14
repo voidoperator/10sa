@@ -8,7 +8,7 @@ const RadioInput: React.FC<RadioInputProps> = ({
   name,
   id,
   options,
-  required = false,
+  required = true,
   rowOrCol = 'row',
   defaultOption,
   additional = false,

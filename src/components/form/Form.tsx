@@ -390,6 +390,7 @@ const Form = () => {
                 name='date_of_birth'
                 id='date_of_birth'
                 defaultKey='date_of_birth'
+                required={true}
                 defaultValue={formData?.date_of_birth || ''}
               />
               <RadioInput

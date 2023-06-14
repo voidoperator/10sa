@@ -8,7 +8,7 @@ const TextAreaInput: React.FC<TextAreaProps> = ({
   labelName,
   placeholder,
   name,
-  required = false,
+  required = true,
   rows = 4,
   additional = false,
   useDefault = true,

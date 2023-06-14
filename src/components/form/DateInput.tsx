@@ -9,7 +9,7 @@ const DateInput: React.FC<DateInputProps> = ({
   labelName,
   name,
   showAge = true,
-  required = false,
+  required = true,
   additional = false,
   useDefault = true,
   defaultKey = '',
@@ -115,7 +115,7 @@ const DateInput: React.FC<DateInputProps> = ({
       <div className='inline-flex justify-between w-full'>
         <label htmlFor={formatId} className='inline-flex items-center mb-2 text-sm font-medium text-white'>
           {labelName}
-          {required && <span className='ml-1 after:content-["*"] after:text-gray-900' />}
+          {required && <span className='ml-1 after:content-["*"] after:text-yellow-300/90' />}
         </label>
         {value.startDate && userAge !== null && showAge && (
           <p className='text-sm text-white font-bold'>Age: {userAge}</p>

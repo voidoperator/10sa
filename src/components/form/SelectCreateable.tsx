@@ -53,7 +53,7 @@ const SelectCreateable: React.FC<SelectCreateableProps> = ({
   id,
   options,
   placeholder,
-  required = false,
+  required = true,
   additional = false,
   defaultOption = undefined,
 }) => {

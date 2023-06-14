@@ -40,7 +40,7 @@ const IndexPage = () => {
 
   return (
     <FormProvider>
-      <Seo subtitle='10 Steps Ahead - Lead' />
+      <Seo subtitle='Lead Form' />
       <div className='flex items-start justify-between min-h-screen'>
         <SideNav />
         <Form />

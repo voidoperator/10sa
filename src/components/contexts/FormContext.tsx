@@ -70,7 +70,6 @@ export const initialFormData: FormDataType = {
   driver_license_number: '',
 };
 
-// Check if localStorage has 'formData'
 let initialFormDataFromLocalStorage: FormDataType;
 const formDataFromLocalStorage = localStorage.getItem('formData');
 if (formDataFromLocalStorage) {

@@ -9,7 +9,7 @@ const TextInput: React.FC<TextInputProps> = ({
   type,
   name,
   pattern,
-  required = false,
+  required = true,
   additional = false,
   uppercase = true,
   zip_code = false,

@@ -9,7 +9,7 @@ const DropDownInput: React.FC<DropDownInputProps> = ({
   id,
   defaultOption,
   options,
-  required = false,
+  required = true,
   additional = false,
 }) => {
   const { formData, setFormData } = useFormData();
