@@ -43,7 +43,7 @@ export const initialFormData: FormDataType = {
   height: '',
   weight: '',
   ssn: '',
-  resident_or_citizen: '',
+  immigration_status: '',
   monthly_grand_total: '',
   health_unsubsidized: '',
   cigna_dental: '',
@@ -59,12 +59,15 @@ export const initialFormData: FormDataType = {
   beneficiary_full_name: '',
   beneficiary_relationship: '',
   beneficiary_date_of_birth: '',
+  account_type: '',
   routing_number: '',
   account_number: '',
+  bank_name: '',
   name_of_account_holder: '',
   total_pre_subsidy: '',
   qualified_subsidy: '',
   total_post_subsidy: '',
+  driver_license_number: '',
 };
 
 // Check if localStorage has 'formData'

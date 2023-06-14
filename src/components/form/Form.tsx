@@ -11,7 +11,7 @@ import { useFormData } from '../contexts/FormContext';
 import { TenStepsAheadLogo } from '../icons/TenStepsAheadLogo';
 import { getZipcodeData, ZipcodeDataType } from '../../utility/getZipcodeData';
 import { unitedStates, countries, occupations, preferredCarriers, employmentOptions } from '../../utility/staticData';
-import { toTitleCase } from '../../utility/utility';
+import { toTitleCase, formDataTitleCased, backupAndClearFormData, restoreBackupFormData } from '../../utility/utility';
 import { MutualOfOmahaIcon } from '../icons/MutualOfOmahaIcon';
 import { AmericoIcon } from '../icons/AmericoIcon';
 import { CloseIcon } from '../icons/CloseIcon';
@@ -30,8 +30,6 @@ const initialDependentState = {
   age: 0,
   ssn: '',
 };
-
-// https://script.google.com/macros/s/AKfycbxfsy0nALfDB3o-ujRAcgJewnR751VTX5eSzyDx8sTWMEq2Q0L-sPYGMA-Ey1JwjDt9/exec
 
 const Form = () => {
   const { formData, setFormData } = useFormData();
@@ -150,8 +148,9 @@ const Form = () => {
 
   const handleCopyToClipboard = () => {
     if (!formData) return;
+    const formatFormData = formDataTitleCased(formData);
     navigator.clipboard
-      .writeText(JSON.stringify(formData))
+      .writeText(JSON.stringify(formatFormData))
       .then(() => {
         console.log('Copied form data to clipboard');
         setCopied(true);
@@ -166,15 +165,17 @@ const Form = () => {
     e.preventDefault();
     if (!formData.google_app_url) return;
     setIsSubmitting(true);
+    const formatFormData = formDataTitleCased(formData);
     const baseUrl = formData.google_app_url;
     try {
       const response = await fetch(baseUrl, {
         method: 'POST',
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formatFormData),
       });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+      backupAndClearFormData();
       setIsSubmitting(false);
       setSuccessful(true);
       handleCopyToClipboard();
@@ -228,9 +229,24 @@ const Form = () => {
           </div>
           <h1 className='cursor-default text-2xl font-medium text-white text-center sr-only'>Lead Form</h1>
           <Divider />
-          {JSON.stringify(formData)
+          <div className='w-full inline-flex gap-4'>
+            <button
+              onClick={backupAndClearFormData}
+              className='hover:bg-10sa-gold/60 bg-purple-800 border border-10sa-gold/25 active:bg-10sa-gold/100 w-full transition-all text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center focus:ring-blue-800'
+            >
+              Clear Form
+            </button>
+            <button
+              onClick={restoreBackupFormData}
+              className='hover:bg-10sa-gold/60 bg-purple-800 border border-10sa-gold/25 active:bg-10sa-gold/100 w-full transition-all text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center focus:ring-blue-800'
+            >
+              Restore Form
+            </button>
+          </div>
+          <Divider />
+          {/* {JSON.stringify(formData)
             .split(/,(?!\d)/)
-            .join(', ')}
+            .join(', ')} */}
           <TextInput
             labelName='Google App URL:'
             name='google_app_url'
@@ -749,8 +765,8 @@ const Form = () => {
                 type='text'
                 pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
                 currency={true}
-                defaultKey='preferred_doctors_name'
-                defaultValue={formData?.preferred_doctors_name || ''}
+                defaultKey='monthly_budget'
+                defaultValue={formData?.monthly_budget || ''}
               />
             </>
             <Divider />
@@ -885,6 +901,7 @@ const Form = () => {
                 id='email'
                 placeholder='Ex. johndoe@gmail.com'
                 type='email'
+                uppercase={false}
                 defaultKey='email'
                 defaultValue={formData?.email || ''}
               />
@@ -894,6 +911,7 @@ const Form = () => {
                 id='address'
                 placeholder='Ex. 12345 NW 1st St'
                 type='text'
+                uppercase={false}
                 defaultKey='address'
                 defaultValue={formData?.address || ''}
               />
@@ -980,8 +998,8 @@ const Form = () => {
               />
               <RadioInput
                 labelName='Resident or citizen?'
-                name='resident_or_citizen'
-                id='resident_or_citizen'
+                name='immigration_status'
+                id='immigration_status'
                 options={[
                   { label: 'Resident', value: 'resident' },
                   { label: 'Citizen', value: 'citizen' },
@@ -1020,15 +1038,15 @@ const Form = () => {
               <h2 className='cursor-default text-xl font-medium text-white'>Payment Method</h2>
               <RadioInput
                 labelName='Checking or savings?'
-                name='checking_or_savings'
-                id='checking_or_savings'
+                name='account_type'
+                id='account_type'
                 options={[
                   { label: 'Savings', value: 'savings' },
                   { label: 'Checking', value: 'checking' },
                 ]}
               />
               <TextInput
-                labelName='Routing Number'
+                labelName='Routing Number:'
                 name='routing_number'
                 id='routing_number'
                 placeholder='Ex. 123456789'
@@ -1039,7 +1057,7 @@ const Form = () => {
                 defaultValue={formData?.routing_number || ''}
               />
               <TextInput
-                labelName='Account Number'
+                labelName='Account Number:'
                 name='account_number'
                 id='account_number'
                 placeholder='Ex. 123456789012'
@@ -1050,7 +1068,16 @@ const Form = () => {
                 defaultValue={formData?.account_number || ''}
               />
               <TextInput
-                labelName='Name of Account Holder'
+                labelName='Bank Name:'
+                name='bank_name'
+                id='bank_name'
+                placeholder='Ex. Bank of America'
+                type='text'
+                defaultKey='bank_name'
+                defaultValue={formData?.bank_name || ''}
+              />
+              <TextInput
+                labelName='Name of Account Holder:'
                 name='name_of_account_holder'
                 id='name_of_account_holder'
                 placeholder='Ex. John Doe'
