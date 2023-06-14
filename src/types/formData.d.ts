@@ -47,13 +47,22 @@ export type FormDataType = {
   cigna_dental?: string;
   life_adb_provider: string;
   monthly_health_premium: string;
-  americo_premium?: string;
-  americo_death_benefit?: string;
-  mutual_face_amount?: string;
-  mutual_quote_gender?: string;
+  americo_premium: string;
+  mutual_face_amount: string;
+  mutual_quote_gender: string;
+  death_benefit: string;
   employment_status: string;
   occupation: string;
   carriers?: Carrier[];
+  beneficiary_full_name: string;
+  beneficiary_relationship: string;
+  beneficiary_date_of_birth: string;
+  routing_number: string;
+  account_number: string;
+  name_of_account_holder: string;
+  total_pre_subsidy: string;
+  qualified_subsidy: string;
+  total_post_subsidy: string;
 };
 
 export type State = OptionTypes['value'];
@@ -89,6 +98,7 @@ export type InsuredList = {
   notes_dependent?: string;
   employment_status?: string;
   occupation?: string;
+  dependent_beneficiary?: string;
 };
 
 export type TextInputProps = {
@@ -99,6 +109,7 @@ export type TextInputProps = {
   type: string;
   required?: boolean;
   pattern?: string;
+  uppercase?: boolean;
   currency?: boolean;
   zip_code?: boolean;
   routingNumber?: boolean;
@@ -134,6 +145,9 @@ export type TextAreaProps = {
   required?: boolean;
   rows?: number;
   additional?: boolean;
+  useDefault?: boolean;
+  defaultKey?: string;
+  defaultValue?: string;
 };
 
 export type DropDownInputProps = {
@@ -153,11 +167,14 @@ export type DateInputProps = {
   showAge?: boolean;
   required?: boolean;
   additional?: boolean;
+  useDefault?: boolean;
+  defaultKey?: string;
+  defaultValue?: string;
 };
 
 export type DateValue = {
-  startDate: Date | null;
-  endDate: Date | null;
+  startDate: Date | string | null;
+  endDate: Date | string | null;
 };
 
 export type DetailConfirmationProps = {
@@ -186,6 +203,7 @@ export type SelectCreateableProps = {
   options: { label: string; value: string }[];
   required?: boolean;
   additional?: boolean;
+  defaultOption?: string | undefined;
 };
 
 export type OptionTypes = {

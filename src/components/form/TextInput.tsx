@@ -11,6 +11,7 @@ const TextInput: React.FC<TextInputProps> = ({
   pattern,
   required = false,
   additional = false,
+  uppercase = true,
   zip_code = false,
   currency = false,
   phone = false,
@@ -20,18 +21,28 @@ const TextInput: React.FC<TextInputProps> = ({
   height = false,
   weight = false,
   currencyMutual = false,
-  useDefault = false,
+  useDefault = true,
   defaultKey = '',
   defaultValue = '',
   externalValue,
 }) => {
-  const [value, setValue] = useState<string>('');
   const { formData, setFormData } = useFormData();
+  const [value, setValue] = useState<string>('');
 
   useEffect(() => {
-    if (useDefault && defaultKey && defaultValue && value === '') {
+    if (!additional && useDefault && defaultKey && defaultValue && value === '') {
       setValue(defaultValue);
       setFormData({ ...formData, [defaultKey]: defaultValue });
+    }
+    if (additional && typeof id === 'number' && useDefault && defaultKey && defaultValue && value === '') {
+      setValue(defaultValue);
+      const dependentIndex = id;
+      let additionalInsuredList = formData.additional_insured_list || [];
+      additionalInsuredList[dependentIndex] = {
+        ...additionalInsuredList[dependentIndex],
+        [defaultKey]: defaultValue,
+      };
+      setFormData({ ...formData, additional_insured_list: additionalInsuredList });
     }
   }, [useDefault, defaultKey, defaultValue, value]);
 
@@ -195,7 +206,9 @@ const TextInput: React.FC<TextInputProps> = ({
         name={name}
         placeholder={placeholder}
         required={required}
-        className='form-input focus:ring-10sa-gold focus:border-10sa-gold border text-sm rounded-lg block w-full p-2.5 bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white'
+        className={`${
+          uppercase && 'capitalize '
+        }form-input focus:ring-10sa-gold focus:border-10sa-gold border text-sm rounded-lg block w-full p-2.5 bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white`}
         onChange={handleChange}
         onBlur={handleBlur}
         autoComplete='no'

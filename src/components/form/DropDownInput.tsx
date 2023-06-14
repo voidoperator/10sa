@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
 import tw from 'tailwind-styled-components';
-import type { DropDownInputProps, FormDataType } from '../../types/formData';
+import type { DropDownInputProps, FormDataType, InsuredList } from '../../types/formData';
 
 const DropDownInput: React.FC<DropDownInputProps> = ({
   labelName,
@@ -31,6 +31,11 @@ const DropDownInput: React.FC<DropDownInputProps> = ({
 
   const formatId = additional && typeof id === 'number' ? name + '_' + (id + 1) : name;
 
+  const formatValue =
+    additional && typeof id === 'number'
+      ? (formData.additional_insured_list[id][name as keyof InsuredList] as string)
+      : (formData[name as keyof FormDataType] as string);
+
   return (
     <div className='shadow-lg'>
       <label htmlFor={formatId} className='block mb-2 text-sm font-medium text-white'>
@@ -43,14 +48,16 @@ const DropDownInput: React.FC<DropDownInputProps> = ({
         required={required}
         onChange={handleChange}
         className='form-select bg-10sa-deep-purple border-10sa-gold/40 border text-sm rounded-lg block w-full p-2.5 placeholder-gray-400 text-white focus:ring-10sa-gold focus:border-10sa-gold'
-        defaultValue={defaultOption || ''}
-        value={formData[name as keyof FormDataType] as string}
+        value={formatValue || ''}
       >
-        <option disabled>{defaultOption}</option>
+        <option value='' disabled>
+          {defaultOption}
+        </option>
         {options.map((option, index) => {
+          const { label, value } = option;
           return (
-            <option key={option.value + (index + 1)} value={option.value}>
-              {option.label}
+            <option key={value + (index + 1)} value={value}>
+              {label}
             </option>
           );
         })}

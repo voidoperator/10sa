@@ -7,13 +7,23 @@ import { CarrierIcon, CarrierIconKey } from '../icons/CarrierIcons';
 import { parseCurrency, toTitleCase } from '../../utility/utility';
 
 const Summary = () => {
-  const { formData } = useFormData();
-
+  const { formData, setFormData } = useFormData();
   const [grandTotal, setGrandTotal] = useState<string>('');
   const [americoAmount, setAmericoAmount] = useState<string>('');
   const [mutualAmount, setMutualAmount] = useState<string>('');
   const [eligibleMutualCount, setEligibleMutualCount] = useState<number>(0);
   const [eligibleAmericoCount, setEligibleAmericoCount] = useState<number>(0);
+
+  useEffect(() => {
+    const { life_adb_provider } = formData;
+    if (!life_adb_provider) return;
+    if (life_adb_provider === 'mutual') {
+      setFormData({ ...formData, americo_premium: '' });
+    }
+    if (life_adb_provider === 'americo') {
+      setFormData({ ...formData, mutual_quote_gender: '', mutual_face_amount: '' });
+    }
+  }, [formData.life_adb_provider, formData.americo_premium, formData.mutual_face_amount, formData.mutual_quote_gender]);
 
   useEffect(() => {
     const eligibleAdditionalInsuredList =
@@ -80,6 +90,8 @@ const Summary = () => {
             labelName='Monthly Health Premium:'
             required={true}
             currency={true}
+            defaultKey='monthly_health_premium'
+            defaultValue={formData?.monthly_health_premium || ''}
           />
         </div>
         <div className='border border-10sa-gold/40 p-4 rounded-xl shadow-xl'>
@@ -91,7 +103,7 @@ const Summary = () => {
               { label: 'Americo', value: 'americo' },
               { label: 'Mutual', value: 'mutual' },
             ]}
-            defaultOption='americo'
+            defaultOption={formData?.life_adb_provider || 'americo'}
           />
         </div>
         {formData.life_adb_provider === 'americo' && (
@@ -102,13 +114,13 @@ const Summary = () => {
               labelName='Americo Coverage:'
               required={false}
               rowOrCol='col'
-              defaultOption='$48'
               options={[
                 { label: '$27 Monthly - $100k ADB', value: '$27' },
                 { label: '$35 Monthly - $150k ADB', value: '$35' },
                 { label: '$42 Monthly - $200k ADB', value: '$42' },
                 { label: '$48 Monthly - $250k ADB', value: '$48' },
               ]}
+              defaultOption={formData?.americo_premium || '$48'}
             />
           </div>
         )}
@@ -122,6 +134,7 @@ const Summary = () => {
                 { label: 'Male', value: 'male' },
                 { label: 'Female', value: 'female' },
               ]}
+              defaultOption={formData?.mutual_quote_gender || ''}
             />
           </div>
         )}
@@ -135,6 +148,8 @@ const Summary = () => {
               type='text'
               currency={true}
               currencyMutual={true}
+              defaultKey='mutual_face_amount'
+              defaultValue={formData?.mutual_face_amount || ''}
             />
           </div>
         )}
