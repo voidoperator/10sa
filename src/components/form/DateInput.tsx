@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Datepicker from 'react-tailwindcss-datepicker';
 import { useFormData } from '../contexts/FormContext';
 import type { DateValueType } from 'react-tailwindcss-datepicker/dist/types';
@@ -9,8 +9,11 @@ const DateInput: React.FC<DateInputProps> = ({
   labelName,
   name,
   showAge = true,
-  required = true,
+  required = false,
   additional = false,
+  useDefault = true,
+  defaultKey = '',
+  defaultValue = '',
 }) => {
   const { formData, setFormData } = useFormData();
   const [userAge, setUserAge] = useState<number>(0);
@@ -18,6 +21,50 @@ const DateInput: React.FC<DateInputProps> = ({
     startDate: null,
     endDate: null,
   });
+
+  useEffect(() => {
+    if (!additional && useDefault && defaultKey && defaultValue && value.startDate === null && value.endDate === null) {
+      const [month = '', day = '', year = ''] = defaultValue.toString().split('-');
+      const dateReformat = `${year}-${month}-${day}`;
+      let startDate = new Date(dateReformat);
+      startDate.setMinutes(startDate.getMinutes() - startDate.getTimezoneOffset());
+      setValue({
+        startDate: dateReformat,
+        endDate: dateReformat,
+      });
+      const calcAge = Number(calculateAge(startDate));
+      setUserAge(calcAge);
+      setFormData({ ...formData, [defaultKey]: defaultValue, age: calcAge });
+    }
+    if (
+      additional &&
+      typeof id === 'number' &&
+      useDefault &&
+      defaultKey &&
+      defaultValue &&
+      value.startDate === null &&
+      value.endDate === null
+    ) {
+      const [month = '', day = '', year = ''] = defaultValue.toString().split('-');
+      const dateReformat = `${year}-${month}-${day}`;
+      const dependentIndex = id;
+      let startDate = new Date(dateReformat);
+      startDate.setMinutes(startDate.getMinutes() - startDate.getTimezoneOffset());
+      setValue({
+        startDate: dateReformat,
+        endDate: dateReformat,
+      });
+      const calcAge = Number(calculateAge(startDate));
+      setUserAge(calcAge);
+      let additionalInsuredList = formData.additional_insured_list || [];
+      additionalInsuredList[dependentIndex] = {
+        ...additionalInsuredList[dependentIndex],
+        [defaultKey]: defaultValue,
+        age: calcAge,
+      };
+      setFormData({ ...formData, additional_insured_list: additionalInsuredList });
+    }
+  }, [useDefault, defaultKey, defaultValue, value]);
 
   const handleValueChange = (newDate: DateValueType, e?: HTMLInputElement | null) => {
     if (newDate === null) {

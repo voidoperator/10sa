@@ -53,8 +53,9 @@ const SelectCreateable: React.FC<SelectCreateableProps> = ({
   id,
   options,
   placeholder,
-  required = true,
+  required = false,
   additional = false,
+  defaultOption = undefined,
 }) => {
   const { formData, setFormData } = useFormData();
 
@@ -76,6 +77,8 @@ const SelectCreateable: React.FC<SelectCreateableProps> = ({
 
   const formatId = additional && typeof id === 'number' ? name + '_' + (id + 1) : name;
 
+  const defaultValue = defaultOption ? { label: defaultOption, value: defaultOption } : undefined;
+
   return (
     <div className='shadow-lg'>
       <label htmlFor={formatId} className='block mb-2 text-sm font-medium text-white'>
@@ -94,6 +97,7 @@ const SelectCreateable: React.FC<SelectCreateableProps> = ({
         isClearable={true}
         isMulti={false}
         onChange={(e) => handleChange(e)}
+        value={defaultValue}
       />
     </div>
   );

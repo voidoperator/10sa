@@ -9,31 +9,48 @@ const TextInput: React.FC<TextInputProps> = ({
   type,
   name,
   pattern,
-  required = true,
+  required = false,
   additional = false,
+  uppercase = true,
   zip_code = false,
   currency = false,
   phone = false,
   socialSecurity = false,
-  driverLicense = false,
   routingNumber = false,
   accountNumber = false,
   height = false,
   weight = false,
   currencyMutual = false,
-  useDefault = false,
+  useDefault = true,
   defaultKey = '',
   defaultValue = '',
+  externalValue,
 }) => {
-  const [value, setValue] = useState('');
   const { formData, setFormData } = useFormData();
+  const [value, setValue] = useState<string>('');
 
   useEffect(() => {
-    if (useDefault && defaultKey && defaultValue) {
+    if (!additional && useDefault && defaultKey && defaultValue && value === '') {
       setValue(defaultValue);
       setFormData({ ...formData, [defaultKey]: defaultValue });
     }
+    if (additional && typeof id === 'number' && useDefault && defaultKey && defaultValue && value === '') {
+      setValue(defaultValue);
+      const dependentIndex = id;
+      let additionalInsuredList = formData.additional_insured_list || [];
+      additionalInsuredList[dependentIndex] = {
+        ...additionalInsuredList[dependentIndex],
+        [defaultKey]: defaultValue,
+      };
+      setFormData({ ...formData, additional_insured_list: additionalInsuredList });
+    }
   }, [useDefault, defaultKey, defaultValue, value]);
+
+  useEffect(() => {
+    if (externalValue !== undefined) {
+      setValue(externalValue);
+    }
+  }, [externalValue]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let value = event.target.value;
@@ -104,20 +121,6 @@ const TextInput: React.FC<TextInputProps> = ({
       const match = value.match(/^(\d{1,3})(\d{0,2})(\d{0,4})?$/);
       if (match) {
         value = `${match[1] ? match[1] : ''}${match[2] ? '-' + match[2] : ''}${match[3] ? '-' + match[3] : ''}`;
-      }
-    }
-
-    if (driverLicense) {
-      value = value.toUpperCase().replace(/[^a-zA-Z0-9]/g, '');
-      if (value.length > 12) {
-        value = value.substring(0, 12);
-      }
-      const match = value.match(/^([a-zA-Z]{1})(\d{0,2})(\d{0,3})(\d{0,2})(\d{0,3})(\d{0,1})$/);
-      if (match) {
-        value = `${match[1] ? match[1] : ''}${match[2] ? match[2] : ''}${match[3] ? '-' + match[3] : ''}${
-          match[4] ? '-' + match[4] : ''
-        }${match[5] ? '-' + match[5] : ''}${match[6] ? '-' + match[6] : ''}`;
-        value = value.trim().replace(/-$/, '');
       }
     }
 
@@ -203,7 +206,9 @@ const TextInput: React.FC<TextInputProps> = ({
         name={name}
         placeholder={placeholder}
         required={required}
-        className='form-input focus:ring-10sa-gold focus:border-10sa-gold border text-sm rounded-lg block w-full p-2.5 bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white'
+        className={`${
+          uppercase && 'capitalize '
+        }form-input focus:ring-10sa-gold focus:border-10sa-gold border text-sm rounded-lg block w-full p-2.5 bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white`}
         onChange={handleChange}
         onBlur={handleBlur}
         autoComplete='no'

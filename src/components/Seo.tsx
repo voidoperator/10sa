@@ -56,6 +56,10 @@ const Seo = ({ subtitle, lang = 'en', meta }: SeoProps) => {
           content: description,
         },
         {
+          name: 'theme-color',
+          content: '#0f0f0f',
+        },
+        {
           property: `og:type`,
           content: `website`,
         },

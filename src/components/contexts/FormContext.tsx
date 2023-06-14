@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, FC, ReactNode, Context } fr
 import type { FormDataType } from '../../types/formData';
 
 export const initialFormData: FormDataType = {
-  google_app_url: '',
+  google_app_url: localStorage.getItem('google_app_url') || '',
   first_name: '',
   middle_name: '',
   last_name: '',
@@ -43,19 +43,46 @@ export const initialFormData: FormDataType = {
   height: '',
   weight: '',
   ssn: '',
-  resident_or_citizen: '',
+  immigration_status: '',
   monthly_grand_total: '',
   health_unsubsidized: '',
   cigna_dental: '',
   life_adb_provider: '',
   monthly_health_premium: '',
-  americo_death_benefit: '',
   americo_premium: '',
   mutual_face_amount: '',
   mutual_quote_gender: '',
+  death_benefit: '',
   employment_status: '',
   occupation: '',
+  carriers: [],
+  beneficiary_full_name: '',
+  beneficiary_relationship: '',
+  beneficiary_date_of_birth: '',
+  account_type: '',
+  routing_number: '',
+  account_number: '',
+  bank_name: '',
+  name_of_account_holder: '',
+  total_pre_subsidy: '',
+  qualified_subsidy: '',
+  total_post_subsidy: '',
+  driver_license_number: '',
 };
+
+// Check if localStorage has 'formData'
+let initialFormDataFromLocalStorage: FormDataType;
+const formDataFromLocalStorage = localStorage.getItem('formData');
+if (formDataFromLocalStorage) {
+  try {
+    initialFormDataFromLocalStorage = JSON.parse(formDataFromLocalStorage);
+  } catch (error) {
+    console.error('Error parsing formData from localStorage', error);
+    initialFormDataFromLocalStorage = initialFormData;
+  }
+} else {
+  initialFormDataFromLocalStorage = initialFormData;
+}
 
 interface FormContextData {
   formData: FormDataType;
@@ -72,7 +99,7 @@ interface FormProviderProps {
 }
 
 export const FormProvider: FC<FormProviderProps> = ({ children }) => {
-  const [formData, setFormData] = useState<FormDataType>({} as FormDataType);
+  const [formData, setFormData] = useState<FormDataType>(initialFormDataFromLocalStorage);
 
   return <FormContext.Provider value={{ formData, setFormData }}>{children}</FormContext.Provider>;
 };
