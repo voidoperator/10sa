@@ -780,7 +780,7 @@ const Form = () => {
               defaultValue={formData?.plan_name || ''}
             />
             <TextInput
-              labelName='PCP Copay:'
+              labelName='PCP Copay (Primary Care Visit):'
               name='pcp_copay'
               id='pcp_copay'
               placeholder='Ex. $150'
@@ -791,7 +791,7 @@ const Form = () => {
               defaultValue={formData?.pcp_copay || ''}
             />
             <TextInput
-              labelName='Specialist Copay:'
+              labelName='Specialist Copay (Specialist Visit):'
               name='specialist_copay'
               id='specialist_copay'
               placeholder='Ex. $150'
@@ -833,17 +833,6 @@ const Form = () => {
               currency={true}
               defaultKey='max_out_of_pocket'
               defaultValue={formData?.max_out_of_pocket || ''}
-            />
-            <TextInput
-              labelName='All Benefits:'
-              name='all_benefits'
-              id='all_benefits'
-              placeholder='Ex. $5,000'
-              type='text'
-              pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
-              currency={true}
-              defaultKey='all_benefits'
-              defaultValue={formData?.all_benefits || ''}
             />
           </>
           <Divider />
@@ -991,7 +980,7 @@ const Form = () => {
               defaultValue={formData?.driver_license_number || ''}
             />
             <RadioInput
-              labelName='Resident or citizen?'
+              labelName='Immigration status:'
               name='immigration_status'
               id='immigration_status'
               options={[
@@ -1129,43 +1118,6 @@ const Form = () => {
               currency={true}
               defaultKey='death_benefit'
               defaultValue={formData?.death_benefit || ''}
-            />
-          </>
-          <Divider />
-          <>
-            <H2>Totals</H2>
-            <TextInput
-              labelName='Total Pre-Subsidy'
-              name='total_pre_subsidy'
-              id='total_pre_subsidy'
-              placeholder='Ex. $50,000'
-              type='text'
-              pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
-              currency={true}
-              defaultKey='total_pre_subsidy'
-              defaultValue={formData?.total_pre_subsidy || ''}
-            />
-            <TextInput
-              labelName='Qualified Subsidy'
-              name='qualified_subsidy'
-              id='qualified_subsidy'
-              placeholder='Ex. $50,000'
-              type='text'
-              pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
-              currency={true}
-              defaultKey='qualified_subsidy'
-              defaultValue={formData?.qualified_subsidy || ''}
-            />
-            <TextInput
-              labelName='Total Post-Subsidy'
-              name='total_post_subsidy'
-              id='total_post_subsidy'
-              placeholder='Ex. $50,000'
-              type='text'
-              pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
-              currency={true}
-              defaultKey='total_post_subsidy'
-              defaultValue={formData?.total_post_subsidy || ''}
             />
           </>
           <Divider />

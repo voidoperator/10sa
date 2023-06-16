@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useFormData } from '../contexts/FormContext';
 import {
-  RadioMainLabel,
+  MainLabelSpan,
   RadioLabelContainer,
   RadioContainer,
   RequiredSpan,
@@ -33,10 +33,10 @@ const RadioInput: React.FC<RadioInputProps> = ({
   return (
     <RadioLabelContainer>
       <div>
-        <RadioMainLabel id={formatId}>
+        <MainLabelSpan id={formatId}>
           {labelName}
           {required && <RequiredSpan />}
-        </RadioMainLabel>
+        </MainLabelSpan>
       </div>
       <RadioContainer className={rowOrCol === 'row' ? 'flex-row' : 'flex-col'}>
         {options.map((option, index) => {

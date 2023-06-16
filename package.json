@@ -13,10 +13,10 @@
     "format": "yarn prettier && yarn eslint",
     "prettier": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,css}\"",
     "eslint": "eslint --ignore-path .gitignore . --ext ts --ext tsx",
-    "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\" && exit 1"
+    "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\" && exit 1",
+    "preinstall": "cd lib/react-tw-datepicker && yarn install && yarn build"
   },
   "dependencies": {
-    "dayjs": "^1.11.7",
     "gatsby": "^5.9.0",
     "gatsby-plugin-image": "^3.9.0",
     "gatsby-plugin-manifest": "^5.9.0",
@@ -30,7 +30,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-helmet": "^6.1.0",
-    "react-select": "^5.7.3"
+    "react-select": "^5.7.3",
+    "react-tw-datepicker": "file:./lib/react-tw-datepicker"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.3",

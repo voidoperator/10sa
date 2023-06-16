@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useFormData } from '../contexts/FormContext';
-import { RequiredSpan, ShadowDiv, GroupButtonLabel, GroupButtonContainer, GroupButtonButton } from '../tw/twStyles';
+import { RequiredSpan, ShadowDiv, MainLabelSpan, GroupButtonContainer, GroupButtonButton } from '../tw/twStyles';
 import type { FormDataType, GroupButtonProps } from '../../types/formData';
 
 const GroupButton: React.FC<GroupButtonProps> = ({ labelName, name, id, defaultOption, options, required = true }) => {
@@ -28,10 +28,10 @@ const GroupButton: React.FC<GroupButtonProps> = ({ labelName, name, id, defaultO
 
   return (
     <ShadowDiv>
-      <GroupButtonLabel>
+      <MainLabelSpan>
         {labelName}
         {required && <RequiredSpan />}
-      </GroupButtonLabel>
+      </MainLabelSpan>
       <GroupButtonContainer>
         {options.map((option, index) => {
           const { label, value } = option;

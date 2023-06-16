@@ -24,13 +24,13 @@ const SideNav = () => {
         >
           <MutualOfOmahaSymbol twClasses='z-10 w-10 bg-10sa-gold rounded-full fill-mutual' />
           <AnchorSpan style={{ transition: 'width 0.5s ease, transform 0.5s ease, opacity 2s ease' }}>
-            Mutual Of Omaha (Submit)
+            Mutual (Submit)
           </AnchorSpan>
         </Anchor>
         <Anchor href='https://www3.mutualofomaha.com/mobile-quotes/#/gad' target='_blank'>
           <MutualOfOmahaSymbol twClasses='z-10 w-10 bg-10sa-gold rounded-full fill-red-900' />
           <AnchorSpan style={{ transition: 'width 0.5s ease, transform 0.5s ease, opacity 2s ease' }}>
-            Mutual Of Omaha (Quote)
+            Mutual (Quote)
           </AnchorSpan>
         </Anchor>
       </SymbolContainer>

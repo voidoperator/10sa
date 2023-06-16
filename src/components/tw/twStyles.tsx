@@ -4,6 +4,15 @@ import tw from 'tailwind-styled-components';
 export const MainLabel = tw.label`
   block mb-2 text-sm font-medium text-white
 `;
+export const MainLabelSpan = tw.span`
+  block mb-2 text-sm font-medium text-white cursor-default
+`;
+export const SubLabel = tw.label`
+  focus:ring-10sa-gold focus:border-10sa-gold border text-sm rounded-lg block w-full p-2.5 bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400
+`;
+export const SubLabelSpan = tw.span`
+  focus:ring-10sa-gold focus:border-10sa-gold border text-sm rounded-lg block w-full p-2.5 bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400
+`;
 export const RequiredSpan = tw.span`
   ml-1 after:content-["*"] after:text-yellow-300/90
 `;
@@ -103,9 +112,6 @@ export const Select = tw.select`
 `;
 
 // RadioInput
-export const RadioMainLabel = tw.span`
-  cursor-default block mb-2 text-sm font-medium text-white
-`;
 export const RadioContainer = tw.div`
   flex items-start rounded-full gap-3
 `;
@@ -130,9 +136,6 @@ export const TextArea = tw.textarea`
 `;
 
 // GroupButton
-export const GroupButtonLabel = tw.span`
-  block mb-2 text-sm font-medium text-white cursor-default
-`;
 export const GroupButtonContainer = tw.div`
   flex items-center justify-center
 `;

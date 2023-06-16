@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import Datepicker from 'react-tailwindcss-datepicker';
 import { useFormData } from '../contexts/FormContext';
-import type { DateValueType } from 'react-tailwindcss-datepicker/dist/types';
+import Datepicker from 'react-tw-datepicker';
+import type { DateValueType } from 'react-tw-datepicker/dist/types';
 import type { DateInputProps, DateValue } from '../../types/formData';
 import { ShadowDiv, DateInputLabelContainer, DateInputLabel, RequiredSpan, AgeContainer } from '../tw/twStyles';
 
