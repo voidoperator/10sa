@@ -25,6 +25,12 @@ export const InputWrapper = tw.div`
 export const Divider = tw.div`
   h-[1px] w-full bg-10sa-gold/75 my-0 sm:my-10 hidden sm:block
 `;
+export const ScriptBox = tw.p`
+  rounded-[50px] p-8 bg-purple-900
+`;
+export const AgentInfoBox = tw.div`
+  space-y-6
+`;
 
 // Form
 export const FormSectionContainer = tw.section`

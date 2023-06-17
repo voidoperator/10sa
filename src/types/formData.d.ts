@@ -3,6 +3,7 @@ export type FormDataType = {
   first_name: string;
   middle_name?: string;
   last_name: string;
+  gender: string;
   plan_type: string;
   zip_code: string;
   county: string;
@@ -10,6 +11,8 @@ export type FormDataType = {
   city: string;
   coverage_reason: string;
   date_of_birth: string;
+  country_of_birth: string;
+  state_of_birth: string;
   age: number;
   tobacco_use: string;
   married: string;
@@ -27,6 +30,7 @@ export type FormDataType = {
   preferred_doctors: string;
   preferred_doctors_name: string;
   monthly_budget: string;
+  carrier_name: string;
   plan_name: string;
   pcp_copay: string;
   specialist_copay: string;
@@ -41,6 +45,7 @@ export type FormDataType = {
   weight: string;
   ssn: string;
   driver_license_number: string;
+  driver_license_state: string;
   immigration_status: string;
   monthly_grand_total: string;
   health_unsubsidized: string;
@@ -65,6 +70,8 @@ export type FormDataType = {
   total_pre_subsidy: string;
   qualified_subsidy: string;
   total_post_subsidy: string;
+  agent_full_name?: string;
+  agent_license_number?: string;
 };
 
 export type State = OptionTypes['value'];

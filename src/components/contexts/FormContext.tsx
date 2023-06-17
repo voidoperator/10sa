@@ -6,6 +6,7 @@ export const initialFormData: FormDataType = {
   first_name: '',
   middle_name: '',
   last_name: '',
+  gender: '',
   plan_type: '',
   zip_code: '',
   county: '',
@@ -13,6 +14,8 @@ export const initialFormData: FormDataType = {
   city: '',
   coverage_reason: '',
   date_of_birth: '',
+  country_of_birth: '',
+  state_of_birth: '',
   age: 0,
   tobacco_use: '',
   married: '',
@@ -30,6 +33,7 @@ export const initialFormData: FormDataType = {
   preferred_doctors: '',
   preferred_doctors_name: '',
   monthly_budget: '',
+  carrier_name: '',
   plan_name: '',
   pcp_copay: '',
   specialist_copay: '',
@@ -68,6 +72,7 @@ export const initialFormData: FormDataType = {
   qualified_subsidy: '',
   total_post_subsidy: '',
   driver_license_number: '',
+  driver_license_state: '',
 };
 
 let initialFormDataFromLocalStorage: FormDataType;

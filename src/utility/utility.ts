@@ -2,6 +2,10 @@ import type { FormDataType } from '../types/formData';
 
 export const isBrowser = () => typeof window !== 'undefined';
 
+const today = new Date();
+const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+export const nextMonthString = nextMonth.toLocaleString('default', { month: 'long' });
+
 export const parseCurrency = (input: string | undefined) => {
   if (typeof input === 'undefined') {
     return 0;
