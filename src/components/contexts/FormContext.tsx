@@ -1,8 +1,19 @@
 import React, { createContext, useContext, useState, FC, ReactNode, Context } from 'react';
-import type { FormDataType } from '../../types/formData';
+import type { FormDataType, InsuredList } from '../../types/formData';
+
+export const initialDependentState: InsuredList = {
+  id: 0,
+  full_name: '',
+  date_of_birth: '',
+  relationship_to_primary: '',
+  age: 0,
+  ssn: '',
+};
 
 export const initialFormData: FormDataType = {
   google_app_url: localStorage.getItem('google_app_url') || '',
+  agent_full_name: localStorage.getItem('agent_full_name') || '',
+  agent_license_number: localStorage.getItem('agent_license_number') || '',
   first_name: '',
   middle_name: '',
   last_name: '',
@@ -48,14 +59,8 @@ export const initialFormData: FormDataType = {
   weight: '',
   ssn: '',
   immigration_status: '',
-  monthly_grand_total: '',
   health_unsubsidized: '',
   cigna_dental: '',
-  life_adb_provider: '',
-  monthly_health_premium: '',
-  americo_premium: '',
-  mutual_face_amount: '',
-  mutual_quote_gender: '',
   death_benefit: '',
   employment_status: '',
   occupation: '',
@@ -73,6 +78,15 @@ export const initialFormData: FormDataType = {
   total_post_subsidy: '',
   driver_license_number: '',
   driver_license_state: '',
+  life_adb_provider: '',
+  life_total_cost: 0,
+  monthly_grand_total: '',
+  monthly_health_premium: '',
+  americo_premium: '',
+  mutual_face_amount: '',
+  mutual_quote_gender: '',
+  eligible_americo_count: 0,
+  eligible_mutual_count: 0,
 };
 
 let initialFormDataFromLocalStorage: FormDataType;
@@ -90,7 +104,7 @@ if (formDataFromLocalStorage) {
 
 interface FormContextData {
   formData: FormDataType;
-  setFormData: (data: FormDataType) => void;
+  setFormData: (data: FormDataType | ((prevData: FormDataType) => FormDataType)) => void;
 }
 
 const FormContext: Context<FormContextData> = createContext<FormContextData>({
@@ -105,7 +119,15 @@ interface FormProviderProps {
 export const FormProvider: FC<FormProviderProps> = ({ children }) => {
   const [formData, setFormData] = useState<FormDataType>(initialFormDataFromLocalStorage);
 
-  return <FormContext.Provider value={{ formData, setFormData }}>{children}</FormContext.Provider>;
+  const setFormDataSafe = (data: FormDataType | ((prevData: FormDataType) => FormDataType)) => {
+    if (typeof data === 'function') {
+      setFormData(data as (prevData: FormDataType) => FormDataType);
+    } else {
+      setFormData(data);
+    }
+  };
+
+  return <FormContext.Provider value={{ formData, setFormData: setFormDataSafe }}>{children}</FormContext.Provider>;
 };
 
 export const useFormData = () => useContext(FormContext);

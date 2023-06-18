@@ -1,5 +1,7 @@
 export type FormDataType = {
   google_app_url?: string;
+  agent_full_name?: string;
+  agent_license_number?: string;
   first_name: string;
   middle_name?: string;
   last_name: string;
@@ -47,14 +49,8 @@ export type FormDataType = {
   driver_license_number: string;
   driver_license_state: string;
   immigration_status: string;
-  monthly_grand_total: string;
   health_unsubsidized: string;
   cigna_dental: string;
-  life_adb_provider: string;
-  monthly_health_premium: string;
-  americo_premium: string;
-  mutual_face_amount: string;
-  mutual_quote_gender: string;
   death_benefit: string;
   employment_status: string;
   occupation: string;
@@ -70,44 +66,36 @@ export type FormDataType = {
   total_pre_subsidy: string;
   qualified_subsidy: string;
   total_post_subsidy: string;
-  agent_full_name?: string;
-  agent_license_number?: string;
+  life_adb_provider: string;
+  life_total_cost: number;
+  monthly_grand_total: string;
+  monthly_health_premium: string;
+  americo_premium: string;
+  mutual_face_amount: string;
+  mutual_quote_gender: string;
+  eligible_americo_count: number;
+  eligible_mutual_count: number;
 };
-
-export type State = OptionTypes['value'];
-
-export type PreferredCarriers = Record<State, Carrier[]>;
-
-export type Carrier =
-  | 'None'
-  | 'Aetna'
-  | 'Ambetter'
-  | 'Arizona'
-  | 'Avmed'
-  | 'BlueCross BlueShield'
-  | 'Cigna'
-  | 'Florida Blue'
-  | 'Friday Health Plans'
-  | 'Molina'
-  | 'Oscar'
-  | 'UnitedHealthcare (UHC)';
 
 export type InsuredList = {
   id: number | string;
   full_name: string;
-  relationship: string;
+  relationship_to_primary: string;
   date_of_birth: string;
   age: number;
   ssn: string;
   country_of_birth?: string;
   state_of_birth?: string;
   driver_license_number?: string;
+  driver_license_state?: string;
   height?: string;
   weight?: string;
-  notes_dependent?: string;
+  notes?: string;
   employment_status?: string;
   occupation?: string;
-  dependent_beneficiary?: string;
+  beneficiary_full_name?: string;
+  beneficiary_relationship?: string;
+  beneficiary_date_of_birth?: string;
 };
 
 export type TextInputProps = {
@@ -128,7 +116,21 @@ export type TextInputProps = {
   height?: boolean;
   weight?: boolean;
   currencyMutual?: boolean;
+  currencyUnsubsidized?: boolean;
   additional?: boolean;
+  useDefault?: boolean;
+  defaultKey?: string;
+  defaultValue?: string;
+  externalValue?: string;
+};
+
+export type LocalStorageInputProps = {
+  id: string;
+  name: string;
+  labelName: string;
+  placeholder: string;
+  required?: boolean;
+  uppercase?: boolean;
   useDefault?: boolean;
   defaultKey?: string;
   defaultValue?: string;
@@ -219,3 +221,29 @@ export type OptionTypes = {
   label: string;
   value: string;
 };
+
+export type RoutingNumbers = {
+  [key: string]: string;
+};
+
+export type BankRoutingNumbers = {
+  [key: string]: RoutingNumbers;
+};
+
+export type State = OptionTypes['value'];
+
+export type PreferredCarriers = Record<State, Carrier[]>;
+
+export type Carrier =
+  | 'None'
+  | 'Aetna'
+  | 'Ambetter'
+  | 'Arizona'
+  | 'Avmed'
+  | 'BlueCross BlueShield'
+  | 'Cigna'
+  | 'Florida Blue'
+  | 'Friday Health Plans'
+  | 'Molina'
+  | 'Oscar'
+  | 'UnitedHealthcare (UHC)';

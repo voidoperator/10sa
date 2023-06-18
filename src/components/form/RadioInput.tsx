@@ -24,7 +24,7 @@ const RadioInput: React.FC<RadioInputProps> = ({
 
   useEffect(() => {
     if (defaultOption && !formData[name as keyof FormDataType]) {
-      setFormData({ ...formData, [name]: defaultOption });
+      setFormData((prevState) => ({ ...prevState, [name]: defaultOption }));
     }
   }, [defaultOption, formData, name, setFormData]);
 
@@ -51,7 +51,7 @@ const RadioInput: React.FC<RadioInputProps> = ({
                 value={value.toString()}
                 required={required}
                 checked={value.toString() === formData[name as keyof FormDataType]}
-                onChange={(e) => setFormData({ ...formData, [name]: e.target.value })}
+                onChange={(e) => setFormData((prevState) => ({ ...prevState, [name]: e.target.value }))}
               />
               <RadioLabel htmlFor={`${name}_${index + 1}`}>{label}</RadioLabel>
             </div>

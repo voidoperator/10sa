@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
 import { MainLabel, RequiredSpan, ShadowDiv, TextField } from '../tw/twStyles';
-import type { FormDataType, TextInputProps } from '../../types/formData';
+import type { TextInputProps } from '../../types/formData';
 
 const TextInput: React.FC<TextInputProps> = ({
   id,
@@ -22,6 +22,7 @@ const TextInput: React.FC<TextInputProps> = ({
   height = false,
   weight = false,
   currencyMutual = false,
+  currencyUnsubsidized = false,
   useDefault = true,
   defaultKey = '',
   defaultValue = '',
@@ -29,11 +30,12 @@ const TextInput: React.FC<TextInputProps> = ({
 }) => {
   const { formData, setFormData } = useFormData();
   const [value, setValue] = useState<string>('');
+  const [prevValue, setPrevValue] = useState<string>('');
 
   useEffect(() => {
     if (!additional && useDefault && defaultKey && defaultValue && value === '') {
       setValue(defaultValue);
-      setFormData({ ...formData, [defaultKey]: defaultValue });
+      setFormData((prevState) => ({ ...prevState, [defaultKey]: defaultValue }));
     }
     if (additional && typeof id === 'number' && useDefault && defaultKey && defaultValue && value === '') {
       setValue(defaultValue);
@@ -43,7 +45,7 @@ const TextInput: React.FC<TextInputProps> = ({
         ...additionalInsuredList[dependentIndex],
         [defaultKey]: defaultValue,
       };
-      setFormData({ ...formData, additional_insured_list: additionalInsuredList });
+      setFormData((prevState) => ({ ...prevState, additional_insured_list: additionalInsuredList }));
     }
   }, [useDefault, defaultKey, defaultValue, value]);
 
@@ -155,40 +157,62 @@ const TextInput: React.FC<TextInputProps> = ({
         ...additionalInsuredList[dependentIndex],
         [name]: value,
       };
-      setFormData({ ...formData, additional_insured_list: additionalInsuredList });
+      setFormData((prevState) => ({ ...prevState, additional_insured_list: additionalInsuredList }));
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData((prevState) => ({ ...prevState, [name]: value }));
     }
   };
 
   const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-    if (!currencyMutual) return;
+    if (!currencyMutual && !currencyUnsubsidized) return;
 
-    let numValue = parseInt(event.target.value.replace(/[^0-9]/g, ''), 10);
-
-    if (isNaN(numValue)) {
-      setValue('');
-      const newFormData = { ...formData };
-      delete newFormData[name as keyof FormDataType];
-      setFormData(newFormData);
-      return;
+    if (currencyMutual) {
+      const inputValue = event.target.value;
+      if (inputValue === prevValue) return;
+      let numValue = parseInt(event.target.value.replace(/[^0-9]/g, ''), 10);
+      if (isNaN(numValue)) {
+        setValue('');
+        setFormData((prevState) => ({ ...prevState, [name]: '' }));
+        return;
+      }
+      numValue = Math.round(numValue / 10000) * 10000;
+      if (numValue < 50000) numValue = 50000;
+      if (numValue > 500000) numValue = 500000;
+      const formattedValue = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(numValue);
+      if (formattedValue) {
+        setValue(formattedValue);
+        setFormData((prevState) => ({ ...prevState, [name]: formattedValue }));
+        setPrevValue(formattedValue);
+      }
     }
 
-    numValue = Math.round(numValue / 10000) * 10000;
-
-    if (numValue < 50000) numValue = 50000;
-    if (numValue > 500000) numValue = 500000;
-
-    const formattedValue = new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(numValue);
-
-    if (formattedValue) {
-      setValue(formattedValue);
-      setFormData({ ...formData, [name]: formattedValue });
+    if (currencyUnsubsidized) {
+      const inputValue = event.target.value;
+      if (inputValue === prevValue) return;
+      let numValue = parseInt(event.target.value.replace(/[^0-9]/g, ''), 10);
+      if (isNaN(numValue)) {
+        setValue('');
+        setFormData((prevState) => ({ ...prevState, [name]: '' }));
+        return;
+      }
+      const lifeCost = formData.life_total_cost || 0;
+      const total = lifeCost + numValue;
+      const formattedValue = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(total);
+      if (formattedValue) {
+        setValue(formattedValue);
+        setFormData((prevState) => ({ ...prevState, [name]: formattedValue }));
+        setPrevValue(formattedValue);
+      }
     }
   };
 

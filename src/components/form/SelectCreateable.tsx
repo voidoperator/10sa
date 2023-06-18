@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Creatable from 'react-select/creatable';
 import { useFormData } from '../contexts/FormContext';
 import { MainLabel, RequiredSpan, ShadowDiv } from '../tw/twStyles';
@@ -60,8 +60,7 @@ const SelectCreateable: React.FC<SelectCreateableProps> = ({
   const { formData, setFormData } = useFormData();
 
   const handleChange = (selectedOption: OnChangeValue<OptionTypes, false>) => {
-    if (!selectedOption) return;
-    let value = selectedOption.value;
+    let value = selectedOption ? selectedOption.value : '';
     if (additional && typeof id === 'number') {
       const dependentIndex = id;
       let additionalInsuredList = formData.additional_insured_list || [];
@@ -69,9 +68,9 @@ const SelectCreateable: React.FC<SelectCreateableProps> = ({
         ...additionalInsuredList[dependentIndex],
         [name]: value,
       };
-      setFormData({ ...formData, additional_insured_list: additionalInsuredList });
+      setFormData((prevState) => ({ ...prevState, additional_insured_list: additionalInsuredList }));
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData((prevState) => ({ ...prevState, [name]: value }));
     }
   };
 
@@ -90,7 +89,6 @@ const SelectCreateable: React.FC<SelectCreateableProps> = ({
         placeholder={placeholder}
         inputId={formatId}
         styles={creatableStyles}
-        hideSelectedOptions={true}
         backspaceRemovesValue={true}
         closeMenuOnScroll={true}
         blurInputOnSelect={true}
@@ -98,6 +96,7 @@ const SelectCreateable: React.FC<SelectCreateableProps> = ({
         isMulti={false}
         onChange={(e) => handleChange(e)}
         value={defaultValue}
+        maxMenuHeight={500}
       />
     </ShadowDiv>
   );

@@ -38,7 +38,7 @@ const DateInput: React.FC<DateInputProps> = ({
       });
       const calcAge = Number(calculateAge(startDate));
       setUserAge(calcAge);
-      setFormData({ ...formData, [defaultKey]: defaultValue, age: calcAge });
+      setFormData((prevState) => ({ ...prevState, [defaultKey]: defaultValue, age: calcAge }));
     }
     if (
       additional &&
@@ -66,7 +66,7 @@ const DateInput: React.FC<DateInputProps> = ({
         [defaultKey]: defaultValue,
         age: calcAge,
       };
-      setFormData({ ...formData, additional_insured_list: additionalInsuredList });
+      setFormData((prevState) => ({ ...prevState, additional_insured_list: additionalInsuredList }));
     }
   }, [useDefault, defaultKey, defaultValue, value]);
 
@@ -93,9 +93,9 @@ const DateInput: React.FC<DateInputProps> = ({
           date_of_birth: formatDate,
           age: calcAge,
         };
-        setFormData({ ...formData, additional_insured_list: additionalInsuredList });
+        setFormData((prevState) => ({ ...prevState, additional_insured_list: additionalInsuredList }));
       } else {
-        setFormData({ ...formData, [name]: formatDate, age: calcAge });
+        setFormData((prevState) => ({ ...prevState, [name]: formatDate, age: calcAge }));
       }
     }
   };

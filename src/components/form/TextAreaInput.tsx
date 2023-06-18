@@ -21,7 +21,7 @@ const TextAreaInput: React.FC<TextAreaProps> = ({
   useEffect(() => {
     if (!additional && useDefault && defaultKey && defaultValue && value === '') {
       setValue(defaultValue);
-      setFormData({ ...formData, [defaultKey]: defaultValue });
+      setFormData((prevState) => ({ ...prevState, [defaultKey]: defaultValue }));
     }
     if (additional && typeof id === 'number' && useDefault && defaultKey && defaultValue && value === '') {
       setValue(defaultValue);
@@ -31,7 +31,7 @@ const TextAreaInput: React.FC<TextAreaProps> = ({
         ...additionalInsuredList[dependentIndex],
         [defaultKey]: defaultValue,
       };
-      setFormData({ ...formData, additional_insured_list: additionalInsuredList });
+      setFormData((prevState) => ({ ...prevState, additional_insured_list: additionalInsuredList }));
     }
   }, [useDefault, defaultKey, defaultValue, value]);
 
@@ -45,9 +45,9 @@ const TextAreaInput: React.FC<TextAreaProps> = ({
         ...additionalInsuredList[dependentIndex],
         [name]: value,
       };
-      setFormData({ ...formData, additional_insured_list: additionalInsuredList });
+      setFormData((prevState) => ({ ...prevState, additional_insured_list: additionalInsuredList }));
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData((prevState) => ({ ...prevState, [name]: value }));
     }
   };
 

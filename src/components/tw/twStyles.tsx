@@ -60,6 +60,9 @@ export const AddDependentContainer = tw.div`
 export const AddDependentButton = tw.button`
   bg-10sa-gold/60 hover:bg-10sa-gold mx-6 w-1/2 transition-all text-white disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:cursor-not-allowed shadow-xl focus:ring-4 focus:outline-none font-medium rounded-full text-sm py-2.5 text-center focus:ring-blue-800
 `;
+export const ExternalAnchorButton = tw.a`
+  bg-10sa-gold/60 hover:bg-10sa-gold mx-6 w-1/2 transition-all text-white disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:cursor-not-allowed shadow-xl focus:ring-4 focus:outline-none font-medium rounded-full text-sm py-2.5 text-center focus:ring-blue-800
+`;
 export const RemoveDependentButton = tw.button`
   w-6 absolute top-2 right-2 opacity-70 hover:opacity-100 transition-all
 `;

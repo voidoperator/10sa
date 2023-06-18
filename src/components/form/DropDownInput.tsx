@@ -34,9 +34,9 @@ const DropDownInput: React.FC<DropDownInputProps> = ({
         ...additionalInsuredList[dependentIndex],
         [name]: value,
       };
-      setFormData({ ...formData, additional_insured_list: additionalInsuredList });
+      setFormData((prevState) => ({ ...prevState, additional_insured_list: additionalInsuredList }));
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData((prevState) => ({ ...prevState, [name]: value }));
     }
   };
 
