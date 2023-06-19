@@ -75,6 +75,7 @@ export type FormDataType = {
   mutual_quote_gender: string;
   eligible_americo_count: number;
   eligible_mutual_count: number;
+  life_health_unsubsidized: string;
 };
 
 export type InsuredList = {
@@ -107,6 +108,7 @@ export type TextInputProps = {
   required?: boolean;
   pattern?: string;
   uppercase?: boolean;
+  strikeout?: boolean;
   currency?: boolean;
   zip_code?: boolean;
   routingNumber?: boolean;

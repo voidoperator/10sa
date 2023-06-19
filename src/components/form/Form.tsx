@@ -249,6 +249,23 @@ const Form = () => {
     }));
   }, [zipcodeData, carriersData]);
 
+  useEffect(() => {
+    if (!formData.life_total_cost || !formData.health_unsubsidized) return;
+
+    const lifeCost = formData.life_total_cost || 0;
+    const healthUnsubCost = parseCurrency(formData.health_unsubsidized);
+    const total = lifeCost + healthUnsubCost;
+    const formattedValue = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(total);
+    if (formattedValue) {
+      setFormData((prevState) => ({ ...prevState, life_health_unsubsidized: formattedValue }));
+    }
+  }, [formData.life_total_cost, formData.health_unsubsidized]);
+
   const handleHouseholdCheck = () => {
     const { household_size } = formData;
     if (Number(household_size) <= (formData.additional_insured_list?.length ?? 0) + 1) {
@@ -860,7 +877,6 @@ const Form = () => {
                 </AddDependentButton>
               </AddDependentContainer>
             )}
-
             <RadioInput
               labelName='Pre-existing conditions?'
               name='pre_existing_conditions'
@@ -881,7 +897,6 @@ const Form = () => {
                 defaultValue={formData?.pre_existing_conditions_list || ''}
               />
             )}
-
             <RadioInput
               labelName='Specific medications?'
               name='medications'
@@ -904,7 +919,6 @@ const Form = () => {
                 />
               </>
             )}
-
             <TextAreaInput
               labelName='History of mental health, COPD, heart procedures, cancer, HIV?'
               name='medical_history'
@@ -914,7 +928,6 @@ const Form = () => {
               defaultKey='medical_history'
               defaultValue={formData?.medical_history || ''}
             />
-
             <RadioInput
               labelName='Preferred doctors?'
               name='preferred_doctors'
@@ -966,7 +979,7 @@ const Form = () => {
               labelName='Plan Name:'
               name='plan_name'
               id='plan_name'
-              placeholder='Ex. Florida Blue'
+              placeholder='Ex. Elite Bronze'
               type='text'
               defaultKey='plan_name'
               defaultValue={formData?.plan_name || ''}
@@ -1044,44 +1057,27 @@ const Form = () => {
               defaultValue={formData?.monthly_grand_total || ''}
               externalValue={formData?.monthly_grand_total}
             />
-            {formData?.life_total_cost ? (
-              <TextInput
-                labelName={`Health Unsubsidized (plus $${formData?.life_total_cost}):`}
-                name='health_unsubsidized'
-                id='health_unsubsidized'
-                placeholder='Ex. $1,000'
-                type='text'
-                pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
-                currency={true}
-                currencyUnsubsidized={true}
-                defaultKey='health_unsubsidized'
-                defaultValue={formData?.health_unsubsidized || ''}
-                externalValue={formData?.health_unsubsidized}
-              />
-            ) : (
-              <TextInput
-                labelName={`Health Unsubsidized:`}
-                name='health_unsubsidized'
-                id='health_unsubsidized'
-                placeholder='Ex. $1,000'
-                type='text'
-                pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
-                currency={true}
-                currencyUnsubsidized={true}
-                defaultKey='health_unsubsidized'
-                defaultValue={formData?.health_unsubsidized || ''}
-              />
-              // <TextInput
-              //   labelName={`Health Unsubsidized:`}
-              //   name='health_unsubsidized'
-              //   id='health_unsubsidized'
-              //   placeholder='Ex. $1,000'
-              //   type='text'
-              //   pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
-              //   currency={true}
-              //   defaultKey='health_unsubsidized'
-              //   defaultValue={formData?.health_unsubsidized || ''}
-              // />
+            <TextInput
+              labelName={`Health Unsubsidized:`}
+              name='health_unsubsidized'
+              id='health_unsubsidized'
+              placeholder='Ex. $305.40'
+              type='text'
+              pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
+              strikeout={true}
+              currency={true}
+              defaultKey='health_unsubsidized'
+              defaultValue={formData?.health_unsubsidized || ''}
+            />
+            {formData?.health_unsubsidized && formData?.life_health_unsubsidized && formData?.monthly_grand_total && (
+              <>
+                <DetailConfirmation
+                  detail={formData.life_health_unsubsidized}
+                  labelName={`Life & Health Unsubsidized (Health: ${formData?.health_unsubsidized} + Life: $${formData?.life_total_cost}):`}
+                  id='life_health_unsubsidized'
+                  name='life_health_unsubsidized'
+                />
+              </>
             )}
             <TextInput
               labelName='CIGNA Dental:'
@@ -1138,7 +1134,6 @@ const Form = () => {
                 error={true}
               />
             )}
-
             {formData.first_name && formData.last_name ? (
               <DetailConfirmation
                 labelName='Confirm Full Name:'
@@ -1209,7 +1204,6 @@ const Form = () => {
                 error={true}
               />
             )}
-
             <DropDownInput
               id={'country_of_birth'}
               labelName={`Primary's Country of Birth:`}
@@ -1240,7 +1234,6 @@ const Form = () => {
                 { label: 'Citizen', value: 'citizen' },
               ]}
             />
-
             <TextInput
               labelName="Primary's Weight:"
               name='weight'
@@ -1297,7 +1290,6 @@ const Form = () => {
               defaultKey='beneficiary_relationship'
               defaultValue={formData?.beneficiary_relationship || ''}
             />
-
             <DateInput
               labelName='Beneficiary Date of Birth:'
               name='beneficiary_date_of_birth'
@@ -1318,9 +1310,8 @@ const Form = () => {
               placeholder='Please select a bank or create one...'
               defaultOption={formData?.bank_name || ''}
             />
-
             <RadioInput
-              labelName='Checking or savings?'
+              labelName='Account type:'
               name='account_type'
               id='account_type'
               options={[
@@ -1359,7 +1350,6 @@ const Form = () => {
               defaultKey='account_number'
               defaultValue={formData?.account_number || ''}
             />
-
             <TextInput
               labelName='Name of Account Holder:'
               name='name_of_account_holder'
@@ -1380,7 +1370,6 @@ const Form = () => {
               defaultKey='driver_license_number'
               defaultValue={formData?.driver_license_number || ''}
             />
-
             <DropDownInput
               labelName='Driver License Issued State:'
               name='driver_license_state'

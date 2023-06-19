@@ -87,6 +87,7 @@ export const initialFormData: FormDataType = {
   mutual_quote_gender: '',
   eligible_americo_count: 0,
   eligible_mutual_count: 0,
+  life_health_unsubsidized: '',
 };
 
 let initialFormDataFromLocalStorage: FormDataType;

@@ -13,6 +13,7 @@ const TextInput: React.FC<TextInputProps> = ({
   required = true,
   additional = false,
   uppercase = true,
+  strikeout = false,
   zip_code = false,
   currency = false,
   phone = false,
@@ -218,9 +219,13 @@ const TextInput: React.FC<TextInputProps> = ({
 
   const formatId = additional && typeof id === 'number' ? name + '_' + (id + 1) : name;
 
+  const additionalClasses = `${uppercase ? 'capitalize' : 'normal-case'} ${
+    strikeout ? 'line-through' : 'no-underline'
+  }`;
+
   return (
     <ShadowDiv>
-      <MainLabel htmlFor={formatId}>
+      <MainLabel htmlFor={formatId} className={strikeout ? 'line-through' : 'no-underline'}>
         {labelName}
         {required && <RequiredSpan />}
       </MainLabel>
@@ -231,7 +236,7 @@ const TextInput: React.FC<TextInputProps> = ({
         name={name}
         placeholder={placeholder}
         required={required}
-        className={uppercase ? 'capitalize' : 'normal-case'}
+        className={additionalClasses}
         onChange={handleChange}
         onBlur={handleBlur}
         autoComplete='no'

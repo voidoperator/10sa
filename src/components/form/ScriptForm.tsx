@@ -250,6 +250,23 @@ const ScriptForm = () => {
     }));
   }, [zipcodeData, carriersData]);
 
+  useEffect(() => {
+    if (!formData.life_total_cost || !formData.health_unsubsidized) return;
+
+    const lifeCost = formData.life_total_cost || 0;
+    const healthUnsubCost = parseCurrency(formData.health_unsubsidized);
+    const total = lifeCost + healthUnsubCost;
+    const formattedValue = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(total);
+    if (formattedValue) {
+      setFormData((prevState) => ({ ...prevState, life_health_unsubsidized: formattedValue }));
+    }
+  }, [formData.life_total_cost, formData.health_unsubsidized]);
+
   const handleHouseholdCheck = () => {
     const { household_size } = formData;
     if (Number(household_size) <= (formData.additional_insured_list?.length ?? 0) + 1) {
@@ -352,6 +369,9 @@ const ScriptForm = () => {
   if (!isSubmitting && !successful && !error)
     return (
       <FormSectionContainer>
+        {/* {JSON.stringify(formData)
+          .split(/,(?!\d)/)
+          .join(', ')} */}
         <LogoContainer>
           <TenStepsAheadLogo twClasses='w-full 4xl:max-w-4xl 3xl:max-w-3xl 2xl:max-w-3xl xl:max-w-2xl lg:max-w-xl' />
         </LogoContainer>
@@ -1033,7 +1053,7 @@ const ScriptForm = () => {
               labelName='Plan Name:'
               name='plan_name'
               id='plan_name'
-              placeholder='Ex. Florida Blue'
+              placeholder='Ex. Elite Bronze'
               type='text'
               defaultKey='plan_name'
               defaultValue={formData?.plan_name || ''}
@@ -1111,44 +1131,27 @@ const ScriptForm = () => {
               defaultValue={formData?.monthly_grand_total || ''}
               externalValue={formData?.monthly_grand_total}
             />
-            {formData?.life_total_cost ? (
-              <TextInput
-                labelName={`Health Unsubsidized (plus $${formData?.life_total_cost}):`}
-                name='health_unsubsidized'
-                id='health_unsubsidized'
-                placeholder='Ex. $1,000'
-                type='text'
-                pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
-                currency={true}
-                currencyUnsubsidized={true}
-                defaultKey='health_unsubsidized'
-                defaultValue={formData?.health_unsubsidized || ''}
-                externalValue={formData?.health_unsubsidized}
-              />
-            ) : (
-              <TextInput
-                labelName={`Health Unsubsidized:`}
-                name='health_unsubsidized'
-                id='health_unsubsidized'
-                placeholder='Ex. $1,000'
-                type='text'
-                pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
-                currency={true}
-                currencyUnsubsidized={true}
-                defaultKey='health_unsubsidized'
-                defaultValue={formData?.health_unsubsidized || ''}
-              />
-              // <TextInput
-              //   labelName={`Health Unsubsidized:`}
-              //   name='health_unsubsidized'
-              //   id='health_unsubsidized'
-              //   placeholder='Ex. $1,000'
-              //   type='text'
-              //   pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
-              //   currency={true}
-              //   defaultKey='health_unsubsidized'
-              //   defaultValue={formData?.health_unsubsidized || ''}
-              // />
+            <TextInput
+              labelName={`Health Unsubsidized:`}
+              name='health_unsubsidized'
+              id='health_unsubsidized'
+              placeholder='Ex. $305.40'
+              type='text'
+              pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
+              strikeout={true}
+              currency={true}
+              defaultKey='health_unsubsidized'
+              defaultValue={formData?.health_unsubsidized || ''}
+            />
+            {formData?.health_unsubsidized && formData?.life_health_unsubsidized && formData?.monthly_grand_total && (
+              <>
+                <DetailConfirmation
+                  detail={formData.life_health_unsubsidized}
+                  labelName={`Life & Health Unsubsidized (Health: ${formData?.health_unsubsidized} + Life: $${formData?.life_total_cost}):`}
+                  id='life_health_unsubsidized'
+                  name='life_health_unsubsidized'
+                />
+              </>
             )}
             <TextInput
               labelName='CIGNA Dental:'
@@ -1478,7 +1481,7 @@ const ScriptForm = () => {
             />
             <ScriptBox>{`And is the account a checking or a savings?`}</ScriptBox>
             <RadioInput
-              labelName='Checking or savings?'
+              labelName='Account type:'
               name='account_type'
               id='account_type'
               options={[
