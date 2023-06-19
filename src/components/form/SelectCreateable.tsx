@@ -85,6 +85,7 @@ const SelectCreateable: React.FC<SelectCreateableProps> = ({
         {required && <RequiredSpan />}
       </MainLabel>
       <Creatable
+        required={required}
         options={options}
         placeholder={placeholder}
         inputId={formatId}

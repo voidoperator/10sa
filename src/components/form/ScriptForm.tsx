@@ -485,9 +485,8 @@ const ScriptForm = () => {
                 { label: 'Individual', value: 'individual' },
               ]}
             />
-            <ScriptBox>
-              {`And are you currently insured? or have some type of coverage from Medicare or Medicaid?`}
-            </ScriptBox>
+            <ScriptBox>{`And you are aware that this is an Obama Care line, and you're not looking for Medicare or Medicaid, correct?`}</ScriptBox>
+            <ScriptBox>{`Okay perfect, and are you currently insured?`}</ScriptBox>
             <RadioInput
               labelName='Current insurance?'
               name='current_insurance'
@@ -497,6 +496,9 @@ const ScriptForm = () => {
                 { label: 'No', value: 'no' },
               ]}
             />
+            {formData?.current_insurance === 'yes' && (
+              <ScriptBox>{`In order to qualify for Obama Care you can only have one active insurance at a time. So do you plan to cancel your current insurance?`}</ScriptBox>
+            )}
             <ScriptBox>
               {`Can I please have your zip code so I can see what plans are available in your area?`}
             </ScriptBox>
@@ -767,17 +769,6 @@ const ScriptForm = () => {
                     />
                     {formData.additional_insured_list?.[i] && formData.additional_insured_list[i].age >= 18 && (
                       <>
-                        <TextInput
-                          id={i}
-                          labelName={`Dependent ${i + 1} State ID Number:`}
-                          name='driver_license_number'
-                          placeholder='Ex. L12312312312'
-                          type='text'
-                          uppercase={true}
-                          additional={true}
-                          defaultKey='driver_license_number'
-                          defaultValue={formData?.additional_insured_list[i].driver_license_number || ''}
-                        />
                         <DropDownInput
                           id={i}
                           labelName={`Dependent ${i + 1} Country of Birth:`}
@@ -968,7 +959,7 @@ const ScriptForm = () => {
                 />
               </>
             )}
-            <ScriptBox>{`Any history of Mental Health, COPD, Heart Procedure, Cancer or HIV?`}</ScriptBox>
+            <ScriptBox>{`Do you have any history of Mental Health, COPD, Heart Procedure, Cancer or HIV?`}</ScriptBox>
             <TextAreaInput
               labelName='History of mental health, COPD, heart procedures, cancer, HIV?'
               name='medical_history'
@@ -978,7 +969,7 @@ const ScriptForm = () => {
               defaultKey='medical_history'
               defaultValue={formData?.medical_history || ''}
             />
-            <ScriptBox>{`Do you have a primary doctor you go to or are you open to see new doctors?`}</ScriptBox>
+            <ScriptBox>{`Are there any doctors you would like me to make sure are covered by the plan or are you open to new doctors?`}</ScriptBox>
             <RadioInput
               labelName='Preferred doctors?'
               name='preferred_doctors'
@@ -1022,6 +1013,9 @@ const ScriptForm = () => {
               }, so now that I have a clear idea of what your needs are, I will be placing you on a brief hold to search the database for you. Once I see all the options you qualify for I will get back on the line to go over your best options. So while you wait, could you please grab a pen and paper so you can take some notes?`}
               <br />
               <br />
+              {`{Pause for reply...}`}
+              <br />
+              <br />
               {`Thank you, please hold.`}
             </ScriptBox>
           </>
@@ -1031,6 +1025,9 @@ const ScriptForm = () => {
             <H2>Quote Breakdown</H2>
             <ScriptBox>
               {`Thank you so much for holding, do you have a pen and paper ready?`}
+              <br />
+              <br />
+              {`{Pause for reply...}`}
               <br />
               <br />
               {`Great, so please go ahead and write down my name, ${
@@ -1154,18 +1151,6 @@ const ScriptForm = () => {
               </>
             )}
             <TextInput
-              labelName='CIGNA Dental:'
-              name='cigna_dental'
-              id='cigna_dental'
-              placeholder='Ex. $100'
-              type='text'
-              pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
-              required={false}
-              currency={true}
-              defaultKey='cigna_dental'
-              defaultValue={formData?.cigna_dental || ''}
-            />
-            <TextInput
               labelName='Death Benefit:'
               name='death_benefit'
               id='death_benefit'
@@ -1177,18 +1162,19 @@ const ScriptForm = () => {
               defaultValue={formData?.death_benefit || ''}
             />
             <ScriptBox>
+              {`Hello, ${title} ${toTitleCase(formData?.last_name) || '{Client Name}'}?`}
+              <br />
+              <br />
               {`Congratulations, I have some great news. I was able to apply all your subsidies and reductions. The best plan the system recommends is with ${
                 toTitleCase(formData?.carrier_name) || '{Carrier Name}'
               }. And I agree with the system that ${
                 toTitleCase(formData?.carrier_name) || '{Carrier Name}'
               } is the best option based on the needs we discussed. ${
-                toTitleCase(formData?.carrier_name) + ' ' + toTitleCase(formData?.plan_name) || '{Carrier Name}'
-              } is a Major Medical, which means that it covers any pre-existing or future conditions.`}
+                toTitleCase(formData?.carrier_name) || '{Carrier Name}'
+              } is Major Medical, which means that it covers any pre-existing or future conditions.`}
               <br />
               <br />
-              {`Also with ${
-                formData?.carrier_name + ' ' + formData?.plan_name || '{Carrier Name}'
-              } all Preventative Care is absolutely free!`}
+              {`Also with ${formData?.carrier_name || '{Carrier Name}'} all Preventative Care is absolutely free!`}
               <br />
               <br />
               {`Which means that all your checkups, immunizations, screenings basically anything to keep you healthy is 100% free of charge. Does that make sense?`}
@@ -1196,12 +1182,12 @@ const ScriptForm = () => {
               <br />
               {`For your Primary Doctor you have a set copay of only ${
                 formData?.pcp_copay || '${PCP Copay}'
-              } per visit`}
+              } per visit.`}
               <br />
               <br />
               {`For Specialists you have a set copay of only ${
                 formData?.specialist_copay || '${Specialist Copay}'
-              } per visit`}
+              } per visit.`}
               <br />
               <br />
               {`For any Generic Medication you have a set copay of only ${
@@ -1209,14 +1195,14 @@ const ScriptForm = () => {
               } per medication.`}
               <br />
               <br />
-              {`Most importantly you Annual Deductible is ${
+              {`And most importantly you Annual Deductible is ${
                 formData?.annual_deductible || '${Annual Deductible}'
               }. It's the main reason this plan is being recommended. The deductible is what you pay first before being admitted to the hospital or having any surgeries.`}
               <br />
               <br />
               {`Also, your Max Out Of Pocket is ${
                 formData?.max_out_of_pocket || '${Max Out Of Pocket}'
-              }. Think of that as your safety net. God forbid something catastrophic happened to you and you had a medical bill of a hundred thousand dollars... after your max, your insurance will cover the rest for the calendar year. So, it protects you if you were to get something like cancer treatment. Make sense?`}
+              }. Think of that as your safety net. God forbid something catastrophic happened to you and you had a medical bill of a hundred thousand dollars... after your max, your insurance will cover the rest for the calendar year. So, it protects you if you were to get something like cancer treatment or something like that. Make sense?`}
             </ScriptBox>
             <ScriptBox>
               {`Your plan also has a Death Benefit, so god forbid you were to pass away, a beneficiary of your choice would receive a payout to make sure they are financially secure.`}
@@ -1239,11 +1225,6 @@ const ScriptForm = () => {
               {`Awesome ${
                 toTitleCase(formData?.first_name) || '{Client First Name}'
               }. Let's go step by step to make sure everything I have is correct.`}
-              <br />
-              <br />
-              {`Just to confirm, I have your phone number as ${
-                formData?.phone_number || '{Client Phone Number}'
-              }. Is that right?`}
             </ScriptBox>
             <TextInput
               labelName='Phone Number:'
@@ -1256,6 +1237,11 @@ const ScriptForm = () => {
               defaultKey='phone_number'
               defaultValue={formData?.phone_number || ''}
             />
+            <ScriptBox>
+              {`Just to confirm, I have your phone number as ${
+                formData?.phone_number || '{Client Phone Number}'
+              }. Is that right?`}
+            </ScriptBox>
             <ScriptBox>{`I have your Date of Birth as ${
               formData?.date_of_birth || '{Client Date of Birth}'
             }, correct?`}</ScriptBox>
@@ -1307,7 +1293,9 @@ const ScriptForm = () => {
               defaultValue={formData?.email || ''}
             />
             <ScriptBox>
-              {`Can you please provide me with your address where you would like to receive your insurance medical ID card?`}
+              {`Can you please provide me your address, this is where you will be receiving your insurance medical ID ${
+                formData?.applying_for_coverage > 1 ? 'cards' : 'card'
+              }.`}
             </ScriptBox>
             <TextInput
               labelName='Street Address (no P.O. box):'
@@ -1413,7 +1401,7 @@ const ScriptForm = () => {
             <ScriptBox>
               {`Okay, so that the Medical Information Bureau can identify your medical records, they will cross check what we have reviewed here to determine your eligibility and approval with ${
                 toTitleCase(formData?.carrier_name) || '{Carrier Name}'
-              }. In order for them to verify your identity and locate the proper medical records, it is run through your Social Security Number. Your Information is protected by the HIPAA laws in the state of ${
+              }. In order for them to verify your identity and locate the proper medical records, it is ran through your Social Security Number. Your Information is protected by the HIPAA laws in the state of ${
                 toTitleCase(formData?.state) || '{Client State}'
               }. All we neeed is your verbal consent to apply your Social Security Number in order for this application to be approved. If you agree please state your First and Last name and say "I agree".`}
             </ScriptBox>
@@ -1540,36 +1528,63 @@ const ScriptForm = () => {
               defaultKey='name_of_account_holder'
               defaultValue={formData?.name_of_account_holder || ''}
             />
+            {/* <ScriptBox>{``}</ScriptBox> */}
+            <ScriptBox>{`{ ONLY CONTINUE IF YOU ARE LICENSED IN ${formData?.state.toUpperCase()} }`}</ScriptBox>
+            {/* RADIO BUTTON : ASK AGENT IF LICENSED IN THAT STATE */}
+            {/* IF YES: */}
+            <ScriptBox>{`Alright, now that I have all your information please give me a few minutes to finalize your application. As I'm going through it you will be receving a few verification codes and I'm going to need you to read them back to me as you receive them. I'll let you know when they are sent.`}</ScriptBox>
+            {/* IF NO: */}
             <ScriptBox>
-              {`And lastly they do need driver license information. What is your driver license number?`}
-            </ScriptBox>
-            <TextInput
-              id='driver_license_number'
-              labelName="Primary's Driver License:"
-              name='driver_license_number'
-              placeholder='Ex. L12312312312'
-              type='text'
-              uppercase={true}
-              required={false}
-              defaultKey='driver_license_number'
-              defaultValue={formData?.driver_license_number || ''}
-            />
-            <ScriptBox>{`What state was it issued in?`}</ScriptBox>
-            <DropDownInput
-              labelName='Driver License Issued State:'
-              name='driver_license_state'
-              id='driver_license_state'
-              required={false}
-              options={unitedStates}
-              defaultOption={formData?.driver_license_state || 'Please select a state'}
-            />
-            <ScriptBox>{`Process application here`}</ScriptBox>
-            <ScriptBox>
-              {`Perfect, remember your 1st payment for the amount of ${
+              {`Great, thank you for all of your information! Let me read a legal disclosure to make sure we are on the same page...`}
+              <br />
+              <br />
+              {`You understand your total monthly is ${
                 formData?.monthly_grand_total || '{Monthly Grand Total}'
-              } is due today. This would cover your 1st month. Then all the following payments will be drafted on the {????? DRAFT DATE ??????} of each month.`}
+              }. You're receving two benefits and are billed separately by benefit.`}
+              <br />
+              <br />
+              {`I'm going to go over a quick breakdown before the Health Subsidy is applied, so don't get scared here.`}
+              <br />
+              <br />
+              {`${formData?.carrier_name || '{Carrier Name}'} Health portion unsubsidized is ${
+                formData?.health_unsubsidized || '{Health Unsubsidized}'
+              }. And ${toTitleCase(formData?.life_adb_provider) || '{Life ADB Provider}'} Death benefit portion is $${
+                formData?.life_total_cost || '{Life Total Cost}'
+              }.`}
+              <br />
+              <br />
+              {`So, your total before the health subsidy is applied is ${
+                formData?.life_health_unsubsidized || '{Life + Health Unsubsidized}'
+              }. We can qualify you for the health subsidy of ${'GET TAX CREDIT HERE'} to lower monthly payment.`}
+              <br />
+              <br />
+              {`So, your total after the health subsidy is applied is only ${
+                formData?.monthly_grand_total || '{Monthly Grand Total}'
+              } per month! Do you understand?`}
             </ScriptBox>
-            <ScriptBox>{`You're all set. Thank you have a great day.`}</ScriptBox>
+            <ScriptBox>
+              {`Perfect, you're all set ${
+                toTitleCase(formData?.first_name) || '{Client First Name}'
+              }. Remember, your first payment is due today and this will cover your first month. Then all the following payments will be drafted on the first of every month.`}
+              <br />
+              <br />
+              {`In the next 48 hours you're gonna be receiving an email from me, with a summary of everything we covered today. But also a few emails from the marketplace, just go ahead and disregard those.`}
+              <br />
+              <br />
+              {`You'll get one confirming your plan, and another one asking you to "pick your plan", since we've already picked the best plan just disregard those. You'll also get one asking you to make your payment, but we already took care of that today so you don't need to worry about that one either.`}
+              <br />
+              <br />
+              {`Your Medical ID cards and welcome packet will be in the mail within 7-10 business days.`}
+              <br />
+              <br />
+              {`And just as a reminder, your plan ends December 31st and open enrollment is from November 1st to December 15th.`}
+              <br />
+              <br />
+              {`Congratulations! You're all set for the 1st. If you have any friends or family that don't have health insurance, please send them my way.`}
+              <br />
+              <br />
+              {`Have a great day ${toTitleCase(formData?.first_name) || '{Client First Name}'}. Bye bye!`}
+            </ScriptBox>
           </>
           {/* Submit | Copy */}
           <>

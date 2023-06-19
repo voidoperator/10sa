@@ -721,17 +721,6 @@ const Form = () => {
                     />
                     {formData.additional_insured_list?.[i] && formData.additional_insured_list[i].age >= 18 && (
                       <>
-                        <TextInput
-                          id={i}
-                          labelName={`Dependent ${i + 1} State ID Number:`}
-                          name='driver_license_number'
-                          placeholder='Ex. L12312312312'
-                          type='text'
-                          uppercase={true}
-                          additional={true}
-                          defaultKey='driver_license_number'
-                          defaultValue={formData?.additional_insured_list[i].driver_license_number || ''}
-                        />
                         <DropDownInput
                           id={i}
                           labelName={`Dependent ${i + 1} Country of Birth:`}
@@ -1080,18 +1069,6 @@ const Form = () => {
               </>
             )}
             <TextInput
-              labelName='CIGNA Dental:'
-              name='cigna_dental'
-              id='cigna_dental'
-              placeholder='Ex. $100'
-              type='text'
-              pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
-              required={false}
-              currency={true}
-              defaultKey='cigna_dental'
-              defaultValue={formData?.cigna_dental || ''}
-            />
-            <TextInput
               labelName='Death Benefit:'
               name='death_benefit'
               id='death_benefit'
@@ -1358,25 +1335,6 @@ const Form = () => {
               type='text'
               defaultKey='name_of_account_holder'
               defaultValue={formData?.name_of_account_holder || ''}
-            />
-            <TextInput
-              id='driver_license_number'
-              labelName="Primary's Driver License:"
-              name='driver_license_number'
-              placeholder='Ex. L12312312312'
-              type='text'
-              uppercase={true}
-              required={false}
-              defaultKey='driver_license_number'
-              defaultValue={formData?.driver_license_number || ''}
-            />
-            <DropDownInput
-              labelName='Driver License Issued State:'
-              name='driver_license_state'
-              id='driver_license_state'
-              required={false}
-              options={unitedStates}
-              defaultOption={formData?.driver_license_state || 'Please select a state'}
             />
           </>
           {/* Submit | Copy */}
