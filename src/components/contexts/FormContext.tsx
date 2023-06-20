@@ -4,10 +4,21 @@ import type { FormDataType, InsuredList } from '../../types/formData';
 export const initialDependentState: InsuredList = {
   id: 0,
   full_name: '',
-  date_of_birth: '',
   relationship_to_primary: '',
-  age: 0,
+  date_of_birth: '',
+  age: null,
   ssn: '',
+  country_of_birth: '',
+  state_of_birth: '',
+  employment_status: '',
+  occupation: '',
+  height: '',
+  weight: '',
+  beneficiary_full_name: '',
+  beneficiary_relationship: '',
+  beneficiary_date_of_birth: '',
+  beneficiary_age: null,
+  notes: '',
 };
 
 export const initialFormData: FormDataType = {
@@ -19,7 +30,7 @@ export const initialFormData: FormDataType = {
   last_name: '',
   gender: '',
   date_of_birth: '',
-  age: 0,
+  age: null,
   phone_number: '',
   ssn: '',
   email: '',
@@ -45,6 +56,7 @@ export const initialFormData: FormDataType = {
   beneficiary_full_name: '',
   beneficiary_relationship: '',
   beneficiary_date_of_birth: '',
+  beneficiary_age: null,
   name_of_account_holder: '',
   current_insurance: '',
   coverage_reason: '',
@@ -85,6 +97,7 @@ export const initialFormData: FormDataType = {
   eligible_americo_count: 0,
   eligible_mutual_count: 0,
   carriers: [],
+  is_agent_licensed_in_state: '',
 };
 
 let initialFormDataFromLocalStorage: FormDataType;

@@ -21,6 +21,19 @@ export const getDraftDate = (): string => {
   return nextRelevantMonth.toLocaleString('default', { month: 'long' });
 };
 
+export const calculateAge = (dob: string | Date) => {
+  const dateOfBirth = new Date(dob);
+
+  if (isNaN(dateOfBirth.getTime())) {
+    return null;
+  }
+
+  const ageDifMs = Date.now() - dateOfBirth.getTime();
+  const ageDate = new Date(ageDifMs);
+  const calcAge = ageDate.getUTCFullYear() - 1970;
+  return calcAge;
+};
+
 export const getRoutingNumbers = (routingNumbers: RoutingNumbers): OptionTypes[] => {
   return Object.keys(routingNumbers).map((key) => {
     const titleCaseLabel = toTitleCase(key);

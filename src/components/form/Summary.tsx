@@ -92,7 +92,7 @@ const Summary = () => {
           </InputWrapper>
         )}
         {formData.household_size && <InputWrapper>Household size: {formData.household_size}</InputWrapper>}
-        {formData.additional_insured && (formData.eligible_americo_count || formData.eligible_mutual_count) && (
+        {formData.additional_insured && (formData.eligible_americo_count > 0 || formData.eligible_mutual_count > 0) && (
           <>
             <InputWrapper>
               {'Applying for coverage: '}
@@ -102,7 +102,7 @@ const Summary = () => {
               <>
                 <InputWrapper>
                   {'Americo sales: '}
-                  {formData.eligible_americo_count.toString()}
+                  {formData.eligible_americo_count}
                 </InputWrapper>
                 <InputWrapper>
                   {'Americo amount: $'}
@@ -114,7 +114,7 @@ const Summary = () => {
               <>
                 <InputWrapper>
                   {'Mutual of Omaha sales: '}
-                  {formData.eligible_mutual_count.toString()}
+                  {formData.eligible_mutual_count}
                 </InputWrapper>
                 <InputWrapper>
                   {'Mutual of Omaha amount: $'}

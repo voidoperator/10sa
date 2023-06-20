@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
 import Datepicker from 'react-tw-datepicker';
-import { calculateAge } from '../../utility/utility';
 import type { DateValueType } from 'react-tw-datepicker/dist/types';
 import type { DateInputProps, DateValue } from '../../types/formData';
 import { ShadowDiv, DateInputLabelContainer, DateInputLabel, RequiredSpan, AgeContainer } from '../tw/twStyles';
@@ -13,7 +12,6 @@ const DateInput: React.FC<DateInputProps> = ({
   id,
   labelName,
   name,
-  ageKey,
   showAge = true,
   required = true,
   additional = false,
@@ -28,6 +26,18 @@ const DateInput: React.FC<DateInputProps> = ({
     endDate: null,
   });
 
+  const calculateAge = (birthdate: string | Date) => {
+    let birthDate = new Date(birthdate);
+  
+    if (isNaN(birthDate.getTime())) {
+      return null;
+    }
+  
+    let ageDifMs = Date.now() - birthDate.getTime();
+    let ageDate = new Date(ageDifMs);
+    return ageDate.getUTCFullYear() - 1970;
+  };
+
   useEffect(() => {
     if (!additional && useDefault && defaultKey && defaultValue && value.startDate === null && value.endDate === null) {
       const [month = '', day = '', year = ''] = defaultValue.toString().split('-');
@@ -39,10 +49,14 @@ const DateInput: React.FC<DateInputProps> = ({
         endDate: dateReformat,
       });
       const calcAge = calculateAge(startDate);
-      const sanatizeAge = calcAge !== null && calcAge < 0 ? null : calcAge;
       setUserAge(calcAge);
-      const sanatizeValue = defaultValue === '--' ? '' : defaultValue;
-      setFormData((prevState) => ({ ...prevState, [defaultKey]: sanatizeValue, [ageKey]: sanatizeAge }));
+      if (defaultKey === 'date_of_birth') {
+        const sanatizeValue = defaultValue === '--' ? '' : defaultValue;
+        setFormData((prevState) => ({ ...prevState, [defaultKey]: sanatizeValue, age: userAge }));
+      } else {
+        const sanatizeValue = defaultValue === '--' ? '' : defaultValue;
+        setFormData((prevState) => ({ ...prevState, [defaultKey]: sanatizeValue }));
+      }
     }
     if (
       additional &&
@@ -62,46 +76,42 @@ const DateInput: React.FC<DateInputProps> = ({
         startDate: dateReformat,
         endDate: dateReformat,
       });
-      const calcAge = calculateAge(startDate);
-      const sanatizeAge = calcAge !== null && calcAge < 0 ? null : calcAge;
+      const calcAge = Number(calculateAge(startDate));
       setUserAge(calcAge);
       let additionalInsuredList = formData.additional_insured_list || [];
-      additionalInsuredList[dependentIndex] = {
-        ...additionalInsuredList[dependentIndex],
-        [defaultKey]: defaultValue,
-        [ageKey]: sanatizeAge,
-      };
+      if (defaultKey === 'date_of_birth') {
+        additionalInsuredList[dependentIndex] = {
+          ...additionalInsuredList[dependentIndex],
+          [defaultKey]: dateReformat, // saving dateReformat
+          age: calcAge, // saving calcAge
+        };
+      }
       setFormData((prevState) => ({ ...prevState, additional_insured_list: additionalInsuredList }));
-    }
-  }, [useDefault, defaultKey, defaultValue, value]);
+
+  }, []);
 
   const handleValueChange = (newDate: DateValueType, e?: HTMLInputElement | null) => {
-    if (newDate === null) {
-      setValue({ startDate: null, endDate: null });
-      setUserAge(0);
-    } else if (typeof newDate === 'object' && newDate.hasOwnProperty('startDate')) {
-      setValue(newDate as DateValue);
-      const startDate = newDate.startDate ?? '';
+
       const [year = '', month = '', day = ''] = startDate.toString().split('-');
       const formatDate = `${month}-${day}-${year}`;
       const calcAge = calculateAge(startDate);
-      const sanatizeAge = calcAge !== null && calcAge < 0 ? null : calcAge;
       setUserAge(calcAge);
-      const sanatizeValue = formatDate === '--' ? '' : formatDate;
+
       if (additional && typeof id === 'number') {
         const dependentIndex = id;
-
         let additionalInsuredList = formData.additional_insured_list || [];
-
         additionalInsuredList[dependentIndex] = {
           ...additionalInsuredList[dependentIndex],
-          id: dependentIndex,
-          [defaultKey]: sanatizeValue,
-          [ageKey]: sanatizeAge,
+          [defaultKey]: '', // Empty string when date is deleted
+          age: null, // Null age when date is deleted
         };
         setFormData((prevState) => ({ ...prevState, additional_insured_list: additionalInsuredList }));
       } else {
-        setFormData((prevState) => ({ ...prevState, [defaultKey]: sanatizeValue, [ageKey]: calcAge }));
+        if (defaultKey === 'date_of_birth') {
+          setFormData((prevState) => ({ ...prevState, [name]: '', age: null })); // Empty string and null age when date is deleted
+        } else {
+          setFormData((prevState) => ({ ...prevState, [name]: '' })); // Empty string when date is deleted
+        }
       }
     }
   };

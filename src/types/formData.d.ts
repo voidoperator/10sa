@@ -7,7 +7,7 @@ export type FormDataType = {
   last_name: string;
   gender: string;
   date_of_birth: string;
-  age: number;
+  age: number | null;
   phone_number: string;
   ssn: string;
   email: string;
@@ -33,6 +33,7 @@ export type FormDataType = {
   beneficiary_full_name: string;
   beneficiary_relationship: string;
   beneficiary_date_of_birth: string;
+  beneficiary_age: number | null;
   name_of_account_holder: string;
   current_insurance: string;
   coverage_reason: string;
@@ -73,6 +74,7 @@ export type FormDataType = {
   eligible_americo_count: number;
   eligible_mutual_count: number;
   carriers: Carrier[];
+  is_agent_licensed_in_state: string;
 };
 
 export type InsuredList = {
@@ -80,18 +82,19 @@ export type InsuredList = {
   full_name: string;
   relationship_to_primary: string;
   date_of_birth: string;
-  age: number;
+  age: number | null;
   ssn: string;
-  country_of_birth?: string;
-  state_of_birth?: string;
-  height?: string;
-  weight?: string;
-  notes?: string;
-  employment_status?: string;
-  occupation?: string;
-  beneficiary_full_name?: string;
-  beneficiary_relationship?: string;
-  beneficiary_date_of_birth?: string;
+  country_of_birth: string;
+  state_of_birth: string;
+  height: string;
+  weight: string;
+  notes: string;
+  employment_status: string;
+  occupation: string;
+  beneficiary_full_name: string;
+  beneficiary_relationship: string;
+  beneficiary_date_of_birth: string;
+  beneficiary_age: number | null;
 };
 
 export type TextInputProps = {
@@ -170,6 +173,7 @@ export type DropDownInputProps = {
 
 export type DateInputProps = {
   id: number | string;
+  ageKey: string;
   labelName: string;
   name: string;
   showAge?: boolean;
