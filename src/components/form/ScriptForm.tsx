@@ -18,6 +18,8 @@ import {
   StatusText,
   ScriptBox,
   AgentInfoBox,
+  ExternalAnchorButton,
+  ShadowDiv,
 } from '../tw/twStyles';
 import TextInput from './TextInput';
 import RadioInput from './RadioInput';
@@ -26,31 +28,33 @@ import TextAreaInput from './TextAreaInput';
 import DateInput from './DateInput';
 import DetailConfirmation from './DetailConfirmation';
 import SelectCreateable from './SelectCreateable';
-import { useFormData } from '../contexts/FormContext';
+import LocalStorageInput from './LocalStorageInput';
+import { useFormData, initialDependentState } from '../contexts/FormContext';
 import { TenStepsAheadLogo } from '../icons/TenStepsAheadLogo';
 import { getZipcodeData, ZipcodeDataType } from '../../utility/getZipcodeData';
-import { unitedStates, countries, occupations, preferredCarriers, employmentOptions } from '../../utility/staticData';
+import {
+  unitedStates,
+  countries,
+  occupations,
+  preferredCarriers,
+  employmentOptions,
+  banks,
+  routingNumbers,
+} from '../../utility/staticData';
 import {
   toTitleCase,
   formDataTitleCased,
   backupAndClearFormData,
   restoreBackupFormData,
-  nextMonthString,
+  getDraftDate,
+  getRoutingNumbers,
+  parseCurrency,
 } from '../../utility/utility';
 import { MutualOfOmahaIcon } from '../icons/MutualOfOmahaIcon';
 import { AmericoIcon } from '../icons/AmericoIcon';
 import { CloseIcon } from '../icons/CloseIcon';
 import { IneligibleIcon } from '../icons/IneligebleIcon';
-import type { Carrier } from '../../types/formData';
-
-const initialDependentState = {
-  id: 0,
-  full_name: '',
-  date_of_birth: '',
-  relationship: '',
-  age: 0,
-  ssn: '',
-};
+import type { Carrier, OptionTypes } from '../../types/formData';
 
 const ScriptForm = () => {
   const { formData, setFormData } = useFormData();
@@ -61,18 +65,18 @@ const ScriptForm = () => {
   const [copied, setCopied] = useState<boolean>(false);
   const [carriersData, setCarriersData] = useState<Carrier[]>([]);
   const [zipcodeData, setZipcodeData] = useState<ZipcodeDataType | undefined>(undefined);
+  const [bankRoutes, setBankRoutes] = useState<OptionTypes[]>([]);
   const [title, setTitle] = useState<string>('');
+  const [draftDate, setDraftDate] = useState<string>('');
+  const [bankNameKey, setBankNameKey] = useState<number>(0);
+  const [prevBankName, setPrevBankName] = useState(formData.bank_name);
+  const [googleRoutingUrl, setGoogleRoutingUrl] = useState<string>('');
 
   useEffect(() => {
+    setDraftDate(getDraftDate());
     const savedFormData = localStorage.getItem('formData');
-    const googleKeyUrl = localStorage.getItem('google_app_url');
     if (savedFormData) {
       setFormData(JSON.parse(savedFormData));
-    }
-    if (googleKeyUrl && !error) {
-      setTimeout(() => {
-        setFormData({ ...formData, google_app_url: googleKeyUrl });
-      }, 1000);
     }
   }, []);
 
@@ -81,10 +85,133 @@ const ScriptForm = () => {
   }, [formData]);
 
   useEffect(() => {
-    if (formData.google_app_url) {
-      localStorage.setItem('google_app_url', formData.google_app_url);
+    if (!formData.life_adb_provider) return;
+    const init = '';
+    if (formData.life_adb_provider === 'mutual') {
+      setFormData((prevState) => ({ ...prevState, americo_premium: init }));
     }
-  }, [formData.google_app_url]);
+    if (formData.life_adb_provider === 'americo') {
+      setFormData((prevState) => ({ ...prevState, mutual_quote_gender: init, mutual_face_amount: init }));
+    }
+  }, [formData.life_adb_provider]);
+
+  useEffect(() => {
+    const eligibleAdditionalInsuredList =
+      formData.additional_insured_list?.filter(
+        (member) => member.age !== null && member.age >= 20 && member.age <= 59,
+      ) || [];
+    const eligibleAmericoCount =
+      (formData.age !== null && formData.age >= 20 && formData.age <= 59 ? 1 : 0) +
+      eligibleAdditionalInsuredList.length;
+
+    const americoPremium = parseCurrency(formData.americo_premium) || 48;
+    const americoMonthlyAmount = eligibleAmericoCount * americoPremium;
+    const monthlyHealthPremium = parseCurrency(formData.monthly_health_premium) || 0;
+
+    let mutual_of_omaha_premium = 0;
+    if (formData.mutual_quote_gender && formData.mutual_face_amount) {
+      const coverageAmount = parseInt(formData.mutual_face_amount.replace(/[^0-9]/g, ''), 10) || 0;
+      const multiplier = (coverageAmount - 50000) / 10000;
+      if (formData.mutual_quote_gender === 'male') {
+        mutual_of_omaha_premium = 10.29 + multiplier * 1.18;
+      } else if (formData.mutual_quote_gender === 'female') {
+        mutual_of_omaha_premium = 7.53 + multiplier * 0.63;
+      }
+      mutual_of_omaha_premium = parseFloat(mutual_of_omaha_premium.toFixed(2));
+    }
+
+    const eligibleMutualInsuredList =
+      formData.additional_insured_list?.filter(
+        (member) => member.age !== null && (member.age === 18 || member.age === 19 || member.age >= 60),
+      ) || [];
+    const eligibleMutualCount =
+      (formData.age !== null && (formData.age === 18 || formData.age === 19 || formData.age >= 60) ? 1 : 0) +
+      eligibleMutualInsuredList.length;
+    const mutualMonthlyAmount = eligibleMutualCount * mutual_of_omaha_premium;
+    const grandTotal =
+      formData.life_adb_provider === 'americo'
+        ? americoMonthlyAmount + monthlyHealthPremium
+        : mutualMonthlyAmount + monthlyHealthPremium;
+
+    const formatGrandTotal = grandTotal ? `$${grandTotal.toFixed(2).toString()}` : '';
+
+    setFormData((prevState) => ({
+      ...prevState,
+      monthly_grand_total: formatGrandTotal,
+      eligible_americo_count: eligibleAmericoCount,
+      eligible_mutual_count: eligibleMutualCount,
+      life_total_cost: americoMonthlyAmount || mutualMonthlyAmount,
+    }));
+  }, [
+    JSON.stringify(formData.additional_insured_list),
+    formData.additional_insured,
+    formData.monthly_health_premium,
+    formData.life_adb_provider,
+    formData.mutual_quote_gender,
+    formData.mutual_face_amount,
+    formData.americo_premium,
+    formData.age,
+  ]);
+
+  useEffect(() => {
+    if (!formData.americo_premium && !formData.mutual_face_amount) return;
+    let deathBenefit: string;
+    if (formData.life_adb_provider === 'americo' && formData.americo_premium) {
+      switch (formData.americo_premium) {
+        case '$27':
+          deathBenefit = '$100,000';
+          break;
+        case '$35':
+          deathBenefit = '$150,000';
+          break;
+        case '$42':
+          deathBenefit = '$200,000';
+          break;
+        case '$48':
+          deathBenefit = '$250,000';
+          break;
+        default:
+          break;
+      }
+      setFormData((prevState) => ({ ...prevState, death_benefit: deathBenefit }));
+      return;
+    }
+    if (formData.life_adb_provider === 'mutual' && formData.mutual_face_amount) {
+      deathBenefit = formData.mutual_face_amount;
+      setFormData((prevState) => ({ ...prevState, death_benefit: deathBenefit }));
+      return;
+    }
+  }, [formData.americo_premium, formData.mutual_face_amount]);
+
+  useEffect(() => {
+    if (!formData.bank_name) {
+      setBankRoutes([]);
+      setFormData((prevState) => ({ ...prevState, routing_number: '' }));
+      setGoogleRoutingUrl('');
+      setBankNameKey((prevKey) => prevKey + 1);
+      setPrevBankName(formData.bank_name);
+      return;
+    }
+
+    const routingNums = routingNumbers[formData.bank_name];
+    const newBankRoutes = routingNums ? getRoutingNumbers(routingNums) : [];
+    setBankRoutes(newBankRoutes);
+
+    if (formData.bank_name !== prevBankName) {
+      setFormData((prevState) => ({ ...prevState, routing_number: '' }));
+    }
+
+    if (!routingNums && formData.state) {
+      const bankName = formData.bank_name.split(' ').join('+');
+      const state = formData.state.split('_').join('+');
+      setGoogleRoutingUrl(`https://www.google.com/search?q=${bankName}+routing+number+${state}`);
+    } else {
+      setGoogleRoutingUrl('');
+    }
+
+    setBankNameKey((prevKey) => prevKey + 1);
+    setPrevBankName(formData.bank_name);
+  }, [formData.bank_name, formData.state]);
 
   useEffect(() => {
     if (!formData.gender) return;
@@ -103,36 +230,32 @@ const ScriptForm = () => {
   useEffect(() => {
     const applyingForCoverage =
       1 + (formData.additional_insured_list?.length ? formData.additional_insured_list.length : 0);
-    setFormData({ ...formData, applying_for_coverage: applyingForCoverage });
+    setFormData((prevState) => ({ ...prevState, applying_for_coverage: applyingForCoverage }));
   }, [formData.additional_insured, formData.additional_insured_list]);
 
   useEffect(() => {
-    if (formData.married === 'no') {
-      setFormData({ ...formData, taxes_filing_status: 'single' });
+    if (!formData.married) return;
+    if (formData.married === 'no' && !formData.claims_dependents) {
+      setFormData((prevState) => ({ ...prevState, taxes_filing_status: 'single' }));
+      return;
     }
-  }, [formData.married]);
+    if (formData.married === 'no' && formData.claims_dependents === 'no') {
+      setFormData((prevState) => ({ ...prevState, household_size: '1' }));
+      return;
+    }
+    if (formData.married === 'yes' && formData.claims_dependents === 'no') {
+      setFormData((prevState) => ({ ...prevState, household_size: '2' }));
+      return;
+    }
+  }, [formData.married, formData.claims_dependents]);
 
   useEffect(() => {
     if (formData.country_of_birth === 'United States Of America') {
-      setFormData({ ...formData, immigration_status: 'citizen' });
+      setFormData((prevState) => ({ ...prevState, immigration_status: 'citizen' }));
     } else {
-      setFormData({ ...formData, immigration_status: '' });
+      setFormData((prevState) => ({ ...prevState, immigration_status: '' }));
     }
   }, [formData.country_of_birth]);
-
-  useEffect(() => {
-    if (
-      formData.additional_insured === 'yes' &&
-      (!formData.additional_insured_list || formData.additional_insured_list.length === 0)
-    ) {
-      setFormData({
-        ...formData,
-        additional_insured_list: [initialDependentState],
-      });
-    } else {
-      setFormData({ ...formData, additional_insured_list: [] });
-    }
-  }, [formData.additional_insured]);
 
   useEffect(() => {
     const { zip_code } = formData;
@@ -147,23 +270,40 @@ const ScriptForm = () => {
   }, [formData.zip_code]);
 
   useEffect(() => {
+    if (!formData.state) return;
+    setFormData((prevState) => ({
+      ...prevState,
+      carriers: preferredCarriers[formData.state],
+    }));
+  }, [formData.state]);
+
+  useEffect(() => {
     if (!zipcodeData || !carriersData) return;
-    setFormData({
-      ...formData,
+    setFormData((prevState) => ({
+      ...prevState,
       county: zipcodeData.county,
       state: zipcodeData.state,
       city: zipcodeData.primary_city,
       carriers: carriersData,
-    });
+    }));
   }, [zipcodeData, carriersData]);
 
   useEffect(() => {
-    if (!formData.state) return;
-    setFormData({
-      ...formData,
-      carriers: preferredCarriers[formData.state],
-    });
-  }, [formData.state]);
+    if (!formData.life_total_cost || !formData.health_unsubsidized) return;
+
+    const lifeCost = formData.life_total_cost || 0;
+    const healthUnsubCost = parseCurrency(formData.health_unsubsidized);
+    const total = lifeCost + healthUnsubCost;
+    const formattedValue = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(total);
+    if (formattedValue) {
+      setFormData((prevState) => ({ ...prevState, life_health_unsubsidized: formattedValue }));
+    }
+  }, [formData.life_total_cost, formData.health_unsubsidized]);
 
   const handleHouseholdCheck = () => {
     const { household_size } = formData;
@@ -176,18 +316,18 @@ const ScriptForm = () => {
   const addDependent = () => {
     if (!handleHouseholdCheck()) {
       const newDependent = { ...initialDependentState, id: formData.additional_insured_list.length };
-      setFormData({
-        ...formData,
-        additional_insured_list: [...formData.additional_insured_list, newDependent],
-      });
+      setFormData((prevState) => ({
+        ...prevState,
+        additional_insured_list: [...prevState.additional_insured_list, newDependent],
+      }));
     }
   };
 
   const removeDependent = (index: number) => {
-    setFormData({
-      ...formData,
+    setFormData((prevState) => ({
+      ...prevState,
       additional_insured_list: formData.additional_insured_list.filter((_, i) => i !== index),
-    });
+    }));
   };
 
   const handleCopyToClipboard = () => {
@@ -264,10 +404,6 @@ const ScriptForm = () => {
       </MainContainer>
     );
 
-  //   {/* {JSON.stringify(formData)
-  // .split(/,(?!\d)/)
-  // .join(', ')} */}
-
   if (!isSubmitting && !successful && !error)
     return (
       <FormSectionContainer>
@@ -283,41 +419,36 @@ const ScriptForm = () => {
             <Button onClick={restoreBackupFormData}>Restore Form</Button>
           </ButtonContainer>
         </>
-        {/* Individual Agent Info */}
+        {/* Agent Information */}
         <>
           <Divider />
+          <H2>Agent Information</H2>
           <AgentInfoBox>
-            <TextInput
+            <LocalStorageInput
               labelName='Google App URL:'
               name='google_app_url'
               id='google_app_url'
               placeholder='Ex. https://script.google.com/macros/s/...'
-              type='text'
               uppercase={false}
-              required={true}
               defaultKey='google_app_url'
               defaultValue={formData?.google_app_url || ''}
               externalValue={formData?.google_app_url}
             />
-            <TextInput
+            <LocalStorageInput
               labelName='Agent Full Name:'
               name='agent_full_name'
               id='agent_full_name'
               placeholder='Ex. John Doe'
               defaultKey='agent_full_name'
-              type='text'
-              required={true}
               defaultValue={formData?.agent_full_name || ''}
               externalValue={formData?.agent_full_name}
             />
-            <TextInput
+            <LocalStorageInput
               labelName='Agent License Number:'
               name='agent_license_number'
               id='agent_license_number'
               placeholder='Ex. 123456789'
               defaultKey='agent_license_number'
-              type='text'
-              required={true}
               defaultValue={formData?.agent_license_number || ''}
               externalValue={formData?.agent_license_number}
             />
@@ -329,7 +460,9 @@ const ScriptForm = () => {
             <Divider />
             <H2>Customer Details</H2>
             <ScriptBox>
-              {`Hello, this is ${formData?.agent_full_name || '{Agent Full Name}'}, your licensed agent`}
+              {`Hello, this is ${
+                formData.agent_full_name ? toTitleCase(formData?.agent_full_name) : '{Agent Full Name}'
+              }, your licensed agent.`}
               <br />
               <br />
               {`Can I please have your full name?`}
@@ -373,7 +506,7 @@ const ScriptForm = () => {
             />
             <ScriptBox>
               {`Thank you. ${title} ${
-                formData?.last_name || '{Client Name}'
+                toTitleCase(formData?.last_name) || '{Client Name}'
               }, you're looking for health insurance, correct?`}
               <br />
               <br />
@@ -388,9 +521,8 @@ const ScriptForm = () => {
                 { label: 'Individual', value: 'individual' },
               ]}
             />
-            <ScriptBox>
-              {`And are you currently insured? or have some type of coverage from Medicare or Medicaid?`}
-            </ScriptBox>
+            <ScriptBox>{`And you are aware that this is an Obama Care line, and you're not looking for Medicare or Medicaid, correct?`}</ScriptBox>
+            <ScriptBox>{`Okay perfect, and are you currently insured?`}</ScriptBox>
             <RadioInput
               labelName='Current insurance?'
               name='current_insurance'
@@ -400,6 +532,9 @@ const ScriptForm = () => {
                 { label: 'No', value: 'no' },
               ]}
             />
+            {formData?.current_insurance === 'yes' && (
+              <ScriptBox>{`In order to qualify for Obama Care you can only have one active insurance at a time. So do you plan to cancel your current insurance?`}</ScriptBox>
+            )}
             <ScriptBox>
               {`Can I please have your zip code so I can see what plans are available in your area?`}
             </ScriptBox>
@@ -437,8 +572,9 @@ const ScriptForm = () => {
               labelName='State:'
               name='state'
               id='state'
+              placeholder='Please select a state...'
               options={unitedStates}
-              defaultOption={formData?.state || 'Please select a state'}
+              defaultOption={formData?.state || ''}
             />
             <TextInput
               labelName='City:'
@@ -475,14 +611,15 @@ const ScriptForm = () => {
               {`Okay, let's go over a little Health Questionnaire to see what options you qualify for.`}
             </ScriptBox>
             <ScriptBox>{`${title} ${
-              formData?.last_name || '{Client Name}'
+              toTitleCase(formData?.last_name) || '{Client Name}'
             }, what is your current employment status?`}</ScriptBox>
             <DropDownInput
               id='employment_status'
               labelName="Primary's Employment Status:"
               name='employment_status'
+              placeholder='Please select an employment status...'
               options={employmentOptions}
-              defaultOption={formData?.employment_status || 'Please select an employment status'}
+              defaultOption={formData?.employment_status || ''}
             />
             {formData.employment_status === 'employed' && (
               <>
@@ -523,17 +660,17 @@ const ScriptForm = () => {
               defaultValue={formData?.annual_household_income || ''}
             />
             <ScriptBox>{`Great. Can I please have your date of birth?`}</ScriptBox>
-            {formData.age !== 0 && (formData.age < 18 || formData.age > 59) && (
+            {formData.age !== null && formData.age < 18 && (
               <EligibilityIconContainer>
                 <IneligibleIcon twClasses={'h-10'} />
               </EligibilityIconContainer>
             )}
-            {(formData.age === 18 || formData.age === 19 || formData.age >= 60) && (
+            {formData.age !== null && (formData.age === 18 || formData.age === 19 || formData.age >= 60) && (
               <EligibilityIconContainer>
                 <MutualOfOmahaIcon twClasses={'h-10'} />
               </EligibilityIconContainer>
             )}
-            {formData.age >= 20 && formData.age <= 59 && (
+            {formData.age !== null && formData.age >= 20 && formData.age <= 59 && (
               <EligibilityIconContainer>
                 <AmericoIcon twClasses={'h-10'} />
               </EligibilityIconContainer>
@@ -543,7 +680,7 @@ const ScriptForm = () => {
               name='date_of_birth'
               id='date_of_birth'
               defaultKey='date_of_birth'
-              required={true}
+              ageKey='age'
               defaultValue={formData?.date_of_birth || ''}
             />
             <ScriptBox>{`Are you a smoker or non-smoker?`}</ScriptBox>
@@ -556,7 +693,7 @@ const ScriptForm = () => {
                 { label: 'No', value: 'no' },
               ]}
             />
-            <ScriptBox>{`${title} ${formData?.last_name || '{Client Name}'}, are you married?`}</ScriptBox>
+            <ScriptBox>{`${title} ${toTitleCase(formData?.last_name) || '{Client Name}'}, are you married?`}</ScriptBox>
             <RadioInput
               labelName='Married?'
               name='married'
@@ -576,53 +713,85 @@ const ScriptForm = () => {
               rowOrCol='col'
               defaultOption={formData.taxes_filing_status}
               options={[
-                { label: 'Single', value: 'single' },
-                { label: 'Married filing jointly', value: 'married_filing_jointly' },
-                { label: 'Married filing separately', value: 'married_filing_separately' },
-                { label: 'Head of household', value: 'head_of_household' },
+                { label: 'Single', value: 'single', disabled: formData.married !== 'no' },
+                {
+                  label: 'Married filing jointly',
+                  value: 'married_filing_jointly',
+                  disabled: formData.married !== 'yes',
+                },
+                {
+                  label: 'Married filing separately',
+                  value: 'married_filing_separately',
+                  disabled: formData.married !== 'yes',
+                },
+                { label: 'Head of household', value: 'head_of_household', disabled: formData.married !== 'no' },
                 {
                   label: 'Qualifying widow(er) with dependent child',
                   value: 'qualifying_widow(er)_with_dependent_child',
+                  disabled: formData.married !== 'yes',
                 },
               ]}
             />
-            <ScriptBox>
-              {`Do you claim any dependents on your taxes?`} <br /> {`If so, what is your household size?`}
-            </ScriptBox>
-            <TextInput
-              labelName='Household size:'
-              name='household_size'
-              id='household_size'
-              placeholder='Ex. 4'
-              type='number'
-              pattern='/^\d{9}$/'
-              defaultKey='household_size'
-              defaultValue={formData?.household_size || ''}
-            />
+            <ScriptBox>{`Do you claim any dependents on your taxes?`}</ScriptBox>
             <RadioInput
-              labelName='Additional insured/dependents? (part of household)'
-              name='additional_insured'
-              id='additional_insured'
+              labelName='Claims dependents on taxes?'
+              name='claims_dependents'
+              id='claims_dependents'
               options={[
                 { label: 'Yes', value: 'yes' },
                 { label: 'No', value: 'no' },
               ]}
             />
+            {formData.claims_dependents === 'yes' && (
+              <>
+                <ScriptBox>{`And what is your household size?`}</ScriptBox>
+                <TextInput
+                  labelName='Household size:'
+                  name='household_size'
+                  id='household_size'
+                  placeholder='Ex. 4'
+                  type='number'
+                  pattern='/^\d{9}$/'
+                  defaultKey='household_size'
+                  defaultValue={formData?.household_size || ''}
+                  externalValue={formData?.household_size}
+                />
+                {Number(formData.household_size) > 1 && (
+                  <>
+                    <ScriptBox>{`Will ${
+                      Number(formData.household_size) > 2 ? 'any of them' : 'they'
+                    } also be getting insured today?`}</ScriptBox>
+                    <RadioInput
+                      labelName='Additional insured?'
+                      name='additional_insured'
+                      id='additional_insured'
+                      options={[
+                        { label: 'Yes', value: 'yes' },
+                        { label: 'No', value: 'no' },
+                      ]}
+                    />
+                  </>
+                )}
+              </>
+            )}
             {formData.additional_insured === 'yes' &&
+              formData.household_size &&
+              formData.household_size !== '1' &&
               formData.additional_insured_list?.map((dependent, i) => {
                 return (
                   <AdditionalInsuredContainer key={`dependent_${i + 1}_info`}>
-                    {dependent.age !== 0 && (dependent.age < 18 || dependent.age > 59) && (
+                    {dependent.age !== null && dependent.age < 18 && (
                       <EligibilityIconContainer>
                         <IneligibleIcon twClasses={'h-10'} />
                       </EligibilityIconContainer>
                     )}
-                    {(dependent.age === 18 || dependent.age === 19) && (
-                      <EligibilityIconContainer>
-                        <MutualOfOmahaIcon twClasses={'h-10'} />
-                      </EligibilityIconContainer>
-                    )}
-                    {dependent.age >= 20 && dependent.age <= 59 && (
+                    {dependent.age !== null &&
+                      (dependent.age === 18 || dependent.age === 19 || dependent.age >= 60) && (
+                        <EligibilityIconContainer>
+                          <MutualOfOmahaIcon twClasses={'h-10'} />
+                        </EligibilityIconContainer>
+                      )}
+                    {dependent.age !== null && dependent.age >= 20 && dependent.age <= 59 && (
                       <EligibilityIconContainer>
                         <AmericoIcon twClasses={'h-10'} />
                       </EligibilityIconContainer>
@@ -634,26 +803,29 @@ const ScriptForm = () => {
                       placeholder='Ex. Jane Doe'
                       type='text'
                       additional={true}
+                      uppercase={true}
                       defaultKey='full_name'
-                      defaultValue={formData?.additional_insured_list[i].full_name || ''}
+                      defaultValue={dependent.full_name || ''}
                     />
                     <TextInput
                       id={i}
-                      labelName={`Dependent ${i + 1} Relationship:`}
-                      name='relationship'
+                      labelName={`Dependent ${i + 1} Relationship to Primary:`}
+                      name='relationship_to_primary'
                       placeholder='Ex. Son, Daughter, Spouse'
                       type='text'
                       additional={true}
-                      defaultKey='relationship'
-                      defaultValue={formData?.additional_insured_list[i].relationship || ''}
+                      uppercase={true}
+                      defaultKey='relationship_to_primary'
+                      defaultValue={dependent.relationship_to_primary || ''}
                     />
                     <DateInput
                       id={i}
                       name='date_of_birth'
                       labelName={`Dependent ${i + 1} Date of Birth:`}
                       additional={true}
+                      ageKey='age'
                       defaultKey='date_of_birth'
-                      defaultValue={formData?.additional_insured_list[i].date_of_birth || ''}
+                      defaultValue={dependent.date_of_birth || ''}
                     />
                     <TextInput
                       id={i}
@@ -665,55 +837,40 @@ const ScriptForm = () => {
                       socialSecurity={true}
                       additional={true}
                       defaultKey='ssn'
-                      defaultValue={formData?.additional_insured_list[i].ssn || ''}
+                      defaultValue={dependent.ssn || ''}
                     />
-                    {formData.additional_insured_list?.[i] && formData.additional_insured_list[i].age >= 18 && (
+                    {formData.additional_insured_list[i] && dependent.age !== null && dependent.age >= 18 && (
                       <>
-                        <TextInput
-                          id={i}
-                          labelName={`Dependent ${i + 1} State ID Number:`}
-                          name='driver_license_number'
-                          placeholder='Ex. L12312312312'
-                          type='text'
-                          uppercase={true}
-                          additional={true}
-                          defaultKey='driver_license_number'
-                          defaultValue={formData?.additional_insured_list[i].driver_license_number || ''}
-                        />
                         <DropDownInput
                           id={i}
                           labelName={`Dependent ${i + 1} Country of Birth:`}
                           name='country_of_birth'
+                          placeholder='Please select a country...'
                           additional={true}
                           options={countries}
-                          defaultOption={
-                            formData?.additional_insured_list?.[i]?.country_of_birth || 'Please select a country'
-                          }
+                          defaultOption={dependent.country_of_birth || ''}
                         />
-                        {formData.additional_insured_list[i].country_of_birth === 'United States Of America' && (
+                        {dependent.country_of_birth === 'United States Of America' && (
                           <DropDownInput
                             id={i}
                             labelName={`Dependent ${i + 1} State of Birth:`}
                             name='state_of_birth'
+                            placeholder='Please select a state...'
                             additional={true}
                             options={unitedStates}
-                            defaultOption={
-                              formData?.additional_insured_list?.[i]?.state_of_birth || 'Please select a state'
-                            }
+                            defaultOption={dependent.state_of_birth || ''}
                           />
                         )}
                         <DropDownInput
                           id={i}
                           labelName={`Dependent ${i + 1} Employment Status:`}
                           name='employment_status'
+                          placeholder='Please select an employment status...'
                           additional={true}
                           options={employmentOptions}
-                          defaultOption={
-                            formData?.additional_insured_list?.[i]?.employment_status ||
-                            'Please select an employment status'
-                          }
+                          defaultOption={dependent.employment_status || ''}
                         />
-                        {formData.additional_insured_list[i].employment_status === 'employed' && (
+                        {dependent.employment_status === 'employed' && (
                           <SelectCreateable
                             id={i}
                             labelName='Occupation:'
@@ -721,11 +878,11 @@ const ScriptForm = () => {
                             options={occupations}
                             placeholder='Please select an occupation...'
                             additional={true}
-                            defaultOption={formData?.additional_insured_list?.[i]?.occupation || ''}
+                            defaultOption={dependent.occupation || ''}
                           />
                         )}
-                        {(formData.additional_insured_list[i].employment_status === 'retired' ||
-                          formData.additional_insured_list[i].employment_status === 'unemployed') && (
+                        {(dependent.employment_status === 'retired' ||
+                          dependent.employment_status === 'unemployed') && (
                           <SelectCreateable
                             id={i}
                             labelName='Former occupation:'
@@ -733,7 +890,7 @@ const ScriptForm = () => {
                             options={occupations}
                             placeholder='Please select an occupation...'
                             additional={true}
-                            defaultOption={formData?.additional_insured_list?.[i]?.occupation || ''}
+                            defaultOption={dependent.occupation || ''}
                           />
                         )}
                         <TextInput
@@ -746,7 +903,7 @@ const ScriptForm = () => {
                           height={true}
                           additional={true}
                           defaultKey='height'
-                          defaultValue={formData?.additional_insured_list[i].height || ''}
+                          defaultValue={dependent.height || ''}
                         />
                         <TextInput
                           id={i}
@@ -758,29 +915,50 @@ const ScriptForm = () => {
                           weight={true}
                           additional={true}
                           defaultKey='weight'
-                          defaultValue={formData?.additional_insured_list[i].weight || ''}
+                          defaultValue={dependent.weight || ''}
                         />
                         <TextInput
                           id={i}
-                          labelName={`Dependent ${i + 1} Beneficiary:`}
-                          name='dependent_beneficiary'
+                          labelName={`Dependent ${i + 1} Beneficiary (Full Name):`}
+                          name='beneficiary_full_name'
                           placeholder='Ex. John Doe'
                           type='text'
+                          uppercase={true}
                           additional={true}
-                          defaultKey='dependent_beneficiary'
-                          defaultValue={formData?.additional_insured_list[i].dependent_beneficiary || ''}
+                          defaultKey='beneficiary_full_name'
+                          defaultValue={dependent.beneficiary_full_name || ''}
+                        />
+                        <TextInput
+                          id={i}
+                          labelName={`Dependent ${i + 1} Beneficiary (Relationship to Dependent):`}
+                          name='beneficiary_relationship'
+                          placeholder='Ex. Son, Daughter, Spouse'
+                          type='text'
+                          uppercase={true}
+                          additional={true}
+                          defaultKey='beneficiary_relationship'
+                          defaultValue={dependent.beneficiary_relationship || ''}
+                        />
+                        <DateInput
+                          id={i}
+                          name='beneficiary_date_of_birth'
+                          labelName={`Dependent ${i + 1} Beneficiary (Date of Birth):`}
+                          additional={true}
+                          ageKey='beneficiary_age'
+                          defaultKey='beneficiary_date_of_birth'
+                          defaultValue={dependent.beneficiary_date_of_birth || ''}
                         />
                       </>
                     )}
                     <TextAreaInput
                       id={i}
                       labelName='Notes:'
-                      name='notes_dependent'
+                      name='notes'
                       placeholder='Enter notes here'
                       additional={true}
                       required={false}
-                      defaultKey='notes_dependent'
-                      defaultValue={formData?.additional_insured_list[i].notes_dependent || ''}
+                      defaultKey='notes'
+                      defaultValue={dependent.notes || ''}
                     />
                     <RemoveDependentButton
                       id='remove-dependent'
@@ -840,29 +1018,30 @@ const ScriptForm = () => {
             />
             {formData.medications === 'yes' && (
               <>
-                <ScriptBox>{`Is it generic or a name brand? (get names and doses)`}</ScriptBox>
-                <TextInput
+                <TextAreaInput
                   labelName='Specific medications:'
                   name='medications_list'
                   id='medications_list'
                   placeholder='Ex. Benazepril, Moexipril , Prozac'
-                  type='text'
+                  required={true}
+                  rows={7}
                   defaultKey='medications_list'
                   defaultValue={formData?.medications_list || ''}
                 />
               </>
             )}
-            <ScriptBox>{`Any history of Mental Health, COPD, Heart Procedure, Cancer or HIV?`}</ScriptBox>
+            <ScriptBox>{`Do you have any history of Mental Health, COPD, Heart Procedure, Cancer or HIV?`}</ScriptBox>
             <TextAreaInput
               labelName='History of mental health, COPD, heart procedures, cancer, HIV?'
               name='medical_history'
               id='medical_history'
               placeholder='Enter history here'
               required={false}
+              rows={3}
               defaultKey='medical_history'
               defaultValue={formData?.medical_history || ''}
             />
-            <ScriptBox>{`Do you have a primary doctor you go to or are you open to see new doctors?`}</ScriptBox>
+            <ScriptBox>{`Are there any doctors you would like me to make sure are covered by the plan or are you open to new doctors?`}</ScriptBox>
             <RadioInput
               labelName='Preferred doctors?'
               name='preferred_doctors'
@@ -874,13 +1053,13 @@ const ScriptForm = () => {
             />
             {formData.preferred_doctors === 'yes' && (
               <>
-                <ScriptBox>{`Can I have their name?`}</ScriptBox>
-                <TextInput
+                <TextAreaInput
                   labelName='Doctor Name:'
                   name='preferred_doctors_name'
                   id='preferred_doctors_name'
                   placeholder='Ex. Dr. Lino Fernandez'
-                  type='text'
+                  required={true}
+                  rows={2}
                   defaultKey='preferred_doctors_name'
                   defaultValue={formData?.preferred_doctors_name || ''}
                 />
@@ -902,8 +1081,11 @@ const ScriptForm = () => {
             />
             <ScriptBox>
               {`Great ${title} ${
-                formData?.last_name || '{Client Name}'
+                toTitleCase(formData?.last_name) || '{Client Name}'
               }, so now that I have a clear idea of what your needs are, I will be placing you on a brief hold to search the database for you. Once I see all the options you qualify for I will get back on the line to go over your best options. So while you wait, could you please grab a pen and paper so you can take some notes?`}
+              <br />
+              <br />
+              {`{Pause for reply...}`}
               <br />
               <br />
               {`Thank you, please hold.`}
@@ -917,8 +1099,11 @@ const ScriptForm = () => {
               {`Thank you so much for holding, do you have a pen and paper ready?`}
               <br />
               <br />
+              {`{Pause for reply...}`}
+              <br />
+              <br />
               {`Great, so please go ahead and write down my name, ${
-                formData?.agent_full_name || '{Agent Full Name}'
+                formData.agent_full_name ? toTitleCase(formData?.agent_full_name) : '{Agent Full Name}'
               }, and also my license number is ${formData?.agent_license_number || '{Agent License Number}'}.`}
               <br />
               <br />
@@ -937,7 +1122,7 @@ const ScriptForm = () => {
               labelName='Plan Name:'
               name='plan_name'
               id='plan_name'
-              placeholder='Ex. Florida Blue'
+              placeholder='Ex. Elite Bronze'
               type='text'
               defaultKey='plan_name'
               defaultValue={formData?.plan_name || ''}
@@ -946,10 +1131,9 @@ const ScriptForm = () => {
               labelName='PCP Copay (Primary Care Visit):'
               name='pcp_copay'
               id='pcp_copay'
-              placeholder='Ex. $150'
+              placeholder='Ex. $150, 40%, No charge, Full Price'
               type='text'
-              pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
-              currency={true}
+              uppercase={true}
               defaultKey='pcp_copay'
               defaultValue={formData?.pcp_copay || ''}
             />
@@ -957,10 +1141,9 @@ const ScriptForm = () => {
               labelName='Specialist Copay (Specialist Visit):'
               name='specialist_copay'
               id='specialist_copay'
-              placeholder='Ex. $150'
+              placeholder='Ex. $150, 40%, No charge, Full Price'
               type='text'
-              pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
-              currency={true}
+              uppercase={true}
               defaultKey='specialist_copay'
               defaultValue={formData?.specialist_copay || ''}
             />
@@ -968,10 +1151,9 @@ const ScriptForm = () => {
               labelName='Generic Meds Copay:'
               name='generic_meds_copay'
               id='generic_meds_copay'
-              placeholder='Ex. $50'
+              placeholder='Ex. $150, 40%, No charge, Full Price'
               type='text'
-              pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
-              currency={true}
+              uppercase={true}
               defaultKey='generic_meds_copay'
               defaultValue={formData?.generic_meds_copay || ''}
             />
@@ -1010,14 +1192,16 @@ const ScriptForm = () => {
               type='text'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               currency={true}
+              useDefault={true}
               defaultKey='monthly_grand_total'
               defaultValue={formData?.monthly_grand_total || ''}
+              externalValue={formData?.monthly_grand_total}
             />
             <TextInput
-              labelName='Health Unsubsidized:'
+              labelName={`Health Unsubsidized:`}
               name='health_unsubsidized'
               id='health_unsubsidized'
-              placeholder='Ex. $1,000'
+              placeholder='Ex. $305.40'
               type='text'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               currency={true}
@@ -1025,17 +1209,26 @@ const ScriptForm = () => {
               defaultValue={formData?.health_unsubsidized || ''}
             />
             <TextInput
-              labelName='CIGNA Dental:'
-              name='cigna_dental'
-              id='cigna_dental'
-              placeholder='Ex. $100'
+              labelName={`Qualified Subsidy:`}
+              name='qualified_subsidy'
+              id='qualified_subsidy'
+              placeholder='Ex. $395'
               type='text'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
-              required={false}
               currency={true}
-              defaultKey='cigna_dental'
-              defaultValue={formData?.cigna_dental || ''}
+              defaultKey='qualified_subsidy'
+              defaultValue={formData?.qualified_subsidy || ''}
             />
+            {formData?.health_unsubsidized && formData?.life_health_unsubsidized && formData?.monthly_grand_total && (
+              <>
+                <DetailConfirmation
+                  detail={formData.life_health_unsubsidized}
+                  labelName={`Life & Health Unsubsidized (Health: ${formData?.health_unsubsidized} + Life: $${formData?.life_total_cost}):`}
+                  id='life_health_unsubsidized'
+                  name='life_health_unsubsidized'
+                />
+              </>
+            )}
             <TextInput
               labelName='Death Benefit:'
               name='death_benefit'
@@ -1044,60 +1237,61 @@ const ScriptForm = () => {
               type='text'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               currency={true}
+              useDefault={true}
               defaultKey='death_benefit'
               defaultValue={formData?.death_benefit || ''}
+              externalValue={formData?.death_benefit}
             />
             <ScriptBox>
+              {`Hello, ${title} ${toTitleCase(formData?.last_name) || '{Client Name}'}?`}
+              <br />
+              <br />
               {`Congratulations, I have some great news. I was able to apply all your subsidies and reductions. The best plan the system recommends is with ${
-                formData?.carrier_name || '{Carrier Name}'
+                toTitleCase(formData?.carrier_name) || '{Carrier Name}'
               }. And I agree with the system that ${
-                formData?.carrier_name || '{Carrier Name}'
+                toTitleCase(formData?.carrier_name) || '{Carrier Name}'
               } is the best option based on the needs we discussed. ${
-                formData?.carrier_name + ' ' + formData?.plan_name || '{Carrier Name}'
-              } is a Major Medical, which means that it covers any pre-existing or future conditions.`}
+                toTitleCase(formData?.carrier_name) || '{Carrier Name}'
+              } is Major Medical, which means that it covers any pre-existing or future conditions.`}
               <br />
               <br />
-              {`Also with ${
-                formData?.carrier_name + ' ' + formData?.plan_name || '{Carrier Name}'
-              } all Preventative Care is absolutely free!`}
+              {`Also with ${formData?.carrier_name || '{Carrier Name}'} all Preventative Care is absolutely free!`}
               <br />
               <br />
               {`Which means that all your checkups, immunizations, screenings basically anything to keep you healthy is 100% free of charge. Does that make sense?`}
               <br />
               <br />
-              {`For your Primary Doctor you have a set copay of only ${
-                formData?.pcp_copay || '${PCP Copay}'
-              } per visit`}
+              {`For your Primary Doctor you have a set copay of ${formData?.pcp_copay || '${PCP Copay}'} per visit.`}
               <br />
               <br />
-              {`For Specialists you have a set copay of only ${
+              {`For Specialists you have a set copay of ${
                 formData?.specialist_copay || '${Specialist Copay}'
-              } per visit`}
+              } per visit.`}
               <br />
               <br />
-              {`For any Generic Medication you have a set copay of only ${
+              {`For any Generic Medication you have a set copay of ${
                 formData?.generic_meds_copay || '${Generic Meds Copay}'
               } per medication.`}
               <br />
               <br />
-              {`Most importantly you Annual Deductible is ${
+              {`And most importantly you Annual Deductible is ${
                 formData?.annual_deductible || '${Annual Deductible}'
               }. It's the main reason this plan is being recommended. The deductible is what you pay first before being admitted to the hospital or having any surgeries.`}
               <br />
               <br />
               {`Also, your Max Out Of Pocket is ${
                 formData?.max_out_of_pocket || '${Max Out Of Pocket}'
-              }. Think of that as your safety net. God forbid something catastrophic happened to you and you had a medical bill of a hundred thousand dollars... after your max, your insurance will cover the rest for the calendar year. So, it protects you if you were to get something like cancer treatment. Make sense?`}
+              }. Think of that as your safety net. God forbid something catastrophic happened to you and you had a medical bill of a hundred thousand dollars... after your max, your insurance will cover the rest for the calendar year. So, it protects you if you were to get something like cancer treatment or something like that. Make sense?`}
             </ScriptBox>
             <ScriptBox>
               {`Your plan also has a Death Benefit, so god forbid you were to pass away, a beneficiary of your choice would receive a payout to make sure they are financially secure.`}
               <br />
               <br />
-              {`So ${formData?.first_name || '{Client First Name}'}, the plan originally costs ${
+              {`So ${toTitleCase(formData?.first_name) || '{Client First Name}'}, the plan originally costs ${
                 formData?.health_unsubsidized || '${Health Unsubsidized}'
               }. But after applying all your subsidies you will only be paying ${
                 formData?.monthly_grand_total || '${Monthly Grand Total}'
-              } per month and the good news is you will be able to start using your benefits as of ${nextMonthString} 1st. Does ${
+              } per month and the good news is you will be able to start using your benefits as of ${draftDate} 1st. Does ${
                 formData?.monthly_grand_total || '${Monthly Grand Total}'
               } per month fit within your monthly budget?`}
             </ScriptBox>
@@ -1108,13 +1302,8 @@ const ScriptForm = () => {
             <H2>Closure</H2>
             <ScriptBox>
               {`Awesome ${
-                formData?.first_name || '{Client First Name}'
+                toTitleCase(formData?.first_name) || '{Client First Name}'
               }. Let's go step by step to make sure everything I have is correct.`}
-              <br />
-              <br />
-              {`Just to confirm, I have your phone number as ${
-                formData?.phone_number || '{Client Phone Number}'
-              }. Is that right?`}
             </ScriptBox>
             <TextInput
               labelName='Phone Number:'
@@ -1127,6 +1316,11 @@ const ScriptForm = () => {
               defaultKey='phone_number'
               defaultValue={formData?.phone_number || ''}
             />
+            <ScriptBox>
+              {`Just to confirm, I have your phone number as ${
+                formData?.phone_number || '{Client Phone Number}'
+              }. Is that right?`}
+            </ScriptBox>
             <ScriptBox>{`I have your Date of Birth as ${
               formData?.date_of_birth || '{Client Date of Birth}'
             }, correct?`}</ScriptBox>
@@ -1178,7 +1372,9 @@ const ScriptForm = () => {
               defaultValue={formData?.email || ''}
             />
             <ScriptBox>
-              {`Can you please provide me with your address where you would like to receive your insurance medical ID card?`}
+              {`Can you please provide me your address, this is where you will be receiving your insurance medical ID ${
+                formData?.applying_for_coverage > 1 ? 'cards' : 'card'
+              }.`}
             </ScriptBox>
             <TextInput
               labelName='Street Address (no P.O. box):'
@@ -1191,7 +1387,7 @@ const ScriptForm = () => {
               defaultValue={formData?.address || ''}
             />
             {formData.city ? (
-              <DetailConfirmation detail={formData.city} labelName='Confirm City:' id='confirm_city' />
+              <DetailConfirmation detail={toTitleCase(formData.city)} labelName='Confirm City:' id='confirm_city' />
             ) : (
               <DetailConfirmation
                 detail='City Missing'
@@ -1228,9 +1424,10 @@ const ScriptForm = () => {
               id={'country_of_birth'}
               labelName={`Primary's Country of Birth:`}
               name='country_of_birth'
+              placeholder='Please select a country...'
               additional={true}
               options={countries}
-              defaultOption={formData?.country_of_birth || 'Please select a country'}
+              defaultOption={formData?.country_of_birth || ''}
             />
             {formData.country_of_birth === 'United States Of America' && (
               <>
@@ -1239,9 +1436,10 @@ const ScriptForm = () => {
                   id={'state_of_birth'}
                   labelName={`Primary's State of Birth:`}
                   name='state_of_birth'
+                  placeholder='Please select a state...'
                   additional={true}
                   options={unitedStates}
-                  defaultOption={formData?.state_of_birth || 'Please select a state'}
+                  defaultOption={formData?.state_of_birth || ''}
                 />
               </>
             )}
@@ -1283,10 +1481,10 @@ const ScriptForm = () => {
             />
             <ScriptBox>
               {`Okay, so that the Medical Information Bureau can identify your medical records, they will cross check what we have reviewed here to determine your eligibility and approval with ${
-                formData?.carrier_name + ' ' + formData?.plan_name || '{Carrier Name}'
-              }. In order for them to verify your identity and locate the proper medical records, it is run through your Social Security Number. Your Information is protected by the HIPAA laws in the state of ${
+                toTitleCase(formData?.carrier_name) || '{Carrier Name}'
+              }. In order for them to verify your identity and locate the proper medical records, it is ran through your Social Security Number. Your Information is protected by the HIPAA laws in the state of ${
                 toTitleCase(formData?.state) || '{Client State}'
-              }. All we neeed is your verbal consent to apply your Social Security Number in order for this application to be approved. If you agree please state your First and Last name and say "I agree".`}
+              }. All we need is your verbal consent to apply your Social Security Number in order for this application to be approved. If you agree please state your First and Last name and say "I agree".`}
             </ScriptBox>
             <ScriptBox>{`Okay perfect, what is your social security number?`}</ScriptBox>
             <TextInput
@@ -1331,6 +1529,7 @@ const ScriptForm = () => {
               labelName='Beneficiary Date of Birth:'
               name='beneficiary_date_of_birth'
               id='beneficiary_date_of_birth'
+              ageKey='beneficiary_age'
               defaultKey='beneficiary_date_of_birth'
               defaultValue={formData?.beneficiary_date_of_birth || ''}
             />
@@ -1342,18 +1541,17 @@ const ScriptForm = () => {
             <ScriptBox>
               {`As far as payment method, insurance companies require either a Checking or a Savings account as form of payment, who do you bank with?`}
             </ScriptBox>
-            <TextInput
+            <SelectCreateable
+              id='bank_name'
               labelName='Bank Name:'
               name='bank_name'
-              id='bank_name'
-              placeholder='Ex. Bank of America'
-              type='text'
-              defaultKey='bank_name'
-              defaultValue={formData?.bank_name || ''}
+              options={banks}
+              placeholder='Please select a bank or create one...'
+              defaultOption={formData?.bank_name || ''}
             />
             <ScriptBox>{`And is the account a checking or a savings?`}</ScriptBox>
             <RadioInput
-              labelName='Checking or savings?'
+              labelName='Account type:'
               name='account_type'
               id='account_type'
               options={[
@@ -1361,6 +1559,26 @@ const ScriptForm = () => {
                 { label: 'Checking', value: 'checking' },
               ]}
             />
+            <SelectCreateable
+              key={bankNameKey}
+              id='routing_number'
+              labelName='Bank Routing Number:'
+              name='routing_number'
+              options={bankRoutes}
+              placeholder="Please select the bank's routing state or create one..."
+              defaultOption={formData?.routing_number || ''}
+            />
+            {googleRoutingUrl && (
+              <AddDependentContainer
+                title={`Google Routing Number for ${toTitleCase(formData.bank_name)} in the state of ${toTitleCase(
+                  formData.state,
+                )}`}
+              >
+                <ExternalAnchorButton href={googleRoutingUrl} target='_blank'>
+                  {`Click here to Google it!`}
+                </ExternalAnchorButton>
+              </AddDependentContainer>
+            )}
             <ScriptBox>
               {`Okay perfect, the system is showing that the routing number for ${
                 formData?.bank_name || '{Bank Name}'
@@ -1368,19 +1586,14 @@ const ScriptForm = () => {
                 formData?.routing_number || '{Routing Number}'
               }, is that correct?`}
             </ScriptBox>
-            <TextInput
-              labelName='Routing Number:'
-              name='routing_number'
-              id='routing_number'
-              placeholder='Ex. 123456789'
-              type='text'
-              pattern='^\d{9}$'
-              routingNumber={true}
-              defaultKey='routing_number'
-              defaultValue={formData?.routing_number || ''}
-            />
             <ScriptBox>
-              {`What is your account number? (Can you repeat it a second time to make sure I have it correct?)`}
+              {`What is your account number?`}
+              <br />
+              <br />
+              {`{Write down account number}`}
+              <br />
+              <br />
+              {`Can you repeat it a second time to make sure I have it correct?`}
             </ScriptBox>
             <TextInput
               labelName='Account Number:'
@@ -1403,35 +1616,78 @@ const ScriptForm = () => {
               defaultKey='name_of_account_holder'
               defaultValue={formData?.name_of_account_holder || ''}
             />
+            <RadioInput
+              labelName={`QUESTION FOR AGENT: ARE YOU LICENSED IN ${
+                formData?.state.toUpperCase() || '{CLIENT STATE}'
+              }?`}
+              name='is_agent_licensed_in_state'
+              id='is_agent_licensed_in_state'
+              options={[
+                { label: 'Yes', value: 'yes' },
+                { label: 'No', value: 'no' },
+              ]}
+            />
+            {formData?.is_agent_licensed_in_state === 'yes' && (
+              <ScriptBox>
+                {`Alright, now that I have all your information please give me a few minutes to finalize your application.`}
+                <br />
+                <br />
+                {`As I'm going through it, you'll be receving a few verification codes and I'm going to need you to read them back to me as you get them, okay? I'll let you know when they're sent.`}
+              </ScriptBox>
+            )}
             <ScriptBox>
-              {`And lastly they do need driver license information. What is your driver license number?`}
+              {`Great, thank you for all that information. Let me read a legal disclosure to make sure we are on the same page...`}
             </ScriptBox>
-            <TextInput
-              id='driver_license_number'
-              labelName="Primary's Driver License:"
-              name='driver_license_number'
-              placeholder='Ex. L12312312312'
-              type='text'
-              uppercase={true}
-              required={false}
-              defaultKey='driver_license_number'
-              defaultValue={formData?.driver_license_number || ''}
-            />
-            <ScriptBox>{`What state was it issued in?`}</ScriptBox>
-            <DropDownInput
-              labelName='Driver License Issued State:'
-              name='driver_license_state'
-              id='driver_license_state'
-              required={false}
-              options={unitedStates}
-              defaultOption={formData?.driver_license_state || 'Please select a state'}
-            />
             <ScriptBox>
-              {`Perfect, remember your 1st payment for the amount of ${
+              {`You understand your total monthly is ${
                 formData?.monthly_grand_total || '{Monthly Grand Total}'
-              } is due today. This would cover your 1st month. Then all the following payments will be drafted on the {Draft Date} of each month.`}
+              }. You're receving two benefits that are billed separately by benefit.`}
+              <br />
+              <br />
+              {`I'm going to go over a quick breakdown before the Health Subsidy is applied, so don't get scared here.`}
+              <br />
+              <br />
+              {`${formData?.carrier_name || '{Carrier Name}'} Health portion unsubsidized is ${
+                formData?.health_unsubsidized || '{Health Unsubsidized}'
+              }. And ${toTitleCase(formData?.life_adb_provider) || '{Life ADB Provider}'} Death benefit portion is ${
+                formData?.life_total_cost ? `$${formData?.life_total_cost}` : '{Life Total Cost}'
+              }.`}
+              <br />
+              <br />
+              {`So, your total before the health subsidy is applied is ${
+                formData?.life_health_unsubsidized || '{Life + Health Unsubsidized}'
+              }. We can qualify you for the health subsidy of ${
+                formData?.qualified_subsidy || '{Qualified Subsidy}'
+              } to lower monthly payment.`}
+              <br />
+              <br />
+              {`So, your total after the health subsidy is applied is only ${
+                formData?.monthly_grand_total || '{Monthly Grand Total}'
+              } per month! Do you understand?`}
             </ScriptBox>
-            <ScriptBox>{`You're all set. Thank you have a great day.`}</ScriptBox>
+            <ScriptBox>
+              {`Perfect, you're all set ${
+                toTitleCase(formData?.first_name) || '{Client First Name}'
+              }. Remember, your first payment is due today and this will cover your first month. Then all the following payments will be drafted on the first of every month.`}
+              <br />
+              <br />
+              {`In the next 48 hours you'll be receiving an email from me, with a summary of everything we've covered today. But also a few emails from the marketplace and you can go ahead and disregard those.`}
+              <br />
+              <br />
+              {`From them you'll get one confirming your plan, and another one asking you to "pick your plan", and since we've already picked the best plan for you disregard that. You'll also get one asking you to make your payment, but we already took care of that today so you don't need to worry about that one either.`}
+              <br />
+              <br />
+              {`And your Medical ID cards and welcome packet will be in the mail within 7-10 business days.`}
+              <br />
+              <br />
+              {`Also just as a reminder, your plan ends December 31st and open enrollment is from November 1st to December 15th.`}
+              <br />
+              <br />
+              {`Congratulations! You're all set for the 1st. If you have any friends or family that don't have health insurance, please share my phone number that will be in my email and send them my way.`}
+              <br />
+              <br />
+              {`Have a great day ${toTitleCase(formData?.first_name) || '{Client First Name}'}. Bye bye!`}
+            </ScriptBox>
           </>
           {/* Submit | Copy */}
           <>

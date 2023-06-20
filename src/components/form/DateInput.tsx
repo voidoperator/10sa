@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
 import Datepicker from 'react-tw-datepicker';
+import { calculateAge } from '../../utility/utility';
 import type { DateValueType } from 'react-tw-datepicker/dist/types';
 import type { DateInputProps, DateValue } from '../../types/formData';
 import { ShadowDiv, DateInputLabelContainer, DateInputLabel, RequiredSpan, AgeContainer } from '../tw/twStyles';
@@ -12,6 +13,7 @@ const DateInput: React.FC<DateInputProps> = ({
   id,
   labelName,
   name,
+  ageKey,
   showAge = true,
   required = true,
   additional = false,
@@ -20,7 +22,7 @@ const DateInput: React.FC<DateInputProps> = ({
   defaultValue = '',
 }) => {
   const { formData, setFormData } = useFormData();
-  const [userAge, setUserAge] = useState<number>(0);
+  const [userAge, setUserAge] = useState<number | null>(null);
   const [value, setValue] = useState<DateValue>({
     startDate: null,
     endDate: null,
@@ -36,9 +38,11 @@ const DateInput: React.FC<DateInputProps> = ({
         startDate: dateReformat,
         endDate: dateReformat,
       });
-      const calcAge = Number(calculateAge(startDate));
+      const calcAge = calculateAge(startDate);
+      const sanatizeAge = calcAge !== null && calcAge < 0 ? null : calcAge;
       setUserAge(calcAge);
-      setFormData({ ...formData, [defaultKey]: defaultValue, age: calcAge });
+      const sanatizeValue = defaultValue === '--' ? '' : defaultValue;
+      setFormData((prevState) => ({ ...prevState, [defaultKey]: sanatizeValue, [ageKey]: sanatizeAge }));
     }
     if (
       additional &&
@@ -58,15 +62,16 @@ const DateInput: React.FC<DateInputProps> = ({
         startDate: dateReformat,
         endDate: dateReformat,
       });
-      const calcAge = Number(calculateAge(startDate));
+      const calcAge = calculateAge(startDate);
+      const sanatizeAge = calcAge !== null && calcAge < 0 ? null : calcAge;
       setUserAge(calcAge);
       let additionalInsuredList = formData.additional_insured_list || [];
       additionalInsuredList[dependentIndex] = {
         ...additionalInsuredList[dependentIndex],
         [defaultKey]: defaultValue,
-        age: calcAge,
+        [ageKey]: sanatizeAge,
       };
-      setFormData({ ...formData, additional_insured_list: additionalInsuredList });
+      setFormData((prevState) => ({ ...prevState, additional_insured_list: additionalInsuredList }));
     }
   }, [useDefault, defaultKey, defaultValue, value]);
 
@@ -79,9 +84,10 @@ const DateInput: React.FC<DateInputProps> = ({
       const startDate = newDate.startDate ?? '';
       const [year = '', month = '', day = ''] = startDate.toString().split('-');
       const formatDate = `${month}-${day}-${year}`;
-      const calcAge = Number(calculateAge(new Date(startDate)));
+      const calcAge = calculateAge(startDate);
+      const sanatizeAge = calcAge !== null && calcAge < 0 ? null : calcAge;
       setUserAge(calcAge);
-
+      const sanatizeValue = formatDate === '--' ? '' : formatDate;
       if (additional && typeof id === 'number') {
         const dependentIndex = id;
 
@@ -90,26 +96,14 @@ const DateInput: React.FC<DateInputProps> = ({
         additionalInsuredList[dependentIndex] = {
           ...additionalInsuredList[dependentIndex],
           id: dependentIndex,
-          date_of_birth: formatDate,
-          age: calcAge,
+          [defaultKey]: sanatizeValue,
+          [ageKey]: sanatizeAge,
         };
-        setFormData({ ...formData, additional_insured_list: additionalInsuredList });
+        setFormData((prevState) => ({ ...prevState, additional_insured_list: additionalInsuredList }));
       } else {
-        setFormData({ ...formData, [name]: formatDate, age: calcAge });
+        setFormData((prevState) => ({ ...prevState, [defaultKey]: sanatizeValue, [ageKey]: calcAge }));
       }
     }
-  };
-
-  const calculateAge = (birthdate: string | Date) => {
-    let birthDate = new Date(birthdate);
-
-    if (isNaN(birthDate.getTime())) {
-      return null;
-    }
-
-    let ageDifMs = Date.now() - birthDate.getTime();
-    let ageDate = new Date(ageDifMs);
-    return Math.abs(ageDate.getUTCFullYear() - 1970);
   };
 
   const formatId = additional && typeof id === 'number' ? name + '_' + (id + 1) : name;
@@ -121,7 +115,8 @@ const DateInput: React.FC<DateInputProps> = ({
           {labelName}
           {required && <RequiredSpan />}
         </DateInputLabel>
-        {value.startDate && userAge !== null && showAge && <AgeContainer>Age: {userAge}</AgeContainer>}
+        {value.startDate && userAge !== null && userAge > -1 && showAge && <AgeContainer>Age: {userAge}</AgeContainer>}
+        {value.startDate && userAge !== null && userAge < 0 && showAge && <AgeContainer>Invalid Date</AgeContainer>}
       </DateInputLabelContainer>
       <Datepicker
         inputId={formatId}

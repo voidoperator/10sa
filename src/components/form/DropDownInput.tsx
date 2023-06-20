@@ -1,23 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
-import tw from 'tailwind-styled-components';
 import { ShadowDiv, MainLabel, RequiredSpan, Select } from '../tw/twStyles';
 import type { DropDownInputProps, FormDataType, InsuredList } from '../../types/formData';
-
-// const MainLabel = tw.label`
-//   block mb-2 text-sm font-medium text-white
-// `;
-// const RequiredSpan = tw.span`
-//   ml-1 after:content-["*"] after:text-yellow-300/90
-// `
-// const Select = tw.select`
-//   form-select bg-10sa-deep-purple border-10sa-gold/40 border text-sm rounded-lg block w-full p-2.5 placeholder-gray-400 text-white focus:ring-10sa-gold focus:border-10sa-gold
-// `
 
 const DropDownInput: React.FC<DropDownInputProps> = ({
   labelName,
   name,
   id,
+  placeholder,
   defaultOption,
   options,
   required = true,
@@ -34,9 +24,9 @@ const DropDownInput: React.FC<DropDownInputProps> = ({
         ...additionalInsuredList[dependentIndex],
         [name]: value,
       };
-      setFormData({ ...formData, additional_insured_list: additionalInsuredList });
+      setFormData((prevState) => ({ ...prevState, additional_insured_list: additionalInsuredList }));
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData((prevState) => ({ ...prevState, [name]: value }));
     }
   };
 
@@ -55,7 +45,7 @@ const DropDownInput: React.FC<DropDownInputProps> = ({
       </MainLabel>
       <Select id={formatId} name={name} required={required} onChange={handleChange} value={formatValue || ''}>
         <option value='' disabled>
-          {defaultOption}
+          {placeholder}
         </option>
         {options.map((option, index) => {
           const { label, value } = option;

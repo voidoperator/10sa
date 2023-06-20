@@ -1,27 +1,66 @@
 export type FormDataType = {
   google_app_url?: string;
+  agent_full_name?: string;
+  agent_license_number?: string;
   first_name: string;
   middle_name?: string;
   last_name: string;
   gender: string;
-  plan_type: string;
-  zip_code: string;
-  county: string;
-  state: string;
-  city: string;
-  coverage_reason: string;
   date_of_birth: string;
+  age: number | null;
+  phone_number: string;
+  ssn: string;
+  email: string;
+  address: string;
+  state: string;
+  zip_code: string;
+  city: string;
+  county: string;
+  height: string;
+  weight: string;
   country_of_birth: string;
   state_of_birth: string;
-  age: number;
-  tobacco_use: string;
+  employment_status: string;
+  occupation: string;
   married: string;
   taxes_filing_status: string;
   household_size: string;
+  immigration_status: string;
+  bank_name: string;
+  account_type: string;
+  routing_number: string;
+  account_number: string;
+  beneficiary_full_name: string;
+  beneficiary_relationship: string;
+  beneficiary_date_of_birth: string;
+  beneficiary_age: number | null;
+  name_of_account_holder: string;
+  current_insurance: string;
+  coverage_reason: string;
+  plan_type: string;
+  tobacco_use: string;
   additional_insured: string;
   additional_insured_list: InsuredList[];
-  applying_for_coverage: number;
   annual_household_income: string;
+  monthly_budget: string;
+  carrier_name: string;
+  plan_name: string;
+  monthly_health_premium: string;
+  pcp_copay: string;
+  specialist_copay: string;
+  generic_meds_copay: string;
+  annual_deductible: string;
+  max_out_of_pocket: string;
+  health_unsubsidized: string;
+  death_benefit: string;
+  total_pre_subsidy: string;
+  qualified_subsidy: string;
+  total_post_subsidy: string;
+  life_adb_provider: string;
+  life_total_cost: number;
+  life_health_unsubsidized: string;
+  monthly_grand_total: string;
+  applying_for_coverage: number;
   pre_existing_conditions: string;
   pre_existing_conditions_list: string;
   medications: string;
@@ -29,85 +68,34 @@ export type FormDataType = {
   medical_history: string;
   preferred_doctors: string;
   preferred_doctors_name: string;
-  monthly_budget: string;
-  carrier_name: string;
-  plan_name: string;
-  pcp_copay: string;
-  specialist_copay: string;
-  generic_meds_copay: string;
-  annual_deductible: string;
-  max_out_of_pocket: string;
-  all_benefits: string;
-  phone_number: string;
-  email: string;
-  address: string;
-  height: string;
-  weight: string;
-  ssn: string;
-  driver_license_number: string;
-  driver_license_state: string;
-  immigration_status: string;
-  monthly_grand_total: string;
-  health_unsubsidized: string;
-  cigna_dental: string;
-  life_adb_provider: string;
-  monthly_health_premium: string;
   americo_premium: string;
   mutual_face_amount: string;
   mutual_quote_gender: string;
-  death_benefit: string;
-  employment_status: string;
-  occupation: string;
+  eligible_americo_count: number;
+  eligible_mutual_count: number;
+  claims_dependents: string;
   carriers: Carrier[];
-  beneficiary_full_name: string;
-  beneficiary_relationship: string;
-  beneficiary_date_of_birth: string;
-  account_type: string;
-  routing_number: string;
-  account_number: string;
-  bank_name: string;
-  name_of_account_holder: string;
-  total_pre_subsidy: string;
-  qualified_subsidy: string;
-  total_post_subsidy: string;
-  agent_full_name?: string;
-  agent_license_number?: string;
+  is_agent_licensed_in_state: string;
 };
-
-export type State = OptionTypes['value'];
-
-export type PreferredCarriers = Record<State, Carrier[]>;
-
-export type Carrier =
-  | 'None'
-  | 'Aetna'
-  | 'Ambetter'
-  | 'Arizona'
-  | 'Avmed'
-  | 'BlueCross BlueShield'
-  | 'Cigna'
-  | 'Florida Blue'
-  | 'Friday Health Plans'
-  | 'Molina'
-  | 'Oscar'
-  | 'UnitedHealthcare (UHC)';
 
 export type InsuredList = {
   id: number | string;
   full_name: string;
-  relationship: string;
+  relationship_to_primary: string;
   date_of_birth: string;
-  age: number;
+  age: number | null;
   ssn: string;
-  country_of_birth?: string;
-  state_of_birth?: string;
-  driver_license_number?: string;
-  height?: string;
-  weight?: string;
-  notes_dependent?: string;
-  employment_status?: string;
-  occupation?: string;
-  dependent_beneficiary?: string;
+  country_of_birth: string;
+  state_of_birth: string;
+  height: string;
+  weight: string;
+  notes: string;
+  employment_status: string;
+  occupation: string;
+  beneficiary_full_name: string;
+  beneficiary_relationship: string;
+  beneficiary_date_of_birth: string;
+  beneficiary_age: number | null;
 };
 
 export type TextInputProps = {
@@ -128,7 +116,21 @@ export type TextInputProps = {
   height?: boolean;
   weight?: boolean;
   currencyMutual?: boolean;
+  currencyUnsubsidized?: boolean;
   additional?: boolean;
+  useDefault?: boolean;
+  defaultKey?: string;
+  defaultValue?: string;
+  externalValue?: string;
+};
+
+export type LocalStorageInputProps = {
+  id: string;
+  name: string;
+  labelName: string;
+  placeholder: string;
+  required?: boolean;
+  uppercase?: boolean;
   useDefault?: boolean;
   defaultKey?: string;
   defaultValue?: string;
@@ -139,7 +141,7 @@ export type RadioInputProps = {
   id: number | string;
   labelName: string;
   name: string;
-  options: { label: string; value: string }[];
+  options: { label: string; value: string; disabled?: boolean }[];
   required?: boolean;
   additional?: boolean;
   defaultOption?: string;
@@ -163,6 +165,7 @@ export type DropDownInputProps = {
   id: number | string;
   labelName: string;
   name: string;
+  placeholder: string;
   defaultOption: string;
   options: { label: string; value: string }[];
   required?: boolean;
@@ -171,6 +174,7 @@ export type DropDownInputProps = {
 
 export type DateInputProps = {
   id: number | string;
+  ageKey: string;
   labelName: string;
   name: string;
   showAge?: boolean;
@@ -215,7 +219,37 @@ export type SelectCreateableProps = {
   defaultOption?: string | undefined;
 };
 
+export type StatesAbbreviation = {
+  [state: string]: string;
+};
+
 export type OptionTypes = {
   label: string;
   value: string;
 };
+
+export type RoutingNumbers = {
+  [key: string]: string;
+};
+
+export type BankRoutingNumbers = {
+  [key: string]: RoutingNumbers;
+};
+
+export type State = OptionTypes['value'];
+
+export type PreferredCarriers = Record<State, Carrier[]>;
+
+export type Carrier =
+  | 'None'
+  | 'Aetna'
+  | 'Ambetter'
+  | 'Arizona'
+  | 'Avmed'
+  | 'BlueCross BlueShield'
+  | 'Cigna'
+  | 'Florida Blue'
+  | 'Friday Health Plans'
+  | 'Molina'
+  | 'Oscar'
+  | 'UnitedHealthcare (UHC)';

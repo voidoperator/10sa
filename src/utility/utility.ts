@@ -1,10 +1,48 @@
-import type { FormDataType } from '../types/formData';
+import type { FormDataType, RoutingNumbers, OptionTypes } from '../types/formData';
 
 export const isBrowser = () => typeof window !== 'undefined';
 
-const today = new Date();
-const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-export const nextMonthString = nextMonth.toLocaleString('default', { month: 'long' });
+const getLastDayOfMonth = (year: number, month: number): number => {
+  return new Date(year, month + 1, 0).getDate();
+};
+
+export const getDraftDate = (): string => {
+  const today = new Date();
+  const lastDayOfMonth = getLastDayOfMonth(today.getFullYear(), today.getMonth());
+  const daysUntilEndOfMonth = lastDayOfMonth - today.getDate();
+
+  let nextRelevantMonth: Date;
+  if (daysUntilEndOfMonth <= 3) {
+    nextRelevantMonth = new Date(today.getFullYear(), today.getMonth() + 2, 1);
+  } else {
+    nextRelevantMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+  }
+
+  return nextRelevantMonth.toLocaleString('default', { month: 'long' });
+};
+
+export const calculateAge = (dob: string | Date) => {
+  const dateOfBirth = new Date(dob);
+
+  if (isNaN(dateOfBirth.getTime())) {
+    return null;
+  }
+
+  const ageDifMs = Date.now() - dateOfBirth.getTime();
+  const ageDate = new Date(ageDifMs);
+  const calcAge = ageDate.getUTCFullYear() - 1970;
+  return calcAge;
+};
+
+export const getRoutingNumbers = (routingNumbers: RoutingNumbers): OptionTypes[] => {
+  return Object.keys(routingNumbers).map((key) => {
+    const titleCaseLabel = toTitleCase(key);
+    return {
+      label: titleCaseLabel,
+      value: routingNumbers[key],
+    };
+  });
+};
 
 export const parseCurrency = (input: string | undefined) => {
   if (typeof input === 'undefined') {

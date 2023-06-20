@@ -8,12 +8,13 @@ const GroupButton: React.FC<GroupButtonProps> = ({ labelName, name, id, defaultO
 
   useEffect(() => {
     if (defaultOption && !formData[name as keyof FormDataType]) {
-      setFormData({ ...formData, [name]: defaultOption });
+      setFormData((prevState) => ({ ...prevState, [name]: defaultOption }));
     }
   }, [defaultOption, formData, name, setFormData]);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     const target = event.target as HTMLButtonElement;
+    const { value } = target;
     options.forEach((_, index) => {
       const button = document.getElementById(id + '_' + (index + 1));
       if (button && button !== event.target) {
@@ -23,7 +24,7 @@ const GroupButton: React.FC<GroupButtonProps> = ({ labelName, name, id, defaultO
     });
     target.classList.remove('bg-10sa-deep-purple');
     target.classList.add('bg-10sa-gold/60');
-    setFormData({ ...formData, [name]: target.value });
+    setFormData((prevState) => ({ ...prevState, [name]: value }));
   };
 
   return (
