@@ -17,19 +17,16 @@ export const RequiredSpan = tw.span`
   ml-1 after:content-["*"] after:text-yellow-300/90
 `;
 export const ShadowDiv = tw.div`
-  shadow-lg
-`;
-export const InputWrapper = tw.div`
-  border border-10sa-gold/40 p-4 rounded-xl shadow-xl
+  flex flex-col shadow-xl border-10sa-gold/25 rounded-xl p-4 border gap-2
 `;
 export const Divider = tw.div`
   h-[1px] w-full bg-10sa-gold/75 my-0 sm:my-10 hidden sm:block
 `;
 export const ScriptBox = tw.p`
-  rounded-[50px] p-8 bg-purple-900
+  rounded-[50px] p-8 bg-purple-900 shadow-xl
 `;
 export const AgentInfoBox = tw.div`
-  space-y-6
+  flex flex-col shadow-xl border-10sa-gold/25 rounded-xl px-4 py-6 border gap-6 mt-6
 `;
 
 // Form
@@ -124,17 +121,17 @@ export const Select = tw.select`
 `;
 
 // RadioInput
+export const RadioInputWrapper = tw.div`
+  flex flex-col border-10sa-gold/25 rounded-xl p-4 border shadow-xl gap-2
+`;
 export const RadioContainer = tw.div`
   flex items-start rounded-full gap-3
 `;
-export const RadioLabelContainer = tw.div`
-  flex flex-col
-`;
 export const RadioButton = tw.input`
-  form-radio cursor-pointer rounded-full w-4 h-4 bg-gray-700 border-10sa-gold/50 focus:ring-10sa-gold focus:border-10sa-gold checked:fill-red-500
+  form-radio cursor-pointer rounded-full w-4 h-4 bg-gray-600 border-10sa-gold/50 checked:bg-purple-600 checked:fill-red-500 focus:ring-10sa-gold focus:border-10sa-gold focus:ring-offset-10sa-deep-purple disabled:bg-gray-800 disabled:border-10sa-gold/20 peer disabled:cursor-not-allowed
 `;
 export const RadioLabel = tw.label`
-  cursor-pointer rounded-full ml-2 text-sm font-medium text-gray-300
+  cursor-pointer rounded-full ml-2 text-sm font-medium peer-disabled:text-gray-500 peer-disabled:cursor-not-allowed
 `;
 
 // TextInput

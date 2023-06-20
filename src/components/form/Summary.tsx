@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
-import { SummarySection, SummaryContainer, InputWrapper, SummaryUl, SummaryLi } from '../tw/twStyles';
+import { SummarySection, SummaryContainer, SummaryUl, SummaryLi, ShadowDiv } from '../tw/twStyles';
 import TextInput from './TextInput';
 import GroupButton from './GroupButton';
 import RadioInput from './RadioInput';
@@ -13,7 +13,7 @@ const Summary = () => {
   return (
     <SummarySection>
       <SummaryContainer>
-        <InputWrapper>
+        <>
           <TextInput
             key='monthly_health_premium'
             id='monthly_health_premium'
@@ -27,8 +27,8 @@ const Summary = () => {
             defaultKey='monthly_health_premium'
             defaultValue={formData?.monthly_health_premium || ''}
           />
-        </InputWrapper>
-        <InputWrapper>
+        </>
+        <>
           <GroupButton
             key='life_adb_provider'
             id='life_adb_provider'
@@ -40,9 +40,9 @@ const Summary = () => {
             ]}
             defaultOption={formData?.life_adb_provider || 'americo'}
           />
-        </InputWrapper>
+        </>
         {formData.life_adb_provider === 'americo' && (
-          <InputWrapper>
+          <>
             <RadioInput
               key='americo_premium'
               id='americo_premium'
@@ -58,10 +58,10 @@ const Summary = () => {
               ]}
               defaultOption={formData?.americo_premium || '$48'}
             />
-          </InputWrapper>
+          </>
         )}
         {formData.life_adb_provider === 'mutual' && (
-          <InputWrapper>
+          <>
             <GroupButton
               key='mutual_quote_gender'
               id='mutual_quote_gender'
@@ -73,10 +73,10 @@ const Summary = () => {
               ]}
               defaultOption={formData?.mutual_quote_gender || ''}
             />
-          </InputWrapper>
+          </>
         )}
         {formData.life_adb_provider === 'mutual' && formData.mutual_quote_gender && (
-          <InputWrapper>
+          <>
             <TextInput
               key='mutual_face_amount'
               id='mutual_face_amount'
@@ -89,37 +89,37 @@ const Summary = () => {
               defaultKey='mutual_face_amount'
               defaultValue={formData?.mutual_face_amount || ''}
             />
-          </InputWrapper>
+          </>
         )}
-        {formData.household_size && <InputWrapper>Household size: {formData.household_size}</InputWrapper>}
+        {formData.household_size && <ShadowDiv>Household size: {formData.household_size}</ShadowDiv>}
         {formData.additional_insured && (formData.eligible_americo_count > 0 || formData.eligible_mutual_count > 0) && (
           <>
-            <InputWrapper>
+            <ShadowDiv>
               {'Applying for coverage: '}
               {formData.applying_for_coverage}
-            </InputWrapper>
+            </ShadowDiv>
             {formData.life_adb_provider === 'americo' && (
               <>
-                <InputWrapper>
+                <ShadowDiv>
                   {'Americo sales: '}
                   {formData.eligible_americo_count}
-                </InputWrapper>
-                <InputWrapper>
+                </ShadowDiv>
+                <ShadowDiv>
                   {'Americo amount: $'}
                   {formData.life_total_cost}
-                </InputWrapper>
+                </ShadowDiv>
               </>
             )}
             {formData.life_adb_provider === 'mutual' && (
               <>
-                <InputWrapper>
+                <ShadowDiv>
                   {'Mutual of Omaha sales: '}
                   {formData.eligible_mutual_count}
-                </InputWrapper>
-                <InputWrapper>
+                </ShadowDiv>
+                <ShadowDiv>
                   {'Mutual of Omaha amount: $'}
                   {formData.life_total_cost}
-                </InputWrapper>
+                </ShadowDiv>
               </>
             )}
           </>
@@ -130,13 +130,13 @@ const Summary = () => {
           formData.monthly_grand_total &&
           formData.additional_insured &&
           (formData.eligible_americo_count > 0 || formData.eligible_mutual_count > 0) && (
-            <InputWrapper>
+            <ShadowDiv>
               {'Monthly Grand Total: '}
               {formData.monthly_grand_total}
-            </InputWrapper>
+            </ShadowDiv>
           )}
         {formData.state && (
-          <InputWrapper className='w-full'>
+          <ShadowDiv className='w-full'>
             <div>Preferred carriers for {toTitleCase(formData.state)}:</div>
             <SummaryUl>
               {formData.carriers &&
@@ -148,7 +148,7 @@ const Summary = () => {
                   );
                 })}
             </SummaryUl>
-          </InputWrapper>
+          </ShadowDiv>
         )}
       </SummaryContainer>
     </SummarySection>

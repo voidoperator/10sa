@@ -232,10 +232,20 @@ const Form = () => {
   }, [formData.additional_insured, formData.additional_insured_list]);
 
   useEffect(() => {
-    if (formData.married === 'no') {
+    if (!formData.married) return;
+    if (formData.married === 'no' && !formData.claims_dependents) {
       setFormData((prevState) => ({ ...prevState, taxes_filing_status: 'single' }));
+      return;
     }
-  }, [formData.married]);
+    if (formData.married === 'no' && formData.claims_dependents === 'no') {
+      setFormData((prevState) => ({ ...prevState, household_size: '1' }));
+      return;
+    }
+    if (formData.married === 'yes' && formData.claims_dependents === 'no') {
+      setFormData((prevState) => ({ ...prevState, household_size: '2' }));
+      return;
+    }
+  }, [formData.married, formData.claims_dependents]);
 
   useEffect(() => {
     if (formData.country_of_birth === 'United States Of America') {
@@ -407,9 +417,10 @@ const Form = () => {
             <Button onClick={restoreBackupFormData}>Restore Form</Button>
           </ButtonContainer>
         </>
-        {/* Individual Agent Info */}
+        {/* Agent Information */}
         <>
           <Divider />
+          <H2>Agent Information</H2>
           <AgentInfoBox>
             <LocalStorageInput
               labelName='Google App URL:'
@@ -655,13 +666,22 @@ const Form = () => {
               rowOrCol='col'
               defaultOption={formData.taxes_filing_status}
               options={[
-                { label: 'Single', value: 'single' },
-                { label: 'Married filing jointly', value: 'married_filing_jointly' },
-                { label: 'Married filing separately', value: 'married_filing_separately' },
-                { label: 'Head of household', value: 'head_of_household' },
+                { label: 'Single', value: 'single', disabled: formData.married !== 'no' },
+                {
+                  label: 'Married filing jointly',
+                  value: 'married_filing_jointly',
+                  disabled: formData.married !== 'yes',
+                },
+                {
+                  label: 'Married filing separately',
+                  value: 'married_filing_separately',
+                  disabled: formData.married !== 'yes',
+                },
+                { label: 'Head of household', value: 'head_of_household', disabled: formData.married !== 'no' },
                 {
                   label: 'Qualifying widow(er) with dependent child',
                   value: 'qualifying_widow(er)_with_dependent_child',
+                  disabled: formData.married !== 'yes',
                 },
               ]}
             />
@@ -685,6 +705,7 @@ const Form = () => {
                   pattern='/^\d{9}$/'
                   defaultKey='household_size'
                   defaultValue={formData?.household_size || ''}
+                  externalValue={formData?.household_size}
                 />
                 {Number(formData.household_size) > 1 && (
                   <>

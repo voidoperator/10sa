@@ -141,7 +141,7 @@ export type RadioInputProps = {
   id: number | string;
   labelName: string;
   name: string;
-  options: { label: string; value: string }[];
+  options: { label: string; value: string; disabled?: boolean }[];
   required?: boolean;
   additional?: boolean;
   defaultOption?: string;

@@ -86,7 +86,7 @@ const LocalStorageInput: React.FC<LocalStorageInputProps> = ({
   };
 
   return (
-    <ShadowDiv>
+    <div className='flex flex-col gap-1'>
       <MainLabel htmlFor={id}>
         {labelName}
         {required && <RequiredSpan />}
@@ -102,7 +102,7 @@ const LocalStorageInput: React.FC<LocalStorageInputProps> = ({
         autoComplete='no'
         value={value}
       />
-    </ShadowDiv>
+    </div>
   );
 };
 

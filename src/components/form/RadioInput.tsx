@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useFormData } from '../contexts/FormContext';
 import {
   MainLabelSpan,
-  RadioLabelContainer,
+  RadioInputWrapper,
   RadioContainer,
   RequiredSpan,
   RadioButton,
@@ -31,7 +31,7 @@ const RadioInput: React.FC<RadioInputProps> = ({
   const formatId = additional && typeof id === 'number' ? name + '_' + (id + 1) : name;
 
   return (
-    <RadioLabelContainer>
+    <RadioInputWrapper>
       <div>
         <MainLabelSpan id={formatId}>
           {labelName}
@@ -40,7 +40,8 @@ const RadioInput: React.FC<RadioInputProps> = ({
       </div>
       <RadioContainer className={rowOrCol === 'row' ? 'flex-row' : 'flex-col'}>
         {options.map((option, index) => {
-          const { label, value } = option;
+          const { label, value, disabled = false } = option;
+          const disabledClasses = 'disabled:text-gray-500';
           return (
             <div key={index}>
               <RadioButton
@@ -52,13 +53,14 @@ const RadioInput: React.FC<RadioInputProps> = ({
                 required={required}
                 checked={value.toString() === formData[name as keyof FormDataType]}
                 onChange={(e) => setFormData((prevState) => ({ ...prevState, [name]: e.target.value }))}
+                disabled={disabled}
               />
               <RadioLabel htmlFor={`${name}_${index + 1}`}>{label}</RadioLabel>
             </div>
           );
         })}
       </RadioContainer>
-    </RadioLabelContainer>
+    </RadioInputWrapper>
   );
 };
 
