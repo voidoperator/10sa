@@ -73,6 +73,7 @@ export type FormDataType = {
   mutual_quote_gender: string;
   eligible_americo_count: number;
   eligible_mutual_count: number;
+  claims_dependents: string;
   carriers: Carrier[];
   is_agent_licensed_in_state: string;
 };
@@ -106,7 +107,6 @@ export type TextInputProps = {
   required?: boolean;
   pattern?: string;
   uppercase?: boolean;
-  strikeout?: boolean;
   currency?: boolean;
   zip_code?: boolean;
   routingNumber?: boolean;
@@ -165,6 +165,7 @@ export type DropDownInputProps = {
   id: number | string;
   labelName: string;
   name: string;
+  placeholder: string;
   defaultOption: string;
   options: { label: string; value: string }[];
   required?: boolean;
@@ -216,6 +217,10 @@ export type SelectCreateableProps = {
   required?: boolean;
   additional?: boolean;
   defaultOption?: string | undefined;
+};
+
+export type StatesAbbreviation = {
+  [state: string]: string;
 };
 
 export type OptionTypes = {

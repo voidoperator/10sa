@@ -153,6 +153,36 @@ const ScriptForm = () => {
   ]);
 
   useEffect(() => {
+    if (!formData.americo_premium && !formData.mutual_face_amount) return;
+    let deathBenefit: string;
+    if (formData.life_adb_provider === 'americo' && formData.americo_premium) {
+      switch (formData.americo_premium) {
+        case '$27':
+          deathBenefit = '$100,000';
+          break;
+        case '$35':
+          deathBenefit = '$150,000';
+          break;
+        case '$42':
+          deathBenefit = '$200,000';
+          break;
+        case '$48':
+          deathBenefit = '$250,000';
+          break;
+        default:
+          break;
+      }
+      setFormData((prevState) => ({ ...prevState, death_benefit: deathBenefit }));
+      return;
+    }
+    if (formData.life_adb_provider === 'mutual' && formData.mutual_face_amount) {
+      deathBenefit = formData.mutual_face_amount;
+      setFormData((prevState) => ({ ...prevState, death_benefit: deathBenefit }));
+      return;
+    }
+  }, [formData.americo_premium, formData.mutual_face_amount]);
+
+  useEffect(() => {
     if (!formData.bank_name) {
       setBankRoutes([]);
       setFormData((prevState) => ({ ...prevState, routing_number: '' }));
@@ -530,8 +560,9 @@ const ScriptForm = () => {
               labelName='State:'
               name='state'
               id='state'
+              placeholder='Please select a state...'
               options={unitedStates}
-              defaultOption={formData?.state || 'Please select a state'}
+              defaultOption={formData?.state || ''}
             />
             <TextInput
               labelName='City:'
@@ -574,8 +605,9 @@ const ScriptForm = () => {
               id='employment_status'
               labelName="Primary's Employment Status:"
               name='employment_status'
+              placeholder='Please select an employment status...'
               options={employmentOptions}
-              defaultOption={formData?.employment_status || 'Please select an employment status'}
+              defaultOption={formData?.employment_status || ''}
             />
             {formData.employment_status === 'employed' && (
               <>
@@ -679,28 +711,45 @@ const ScriptForm = () => {
                 },
               ]}
             />
-            <ScriptBox>
-              {`Do you claim any dependents on your taxes?`} <br /> {`If so, what is your household size?`}
-            </ScriptBox>
-            <TextInput
-              labelName='Household size:'
-              name='household_size'
-              id='household_size'
-              placeholder='Ex. 4'
-              type='number'
-              pattern='/^\d{9}$/'
-              defaultKey='household_size'
-              defaultValue={formData?.household_size || ''}
-            />
+            <ScriptBox>{`Do you claim any dependents on your taxes?`}</ScriptBox>
             <RadioInput
-              labelName='Additional insured/dependents? (part of household)'
-              name='additional_insured'
-              id='additional_insured'
+              labelName='Claims dependents on taxes?'
+              name='claims_dependents'
+              id='claims_dependents'
               options={[
                 { label: 'Yes', value: 'yes' },
                 { label: 'No', value: 'no' },
               ]}
             />
+            {formData.claims_dependents === 'yes' && (
+              <>
+                <ScriptBox>{`What is your household size?`}</ScriptBox>
+                <TextInput
+                  labelName='Household size:'
+                  name='household_size'
+                  id='household_size'
+                  placeholder='Ex. 4'
+                  type='number'
+                  pattern='/^\d{9}$/'
+                  defaultKey='household_size'
+                  defaultValue={formData?.household_size || ''}
+                />
+                {Number(formData.household_size) > 1 && (
+                  <>
+                    <ScriptBox>{`Will any of them also be getting insured today?`}</ScriptBox>
+                    <RadioInput
+                      labelName='Additional insured?'
+                      name='additional_insured'
+                      id='additional_insured'
+                      options={[
+                        { label: 'Yes', value: 'yes' },
+                        { label: 'No', value: 'no' },
+                      ]}
+                    />
+                  </>
+                )}
+              </>
+            )}
             {formData.additional_insured === 'yes' &&
               formData.household_size &&
               formData.household_size !== '1' &&
@@ -772,27 +821,30 @@ const ScriptForm = () => {
                           id={i}
                           labelName={`Dependent ${i + 1} Country of Birth:`}
                           name='country_of_birth'
+                          placeholder='Please select a country...'
                           additional={true}
                           options={countries}
-                          defaultOption={dependent.country_of_birth || 'Please select a country'}
+                          defaultOption={dependent.country_of_birth || ''}
                         />
                         {dependent.country_of_birth === 'United States Of America' && (
                           <DropDownInput
                             id={i}
                             labelName={`Dependent ${i + 1} State of Birth:`}
                             name='state_of_birth'
+                            placeholder='Please select a state...'
                             additional={true}
                             options={unitedStates}
-                            defaultOption={dependent.state_of_birth || 'Please select a state'}
+                            defaultOption={dependent.state_of_birth || ''}
                           />
                         )}
                         <DropDownInput
                           id={i}
                           labelName={`Dependent ${i + 1} Employment Status:`}
                           name='employment_status'
+                          placeholder='Please select an employment status...'
                           additional={true}
                           options={employmentOptions}
-                          defaultOption={dependent.employment_status || 'Please select an employment status'}
+                          defaultOption={dependent.employment_status || ''}
                         />
                         {dependent.employment_status === 'employed' && (
                           <SelectCreateable
@@ -942,13 +994,13 @@ const ScriptForm = () => {
             />
             {formData.medications === 'yes' && (
               <>
-                <ScriptBox>{`Is it generic or a name brand? (get names and doses)`}</ScriptBox>
-                <TextInput
+                <TextAreaInput
                   labelName='Specific medications:'
                   name='medications_list'
                   id='medications_list'
                   placeholder='Ex. Benazepril, Moexipril , Prozac'
-                  type='text'
+                  required={true}
+                  rows={7}
                   defaultKey='medications_list'
                   defaultValue={formData?.medications_list || ''}
                 />
@@ -961,6 +1013,7 @@ const ScriptForm = () => {
               id='medical_history'
               placeholder='Enter history here'
               required={false}
+              rows={3}
               defaultKey='medical_history'
               defaultValue={formData?.medical_history || ''}
             />
@@ -976,13 +1029,13 @@ const ScriptForm = () => {
             />
             {formData.preferred_doctors === 'yes' && (
               <>
-                <ScriptBox>{`Can I have their name?`}</ScriptBox>
-                <TextInput
+                <TextAreaInput
                   labelName='Doctor Name:'
                   name='preferred_doctors_name'
                   id='preferred_doctors_name'
                   placeholder='Ex. Dr. Lino Fernandez'
-                  type='text'
+                  required={true}
+                  rows={2}
                   defaultKey='preferred_doctors_name'
                   defaultValue={formData?.preferred_doctors_name || ''}
                 />
@@ -1054,10 +1107,9 @@ const ScriptForm = () => {
               labelName='PCP Copay (Primary Care Visit):'
               name='pcp_copay'
               id='pcp_copay'
-              placeholder='Ex. $150'
+              placeholder='Ex. $150, 40%, No charge, Full Price'
               type='text'
-              pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
-              currency={true}
+              uppercase={true}
               defaultKey='pcp_copay'
               defaultValue={formData?.pcp_copay || ''}
             />
@@ -1065,10 +1117,9 @@ const ScriptForm = () => {
               labelName='Specialist Copay (Specialist Visit):'
               name='specialist_copay'
               id='specialist_copay'
-              placeholder='Ex. $150'
+              placeholder='Ex. $150, 40%, No charge, Full Price'
               type='text'
-              pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
-              currency={true}
+              uppercase={true}
               defaultKey='specialist_copay'
               defaultValue={formData?.specialist_copay || ''}
             />
@@ -1076,10 +1127,9 @@ const ScriptForm = () => {
               labelName='Generic Meds Copay:'
               name='generic_meds_copay'
               id='generic_meds_copay'
-              placeholder='Ex. $50'
+              placeholder='Ex. $150, 40%, No charge, Full Price'
               type='text'
-              pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
-              currency={true}
+              uppercase={true}
               defaultKey='generic_meds_copay'
               defaultValue={formData?.generic_meds_copay || ''}
             />
@@ -1130,10 +1180,20 @@ const ScriptForm = () => {
               placeholder='Ex. $305.40'
               type='text'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
-              strikeout={true}
               currency={true}
               defaultKey='health_unsubsidized'
               defaultValue={formData?.health_unsubsidized || ''}
+            />
+            <TextInput
+              labelName={`Qualified Subsidy:`}
+              name='qualified_subsidy'
+              id='qualified_subsidy'
+              placeholder='Ex. $395'
+              type='text'
+              pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
+              currency={true}
+              defaultKey='qualified_subsidy'
+              defaultValue={formData?.qualified_subsidy || ''}
             />
             {formData?.health_unsubsidized && formData?.life_health_unsubsidized && formData?.monthly_grand_total && (
               <>
@@ -1153,8 +1213,10 @@ const ScriptForm = () => {
               type='text'
               pattern='^\$[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?$'
               currency={true}
+              useDefault={true}
               defaultKey='death_benefit'
               defaultValue={formData?.death_benefit || ''}
+              externalValue={formData?.death_benefit}
             />
             <ScriptBox>
               {`Hello, ${title} ${toTitleCase(formData?.last_name) || '{Client Name}'}?`}
@@ -1175,17 +1237,15 @@ const ScriptForm = () => {
               {`Which means that all your checkups, immunizations, screenings basically anything to keep you healthy is 100% free of charge. Does that make sense?`}
               <br />
               <br />
-              {`For your Primary Doctor you have a set copay of only ${
-                formData?.pcp_copay || '${PCP Copay}'
-              } per visit.`}
+              {`For your Primary Doctor you have a set copay of ${formData?.pcp_copay || '${PCP Copay}'} per visit.`}
               <br />
               <br />
-              {`For Specialists you have a set copay of only ${
+              {`For Specialists you have a set copay of ${
                 formData?.specialist_copay || '${Specialist Copay}'
               } per visit.`}
               <br />
               <br />
-              {`For any Generic Medication you have a set copay of only ${
+              {`For any Generic Medication you have a set copay of ${
                 formData?.generic_meds_copay || '${Generic Meds Copay}'
               } per medication.`}
               <br />
@@ -1340,9 +1400,10 @@ const ScriptForm = () => {
               id={'country_of_birth'}
               labelName={`Primary's Country of Birth:`}
               name='country_of_birth'
+              placeholder='Please select a country...'
               additional={true}
               options={countries}
-              defaultOption={formData?.country_of_birth || 'Please select a country'}
+              defaultOption={formData?.country_of_birth || ''}
             />
             {formData.country_of_birth === 'United States Of America' && (
               <>
@@ -1351,9 +1412,10 @@ const ScriptForm = () => {
                   id={'state_of_birth'}
                   labelName={`Primary's State of Birth:`}
                   name='state_of_birth'
+                  placeholder='Please select a state...'
                   additional={true}
                   options={unitedStates}
-                  defaultOption={formData?.state_of_birth || 'Please select a state'}
+                  defaultOption={formData?.state_of_birth || ''}
                 />
               </>
             )}
@@ -1570,7 +1632,9 @@ const ScriptForm = () => {
               <br />
               {`So, your total before the health subsidy is applied is ${
                 formData?.life_health_unsubsidized || '{Life + Health Unsubsidized}'
-              }. We can qualify you for the health subsidy of ${'GET TAX CREDIT HERE'} to lower monthly payment.`}
+              }. We can qualify you for the health subsidy of ${
+                formData?.qualified_subsidy || '{Qualified Subsidy}'
+              } to lower monthly payment.`}
               <br />
               <br />
               {`So, your total after the health subsidy is applied is only ${

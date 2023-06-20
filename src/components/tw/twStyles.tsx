@@ -94,6 +94,9 @@ export const Nav = tw.nav`
 export const SymbolContainer = tw.div`
   flex flex-col gap-8 shadow-xl fixed top-8 left-8
 `;
+export const AutoSymbolContainer = tw.div`
+  flex flex-col gap-8 shadow-xl fixed bottom-8 left-8
+`;
 export const Anchor = tw.a`
   group bg-10sa-gold transition-all rounded-full p-2 inline-flex items-center relative
 `;

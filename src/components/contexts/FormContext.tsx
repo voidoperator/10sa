@@ -96,6 +96,7 @@ export const initialFormData: FormDataType = {
   mutual_quote_gender: '',
   eligible_americo_count: 0,
   eligible_mutual_count: 0,
+  claims_dependents: '',
   carriers: [],
   is_agent_licensed_in_state: '',
 };

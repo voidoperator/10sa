@@ -1,8 +1,23 @@
 import React from 'react';
+import { useFormData } from '../contexts/FormContext';
 import { AmericoSymbol, HealthSherpaSymbol, MutualOfOmahaSymbol } from '../icons/NavIcons';
-import { Nav, SymbolContainer, Anchor, AnchorSpan } from '../tw/twStyles';
+import { Nav, SymbolContainer, Anchor, AnchorSpan, AutoSymbolContainer } from '../tw/twStyles';
+import { statesAbbreviation } from '../../utility/staticData';
+import { parseCurrency } from '../../utility/utility';
 
 const SideNav = () => {
+  const { formData, setFormData } = useFormData();
+  const healthSherpaBaseLink = `https://www.healthsherpa.com/marketplace/health?`;
+  const healthSherpaParams = `zip_code=${formData.zip_code}&state=${
+    statesAbbreviation[formData.state]
+  }&applicants[][age]=${
+    formData.age
+  }&applicants[][age_format]=years&applicants[][relationship]=primary&applicants[][gender]=${
+    formData.gender
+  }&applicants[][utilization]=medium&dependents_count=0&household_size=1&household_income=${parseCurrency(
+    formData.annual_household_income,
+  )}&apply_for_subsidy=true&utilization=medium&sep_reason=eligibility_changed`;
+  const healthSherpaCustomLink = `${healthSherpaBaseLink}${healthSherpaParams}&page=1&per_page=20`;
   return (
     <Nav>
       <SymbolContainer>
@@ -34,6 +49,21 @@ const SideNav = () => {
           </AnchorSpan>
         </Anchor>
       </SymbolContainer>
+      {formData.zip_code &&
+        formData.state &&
+        formData.gender &&
+        formData.annual_household_income &&
+        formData.age !== null &&
+        formData.age > -1 && (
+          <AutoSymbolContainer>
+            <Anchor href={healthSherpaCustomLink} target='_blank' className='rounded-xl bottom-0 bg-white'>
+              <HealthSherpaSymbol twClasses='z-10 w-10 bg-white rounded-full' />
+              <AnchorSpan style={{ transition: 'width 0.5s ease, transform 0.5s ease, opacity 2s ease' }}>
+                AutoSherpa
+              </AnchorSpan>
+            </Anchor>
+          </AutoSymbolContainer>
+        )}
     </Nav>
   );
 };
