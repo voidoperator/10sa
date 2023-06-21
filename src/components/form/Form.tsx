@@ -238,11 +238,15 @@ const Form = () => {
       return;
     }
     if (formData.married === 'no' && formData.claims_dependents === 'no') {
-      setFormData((prevState) => ({ ...prevState, household_size: '1' }));
+      setFormData((prevState) => ({ ...prevState, household_size: '1', additional_insured: 'no' }));
       return;
     }
     if (formData.married === 'yes' && formData.claims_dependents === 'no') {
       setFormData((prevState) => ({ ...prevState, household_size: '2' }));
+      return;
+    }
+    if (formData.married === 'yes' && formData.claims_dependents === 'yes' && Number(formData.household_size) <= 1) {
+      setFormData((prevState) => ({ ...prevState, household_size: '2', additional_insured: 'no' }));
       return;
     }
   }, [formData.married, formData.claims_dependents]);
