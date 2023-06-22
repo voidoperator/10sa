@@ -462,7 +462,7 @@ const Form = () => {
             <Divider />
             <H2>Customer Details</H2>
             <TextInput
-              labelName='First Name'
+              labelName='First Name:'
               name='first_name'
               id='first_name'
               placeholder='Ex. John'
@@ -471,17 +471,17 @@ const Form = () => {
               defaultValue={formData?.first_name || ''}
             />
             <TextInput
-              labelName='Middle Name'
+              labelName='Middle Initial:'
               name='middle_name'
               id='middle_name'
-              placeholder='Ex. J. or James'
+              placeholder='Ex. J. (Optional)'
               type='text'
               required={false}
               defaultKey='middle_name'
               defaultValue={formData?.middle_name || ''}
             />
             <TextInput
-              labelName='Last Name'
+              labelName='Last Name:'
               name='last_name'
               id='last_name'
               placeholder='Ex. Doe'
@@ -569,7 +569,7 @@ const Form = () => {
               labelName='Why are they looking for coverage?'
               name='coverage_reason'
               id='coverage_reason'
-              placeholder='Enter reason here'
+              placeholder='Enter reason here... (Optional)'
               required={false}
               defaultKey='coverage_reason'
               defaultValue={formData?.coverage_reason || ''}
@@ -583,11 +583,11 @@ const Form = () => {
               id='employment_status'
               labelName="Primary's Employment Status:"
               name='employment_status'
-              placeholder='Please select an employment status'
+              placeholder='Please select an employment status...'
               options={employmentOptions}
               defaultOption={formData?.employment_status || ''}
             />
-            {formData.employment_status === 'employed' && (
+            {formData.employment_status === 'Employed' && (
               <>
                 <SelectCreateable
                   id='occupation'
@@ -599,11 +599,11 @@ const Form = () => {
                 />
               </>
             )}
-            {(formData.employment_status === 'retired' || formData.employment_status === 'unemployed') && (
+            {(formData.employment_status === 'Retired' || formData.employment_status === 'Unemployed') && (
               <>
                 <SelectCreateable
                   id='occupation'
-                  labelName="Primary's Former occupation:"
+                  labelName="Primary's Former Occupation:"
                   name='occupation'
                   options={occupations}
                   placeholder='Please select an occupation...'
@@ -822,7 +822,7 @@ const Form = () => {
                           options={employmentOptions}
                           defaultOption={dependent.employment_status || ''}
                         />
-                        {dependent.employment_status === 'employed' && (
+                        {dependent.employment_status === 'Employed' && (
                           <SelectCreateable
                             id={i}
                             labelName='Occupation:'
@@ -833,11 +833,11 @@ const Form = () => {
                             defaultOption={dependent.occupation || ''}
                           />
                         )}
-                        {(dependent.employment_status === 'retired' ||
-                          dependent.employment_status === 'unemployed') && (
+                        {(dependent.employment_status === 'Retired' ||
+                          dependent.employment_status === 'Unemployed') && (
                           <SelectCreateable
                             id={i}
-                            labelName='Former occupation:'
+                            labelName='Former Occupation:'
                             name='occupation'
                             options={occupations}
                             placeholder='Please select an occupation...'
@@ -896,6 +896,7 @@ const Form = () => {
                           name='beneficiary_date_of_birth'
                           labelName={`Dependent ${i + 1} Beneficiary (Date of Birth):`}
                           additional={true}
+                          required={false}
                           ageKey='beneficiary_age'
                           defaultKey='beneficiary_date_of_birth'
                           defaultValue={dependent.beneficiary_date_of_birth || ''}
@@ -906,7 +907,7 @@ const Form = () => {
                       id={i}
                       labelName='Notes:'
                       name='notes'
-                      placeholder='Enter notes here'
+                      placeholder='Enter notes here... (Optional)'
                       additional={true}
                       required={false}
                       defaultKey='notes'
@@ -981,10 +982,10 @@ const Form = () => {
               </>
             )}
             <TextAreaInput
-              labelName='History of mental health, COPD, heart procedures, cancer, HIV?'
+              labelName='Any history of mental health, COPD, heart procedures, cancer, HIV?'
               name='medical_history'
               id='medical_history'
-              placeholder='Enter history here'
+              placeholder='Enter history here... (Optional)'
               required={false}
               rows={3}
               defaultKey='medical_history'
@@ -1358,6 +1359,7 @@ const Form = () => {
               id='beneficiary_date_of_birth'
               defaultKey='beneficiary_date_of_birth'
               ageKey='beneficiary_age'
+              required={false}
               defaultValue={formData?.beneficiary_date_of_birth || ''}
             />
           </>

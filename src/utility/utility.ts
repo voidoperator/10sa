@@ -83,10 +83,15 @@ export const formDataTitleCased = (form: FormDataType) => {
     'preferred_doctors_name',
     'life_adb_provider',
     'claims_dependents',
+    'current_insurance',
   ];
   return Object.entries(form).reduce((accum, [key, value]) => {
     if (fieldsToTransform.includes(key) && typeof value === 'string') {
       return { ...accum, [key]: toTitleCase(value) };
+    }
+    if (key === 'weight') {
+      const weightUnits = `${value}lbs`;
+      return { ...accum, [key]: weightUnits };
     }
     return { ...accum, [key]: value };
   }, {});

@@ -1161,27 +1161,27 @@ export const countries: OptionTypes[] = [
 export const employmentOptions: OptionTypes[] = [
   {
     label: 'Employed',
-    value: 'employed',
+    value: 'Employed',
   },
   {
     label: 'Disabled',
-    value: 'disabled',
+    value: 'Disabled',
   },
   {
     label: 'Student',
-    value: 'student',
+    value: 'Student',
   },
   {
     label: 'Retired',
     value: 'retired',
   },
   {
-    label: 'Stay-at-home-person',
-    value: 'stay-at-home-person',
+    label: 'Stay-at-home',
+    value: 'Stay-at-home',
   },
   {
     label: 'Unemployed',
-    value: 'unemployed',
+    value: 'Unemployed',
   },
 ];
 
