@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, FC, ReactNode, Context } from 'react';
+import React, { createContext, useContext, useState, FC, ReactNode, Context, useEffect } from 'react';
 import type { FormDataType, InsuredList } from '../../types/formData';
+import { isBrowser } from '../../utility/utility';
 
 export const initialDependentState: InsuredList = {
   id: 0,
@@ -23,10 +24,10 @@ export const initialDependentState: InsuredList = {
 };
 
 export const initialFormData: FormDataType = {
-  google_app_url: localStorage.getItem('google_app_url') || '',
-  agent_full_name: localStorage.getItem('agent_full_name') || '',
-  agent_license_number: localStorage.getItem('agent_license_number') || '',
-  show_script: localStorage.getItem('show_script') || '',
+  google_app_url: '',
+  agent_full_name: '',
+  agent_license_number: '',
+  show_script: '',
   first_name: '',
   middle_name: '',
   last_name: '',
@@ -102,12 +103,16 @@ export const initialFormData: FormDataType = {
 };
 
 let initialFormDataFromLocalStorage: FormDataType;
-const formDataFromLocalStorage = localStorage.getItem('formData');
-if (formDataFromLocalStorage) {
-  try {
-    initialFormDataFromLocalStorage = JSON.parse(formDataFromLocalStorage);
-  } catch (error) {
-    console.error('Error parsing formData from localStorage', error);
+if (isBrowser()) {
+  const formDataFromLocalStorage = localStorage.getItem('formData');
+  if (formDataFromLocalStorage) {
+    try {
+      initialFormDataFromLocalStorage = JSON.parse(formDataFromLocalStorage);
+    } catch (error) {
+      console.error('Error parsing formData from localStorage', error);
+      initialFormDataFromLocalStorage = initialFormData;
+    }
+  } else {
     initialFormDataFromLocalStorage = initialFormData;
   }
 } else {
@@ -130,6 +135,18 @@ interface FormProviderProps {
 
 export const FormProvider: FC<FormProviderProps> = ({ children }) => {
   const [formData, setFormData] = useState<FormDataType>(initialFormDataFromLocalStorage);
+
+  useEffect(() => {
+    if (isBrowser()) {
+      setFormData({
+        ...formData,
+        google_app_url: window.localStorage.getItem('google_app_url') || '',
+        agent_full_name: window.localStorage.getItem('agent_full_name') || '',
+        agent_license_number: window.localStorage.getItem('agent_license_number') || '',
+        show_script: window.localStorage.getItem('show_script') || '',
+      });
+    }
+  }, []);
 
   const setFormDataSafe = (data: FormDataType | ((prevData: FormDataType) => FormDataType)) => {
     if (typeof data === 'function') {

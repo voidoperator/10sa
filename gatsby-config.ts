@@ -15,9 +15,9 @@ const config: GatsbyConfig = {
     'gatsby-transformer-sharp',
     'gatsby-plugin-sharp',
     'gatsby-plugin-postcss',
-    // {
-    //   resolve: 'gatsby-plugin-no-sourcemaps',
-    // },
+    {
+      resolve: 'gatsby-plugin-no-sourcemaps',
+    },
     {
       resolve: 'gatsby-source-filesystem',
       options: {
