@@ -60,9 +60,6 @@ const SideNav = () => {
     formData.age,
     JSON.stringify(formData.additional_insured_list),
   ]);
-  useEffect(() => {
-    console.log('customLink ', customLink);
-  }, []);
   return (
     <SideNavContainer>
       <SymbolContainer>
