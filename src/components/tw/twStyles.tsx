@@ -1,5 +1,33 @@
 import tw from 'tailwind-styled-components';
 
+// Toggle
+export const ToggleWrapper = tw.div`
+  shadow-xl px-10
+`;
+export const ToggleLabel = tw.label`
+  relative inline-flex items-center justify-center w-full h-full cursor-pointer
+`;
+export const ToggleButton = tw.div`
+  w-11 h-6 bg-gray-400 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-10sa-gold rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600
+`;
+
+// TopNav
+export const TopNavContainer = tw.nav`
+  bg-10sa-deep-purple/60 w-screen h-[50px] fixed top-0 left-0 z-[99999] border-b border-10sa-gold/10 backdrop-blur-[8px] shadow-lg shadow-10sa-purple/25
+`;
+export const NavWrapper = tw.div`
+  w-full h-full flex flex-row justify-evenly items-center
+`;
+export const PhonyAnchor = tw.div`
+  hover:opacity-60 flex items-center justify-center w-full h-full text-xs text-center transition-all duration-300 rounded-full shadow-inner cursor-pointer select-none
+`;
+export const PhonyDivider = tw.div`
+  h-[36px] w-[1px] bg-10sa-gold/30 rounded-full select-none
+`;
+export const ToggleContainer = tw.div`
+  flex flex-col items-center justify-center
+`;
+
 // Globals
 export const MainLabel = tw.label`
   block mb-2 text-sm font-medium text-white
@@ -46,7 +74,7 @@ export const ButtonContainer = tw.div`
   w-full inline-flex gap-4
 `;
 export const Button = tw.button`
-  hover:bg-10sa-gold/60 bg-purple-800 border border-10sa-gold/25 active:bg-10sa-gold/100 w-full transition-all text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center focus:ring-blue-800
+  disabled:bg-slate-500 disabled:text-slate-200 hover:bg-10sa-gold/60 bg-purple-800 border border-10sa-gold/25 active:bg-10sa-gold/100 w-full transition-all text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center focus:ring-blue-800 select-none disabled:cursor-not-allowed
 `;
 export const H2 = tw.h2`
   cursor-default text-xl font-medium text-white
@@ -75,7 +103,7 @@ export const SummarySection = tw.section`
   relative z-50 min-h-screen w-1/4
 `;
 export const SummaryContainer = tw.div`
-  flex flex-col gap-4 fixed top-0 right-0 border-l bg-10sa-purple border-10sa-gold/30 h-full w-1/4 px-4 py-4 overflow-y-auto scrollbar-thin scrollbar-thumb-10sa-gold scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar-track-10sa-deep-purple
+  flex flex-col gap-4 fixed top-0 h-full w-1/4 right-0 border-l bg-10sa-purple border-10sa-gold/30 px-4 py-4 overflow-y-auto scrollbar-thin scrollbar-thumb-10sa-gold scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar-track-10sa-deep-purple
 `;
 export const SummaryUl = tw.ul`
   flex flex-wrap gap-2 justify-center pt-3
@@ -85,11 +113,11 @@ export const SummaryLi = tw.li`
 `;
 
 // SideNav
-export const Nav = tw.nav`
+export const SideNavContainer = tw.div`
   relative w-[10svw] min-h-screen
 `;
 export const SymbolContainer = tw.div`
-  flex flex-col gap-8 shadow-xl fixed top-8 left-8
+  flex flex-col gap-8 shadow-xl fixed top-[100px] left-8
 `;
 export const AutoSymbolContainer = tw.div`
   flex flex-col gap-8 shadow-xl fixed bottom-8 left-8

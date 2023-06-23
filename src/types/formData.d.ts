@@ -2,6 +2,7 @@ export type FormDataType = {
   google_app_url?: string;
   agent_full_name?: string;
   agent_license_number?: string;
+  show_script?: string;
   first_name: string;
   middle_name?: string;
   last_name: string;
@@ -53,9 +54,7 @@ export type FormDataType = {
   max_out_of_pocket: string;
   health_unsubsidized: string;
   death_benefit: string;
-  total_pre_subsidy: string;
   qualified_subsidy: string;
-  total_post_subsidy: string;
   life_adb_provider: string;
   life_total_cost: number;
   life_health_unsubsidized: string;
@@ -84,6 +83,7 @@ export type InsuredList = {
   relationship_to_primary: string;
   date_of_birth: string;
   age: number | null;
+  dependent_gender: string;
   ssn: string;
   country_of_birth: string;
   state_of_birth: string;
@@ -206,6 +206,11 @@ export type GroupButtonProps = {
   required?: boolean;
   name: string;
   options: { label: string; value: string }[];
+};
+
+export type ScriptToggleProps = {
+  id: string;
+  defaultOption: string;
 };
 
 export type SelectCreateableProps = {

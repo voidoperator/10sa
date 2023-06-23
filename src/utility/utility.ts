@@ -84,14 +84,31 @@ export const formDataTitleCased = (form: FormDataType) => {
     'life_adb_provider',
     'claims_dependents',
     'current_insurance',
+    'state_of_birth',
+  ];
+  const fieldsToIgnore = [
+    'google_app_url',
+    'agent_full_name',
+    'agent_license_number',
+    'show_script',
+    'is_agent_licensed_in_state',
   ];
   return Object.entries(form).reduce((accum, [key, value]) => {
+    if (key === 'carriers') {
+      return { ...accum };
+    }
+    if (fieldsToIgnore.includes(key) && typeof value === 'string') {
+      return { ...accum };
+    }
     if (fieldsToTransform.includes(key) && typeof value === 'string') {
       return { ...accum, [key]: toTitleCase(value) };
     }
     if (key === 'weight') {
       const weightUnits = `${value}lbs`;
       return { ...accum, [key]: weightUnits };
+    }
+    if (value === null || value === '') {
+      return { ...accum };
     }
     return { ...accum, [key]: value };
   }, {});

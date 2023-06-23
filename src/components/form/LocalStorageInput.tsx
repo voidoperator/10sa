@@ -36,6 +36,7 @@ const LocalStorageInput: React.FC<LocalStorageInputProps> = ({
         return;
       }
     }
+
     if (defaultKey === 'agent_license_number') {
       const agentLicenseNumber = localStorage.getItem('agent_license_number');
       if (agentLicenseNumber) {

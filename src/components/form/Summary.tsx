@@ -14,19 +14,21 @@ const Summary = () => {
     <SummarySection>
       <SummaryContainer>
         <>
-          <TextInput
-            key='monthly_health_premium'
-            id='monthly_health_premium'
-            name='monthly_health_premium'
-            placeholder='Ex. $8.14'
-            type='text'
-            labelName='Monthly Health Premium:'
-            required={true}
-            currency={true}
-            uppercase={false}
-            defaultKey='monthly_health_premium'
-            defaultValue={formData?.monthly_health_premium || ''}
-          />
+          <div className='pt-[50px]'>
+            <TextInput
+              key='monthly_health_premium'
+              id='monthly_health_premium'
+              name='monthly_health_premium'
+              placeholder='Ex. $8.14'
+              type='text'
+              labelName='Monthly Health Premium:'
+              required={true}
+              currency={true}
+              uppercase={false}
+              defaultKey='monthly_health_premium'
+              defaultValue={formData?.monthly_health_premium || ''}
+            />
+          </div>
         </>
         <>
           <GroupButton

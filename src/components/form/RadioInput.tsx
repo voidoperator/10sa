@@ -28,6 +28,23 @@ const RadioInput: React.FC<RadioInputProps> = ({
     }
   }, [defaultOption, formData, name, setFormData]);
 
+  const handleChange = ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
+    if (!additional) {
+      setFormData((prevState) => ({ ...prevState, [name]: value }));
+      return;
+    }
+    if (additional && typeof id === 'number') {
+      const dependentIndex = id;
+      let additionalInsuredList = formData.additional_insured_list || [];
+      additionalInsuredList[dependentIndex] = {
+        ...additionalInsuredList[dependentIndex],
+        [name]: value,
+      };
+      setFormData((prevState) => ({ ...prevState, additional_insured_list: additionalInsuredList }));
+      return;
+    }
+  };
+
   const formatId = additional && typeof id === 'number' ? name + '_' + (id + 1) : name;
 
   return (
@@ -41,7 +58,12 @@ const RadioInput: React.FC<RadioInputProps> = ({
       <RadioContainer className={rowOrCol === 'row' ? 'flex-row' : 'flex-col'}>
         {options.map((option, index) => {
           const { label, value, disabled = false } = option;
-          const disabledClasses = 'disabled:text-gray-500';
+          let isChecked = false;
+          if (additional && typeof id === 'number') {
+            isChecked = value.toString() === (formData.additional_insured_list[id] as any)[name];
+          } else {
+            isChecked = value.toString() === formData[name as keyof FormDataType];
+          }
           return (
             <div key={index}>
               <RadioButton
@@ -51,8 +73,8 @@ const RadioInput: React.FC<RadioInputProps> = ({
                 name={name}
                 value={value.toString()}
                 required={required}
-                checked={value.toString() === formData[name as keyof FormDataType]}
-                onChange={(e) => setFormData((prevState) => ({ ...prevState, [name]: e.target.value }))}
+                checked={isChecked}
+                onChange={(e) => handleChange(e)}
                 disabled={disabled}
               />
               <RadioLabel htmlFor={`${name}_${index + 1}`}>{label}</RadioLabel>

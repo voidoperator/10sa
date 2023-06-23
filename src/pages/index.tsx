@@ -1,34 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { graphql, useStaticQuery } from 'gatsby';
 import { FormProvider } from '../components/contexts/FormContext';
 import { MainContainer, MainWrapper, StatusText, IndexContainer } from '../components/tw/twStyles';
 import Seo from '../components/Seo';
-import Form from '../components/form/Form';
+import TopNav from '../components/nav/TopNav';
 import SideNav from '../components/nav/SideNav';
+import Form from '../components/form/Form';
 import Summary from '../components/form/Summary';
 
-const IndexPage = () => {
+const FormTest = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     setIsLoading(false);
   }, []);
-
-  // const contentfulData = useStaticQuery(
-  //   graphql`
-  //     query contentfulQuery {
-  //       navbar: contentfulNavBar {
-  //         navItems {
-  //           title
-  //           iconName
-  //           hyperlink
-  //           id
-  //         }
-  //       }
-  //     }
-  //   `,
-  // );
-  // const { navbar } = contentfulData;
 
   if (isLoading)
     return (
@@ -41,8 +25,9 @@ const IndexPage = () => {
 
   return (
     <FormProvider>
-      <Seo subtitle='Lead Form' />
+      <Seo subtitle='Script Lead Form' />
       <IndexContainer>
+        <TopNav />
         <SideNav />
         <Form />
         <Summary />
@@ -51,4 +36,4 @@ const IndexPage = () => {
   );
 };
 
-export default IndexPage;
+export default FormTest;
