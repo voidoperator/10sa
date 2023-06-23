@@ -31,7 +31,6 @@ const SideNav = () => {
     ) {
       for (let i = 0; i < formData.applying_for_coverage; i++) {
         if (formData.additional_insured_list[i]) {
-          console.log('if passed');
           let additionalAge = '';
           let additionalGender = '';
           let additionalRelationship = '';
@@ -47,14 +46,10 @@ const SideNav = () => {
           if (additionalAge !== '' && additionalGender !== '' && additionalRelationship !== '') {
             concatDependentString += `&applicants[][age]=${additionalAge}&applicants[][age_format]=years&applicants[][relationship]=${additionalRelationship}&applicants[][gender]=${additionalGender}`;
           }
-          console.log('additionalAge', additionalAge);
-          console.log('additionalGender', additionalGender);
-          console.log('additionalRelationship', additionalRelationship);
         }
       }
     }
     const healthSherpaCustomLink = `${healthSherpaBaseLink}${healthSherpaParams}${concatDependentString}&page=1&per_page=20`;
-    console.log(healthSherpaCustomLink);
     setCustomLink(healthSherpaCustomLink);
   }, [
     formData.zip_code,
