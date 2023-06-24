@@ -1,8 +1,9 @@
 import tw from 'tailwind-styled-components';
+import { motion } from 'framer-motion';
 
 // Toggle
 export const ToggleWrapper = tw.div`
-  shadow-xl px-10
+  px-10
 `;
 export const ToggleLabel = tw.label`
   relative inline-flex items-center justify-center w-full h-full cursor-pointer
@@ -21,7 +22,7 @@ export const NavWrapper = tw.div`
 export const PhonyAnchor = tw.div`
   hover:opacity-60 flex items-center justify-center w-full h-full text-xs text-center transition-all duration-300 rounded-full shadow-inner cursor-pointer select-none
 `;
-export const PhonyDivider = tw.div`
+export const VerticalDivider = tw.div`
   h-[36px] w-[1px] bg-10sa-gold/30 rounded-full select-none
 `;
 export const ToggleContainer = tw.div`
@@ -50,8 +51,8 @@ export const ShadowDiv = tw.div`
 export const Divider = tw.div`
   h-[1px] w-full bg-10sa-gold/75 my-0 sm:my-10 hidden sm:block
 `;
-export const ScriptBox = tw.p`
-  rounded-[50px] p-8 bg-purple-900 shadow-xl
+export const ScriptBox = tw(motion.div)`
+  rounded-[50px] bg-purple-900 shadow-xl
 `;
 export const AgentInfoBox = tw.div`
   flex flex-col shadow-xl border-10sa-gold/25 rounded-xl px-4 py-6 border gap-6 mt-6
@@ -59,7 +60,7 @@ export const AgentInfoBox = tw.div`
 
 // Form
 export const FormSectionContainer = tw.section`
-  4xl:max-w-4xl 3xl:max-w-3xl xl:max-w-xl lg:max-w-lg w-full p-4 bg-10sa-purple border border-10sa-gold/25 rounded-lg shadow sm:p-6 md:p-8 my-20
+  4xl:max-w-4xl 3xl:max-w-3xl xl:max-w-xl lg:max-w-lg md:max-w-md sm:max-w-sm w-full p-4 bg-10sa-purple border border-10sa-gold/25 rounded-lg shadow sm:p-6 md:p-8 my-20
 `;
 export const HeadingSrOnly = tw.h1`
   cursor-default text-2xl font-medium text-white text-center sr-only
@@ -80,6 +81,9 @@ export const H2 = tw.h2`
   cursor-default text-xl font-medium text-white
 `;
 export const AddDependentContainer = tw.div`
+  flex items-center justify-center gap-6
+`;
+export const RoutingContainer = tw.div`
   flex items-center justify-center gap-6
 `;
 export const AddDependentButton = tw.button`
@@ -131,10 +135,10 @@ export const AnchorSpan = tw.span`
 
 // Index
 export const MainContainer = tw.div`
-  flex items-center justify-center min-h-screen py-20
+  flex items-center justify-center min-h-screen
 `;
 export const MainWrapper = tw.div`
-  flex w-full max-w-4xl p-4 border rounded-lg shadow sm:p-6 md:p-8 bg-10sa-purple border-10sa-gold/40 items-center justify-center
+  flex w-full xl:max-w-4xl lg:max-w-2xl md:max-w-xl sm:max-w-lg max-w-[200px] p-4 border rounded-lg shadow sm:p-6 md:p-8 bg-10sa-purple border-10sa-gold/40 items-center justify-center
 `;
 export const StatusText = tw.p`
   text-xl
@@ -177,7 +181,7 @@ export const GroupButtonContainer = tw.div`
   flex items-center justify-center
 `;
 export const GroupButtonButton = tw.button`
-  w-full hover:bg-10sa-gold/90 active:bg-10sa-gold/100 border-10sa-gold/25 text-white py-2 px-4 transition-all
+  w-1/2 hover:bg-10sa-gold/90 active:bg-10sa-gold/100 border-10sa-gold/25 text-white py-2 px-4 transition-all sm:text-xs
 `;
 
 // DateInput

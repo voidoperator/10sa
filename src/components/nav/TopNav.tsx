@@ -1,13 +1,12 @@
 import React from 'react';
-import { useFormData } from '../contexts/FormContext';
-import tw from 'tailwind-styled-components';
+import { useConstantData } from '../contexts/ConstantDataContext';
 import ScriptToggle from '../form/ScriptToggle';
-import { NavWrapper, PhonyAnchor, PhonyDivider, ToggleContainer, TopNavContainer } from '../tw/twStyles';
+import { NavWrapper, PhonyAnchor, VerticalDivider, ToggleContainer, TopNavContainer } from '../tw/twStyles';
 
 const sections = ['Agent', 'Customer', 'Health', 'Quote', 'Disclosure', 'Closure', 'Beneficiary', 'Payment'];
 
 const TopNav = () => {
-  const { formData, setFormData } = useFormData();
+  const { constantData } = useConstantData();
 
   const handleClick = (id: string) => {
     const element = document.getElementById(id);
@@ -30,12 +29,12 @@ const TopNav = () => {
           return (
             <React.Fragment key={section + index}>
               <PhonyAnchor onClick={() => handleClick(section.toLowerCase())}>{section}</PhonyAnchor>
-              <PhonyDivider />
+              <VerticalDivider />
             </React.Fragment>
           );
         })}
         <ToggleContainer>
-          <ScriptToggle id='show_script' key='show_script' defaultOption={formData?.show_script || 'off'} />
+          <ScriptToggle id='show_script' key='show_script' defaultOption={constantData.show_script || 'off'} />
         </ToggleContainer>
       </NavWrapper>
     </TopNavContainer>

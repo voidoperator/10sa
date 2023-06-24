@@ -2,23 +2,38 @@ import type { FormDataType, RoutingNumbers, OptionTypes } from '../types/formDat
 
 export const isBrowser = () => typeof window !== 'undefined';
 
-const getLastDayOfMonth = (year: number, month: number): number => {
-  return new Date(year, month + 1, 0).getDate();
+export const getNextMonth = (): string => {
+  const today = new Date();
+  let nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+
+  return nextMonth.toLocaleString('default', { month: 'long' });
 };
 
-export const getDraftDate = (): string => {
-  const today = new Date();
-  const lastDayOfMonth = getLastDayOfMonth(today.getFullYear(), today.getMonth());
-  const daysUntilEndOfMonth = lastDayOfMonth - today.getDate();
+export const getDayWithSuffix = (): string => {
+  const date = new Date();
+  const day = date.getDate();
+  let suffix = '';
 
-  let nextRelevantMonth: Date;
-  if (daysUntilEndOfMonth <= 3) {
-    nextRelevantMonth = new Date(today.getFullYear(), today.getMonth() + 2, 1);
+  if (day >= 11 && day <= 13) {
+    suffix = 'th';
   } else {
-    nextRelevantMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    switch (day % 10) {
+      case 1:
+        suffix = 'st';
+        break;
+      case 2:
+        suffix = 'nd';
+        break;
+      case 3:
+        suffix = 'rd';
+        break;
+      default:
+        suffix = 'th';
+        break;
+    }
   }
 
-  return nextRelevantMonth.toLocaleString('default', { month: 'long' });
+  return day.toString() + suffix;
 };
 
 export const calculateAge = (dob: string | Date) => {
@@ -58,8 +73,8 @@ export const toTitleCase = (string: string) => {
   });
 };
 
-export const formDataTitleCased = (form: FormDataType) => {
-  const fieldsToTransform = [
+export const formatFormData = (form: FormDataType) => {
+  const fieldsToTitleCase = [
     'first_name',
     'middle_name',
     'last_name',
@@ -86,38 +101,78 @@ export const formDataTitleCased = (form: FormDataType) => {
     'current_insurance',
     'state_of_birth',
   ];
-  const fieldsToIgnore = [
-    'google_app_url',
-    'agent_full_name',
-    'agent_license_number',
-    'show_script',
-    'is_agent_licensed_in_state',
+  const insuredFieldsToIgnoreValue = [
+    'age',
+    'date_of_birth',
+    'ssn',
+    'dependent_gender',
+    'employment_status',
+    'occupation',
+    'height',
+    'weight',
+    'beneficiary_date_of_birth',
+    'beneficiary_age',
+    'notes',
   ];
+  const fieldsToIgnore = ['is_agent_licensed_in_state', 'eligible_americo_count', 'eligible_mutual_count'];
   return Object.entries(form).reduce((accum, [key, value]) => {
-    if (key === 'carriers') {
-      return { ...accum };
+    if (key === 'additional_insured_list' && Array.isArray(value)) {
+      const insuredArray = value;
+      const updatedInsuredArray = insuredArray.map((insuredItem) => {
+        const updatedInsuredItem: Record<string, string> = {};
+        for (const [innerKey, innerValue] of Object.entries(insuredItem)) {
+          if (!innerValue || innerKey === 'id') continue;
+          let newKey = toTitleCase(innerKey);
+          if (insuredFieldsToIgnoreValue.includes(innerKey)) {
+            let newValue = typeof innerValue !== 'string' ? innerValue.toString() : innerValue;
+            if (innerKey === 'ssn') {
+              newKey = 'SSN';
+            } else if (innerKey === 'dependent_gender') {
+              newKey = 'Gender';
+              newValue = toTitleCase(newValue);
+            } else if (innerKey === 'weight') {
+              newValue = newValue + ' lb';
+            } else if (innerKey === 'age') {
+              newValue = newValue.toString();
+            }
+            updatedInsuredItem[newKey] = newValue;
+            continue;
+          }
+          const newValue = typeof innerValue === 'string' ? toTitleCase(innerValue) : innerValue.toString();
+          updatedInsuredItem[newKey] = newValue;
+        }
+        return updatedInsuredItem;
+      });
+      return { ...accum, [key]: updatedInsuredArray };
     }
-    if (fieldsToIgnore.includes(key) && typeof value === 'string') {
+    if (value === null || value === '' || key === 'carriers' || fieldsToIgnore.includes(key)) {
       return { ...accum };
-    }
-    if (fieldsToTransform.includes(key) && typeof value === 'string') {
-      return { ...accum, [key]: toTitleCase(value) };
     }
     if (key === 'weight') {
-      const weightUnits = `${value}lbs`;
+      const weightUnits = `${value} lb`;
       return { ...accum, [key]: weightUnits };
     }
-    if (value === null || value === '') {
-      return { ...accum };
+    if (key === 'life_total_cost') {
+      const costFormat = `$${value}`;
+      return { ...accum, [key]: costFormat };
+    }
+    if (key === 'applying_for_coverage' || key === 'age') {
+      return { ...accum, [key]: value.toString() };
+    }
+    if (fieldsToTitleCase.includes(key) && typeof value === 'string') {
+      return { ...accum, [key]: toTitleCase(value) };
     }
     return { ...accum, [key]: value };
   }, {});
 };
 
 export const backupAndClearFormData = () => {
-  localStorage.setItem('backupFormData', localStorage.getItem('formData') || '');
-  localStorage.removeItem('formData');
-  window.location.reload();
+  const currentFormData = localStorage.getItem('formData') || '';
+  if (currentFormData) {
+    localStorage.setItem('backupFormData', localStorage.getItem('formData') || '');
+    localStorage.removeItem('formData');
+    window.location.reload();
+  }
 };
 
 export const restoreBackupFormData = () => {

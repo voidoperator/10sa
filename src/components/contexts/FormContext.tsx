@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, FC, ReactNode, Context, useEffect } from 'react';
-import type { FormDataType, InsuredList } from '../../types/formData';
+import React, { createContext, useContext, useState, FC, ReactNode, Context } from 'react';
 import { isBrowser } from '../../utility/utility';
+import type { FormDataType, InsuredList } from '../../types/formData';
 
 export const initialDependentState: InsuredList = {
   id: 0,
@@ -24,10 +24,6 @@ export const initialDependentState: InsuredList = {
 };
 
 export const initialFormData: FormDataType = {
-  google_app_url: '',
-  agent_full_name: '',
-  agent_license_number: '',
-  show_script: '',
   first_name: '',
   middle_name: '',
   last_name: '',
@@ -135,18 +131,6 @@ interface FormProviderProps {
 
 export const FormProvider: FC<FormProviderProps> = ({ children }) => {
   const [formData, setFormData] = useState<FormDataType>(initialFormDataFromLocalStorage);
-
-  useEffect(() => {
-    if (isBrowser()) {
-      setFormData({
-        ...formData,
-        google_app_url: window.localStorage.getItem('google_app_url') || '',
-        agent_full_name: window.localStorage.getItem('agent_full_name') || '',
-        agent_license_number: window.localStorage.getItem('agent_license_number') || '',
-        show_script: window.localStorage.getItem('show_script') || '',
-      });
-    }
-  }, []);
 
   const setFormDataSafe = (data: FormDataType | ((prevData: FormDataType) => FormDataType)) => {
     if (typeof data === 'function') {

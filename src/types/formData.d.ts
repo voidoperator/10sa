@@ -124,19 +124,6 @@ export type TextInputProps = {
   externalValue?: string;
 };
 
-export type LocalStorageInputProps = {
-  id: string;
-  name: string;
-  labelName: string;
-  placeholder: string;
-  required?: boolean;
-  uppercase?: boolean;
-  useDefault?: boolean;
-  defaultKey?: string;
-  defaultValue?: string;
-  externalValue?: string;
-};
-
 export type RadioInputProps = {
   id: number | string;
   labelName: string;
@@ -208,9 +195,18 @@ export type GroupButtonProps = {
   options: { label: string; value: string }[];
 };
 
-export type ScriptToggleProps = {
+export type DynamicOptionsType = {
+  empty: string;
+  invalid: string;
+  valid: string;
+};
+
+export type DynamicButtonProps = {
   id: string;
-  defaultOption: string;
+  check: string;
+  labelNameOptions: DynamicOptionsType;
+  pattern: RegExp;
+  handleClick: () => void;
 };
 
 export type SelectCreateableProps = {
