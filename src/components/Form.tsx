@@ -1010,7 +1010,7 @@ const Form = () => {
                         defaultOption={dependent.country_of_birth || ''}
                       />
                       {dependent.country_of_birth === 'United States Of America' && (
-                        <SelectCreateable
+                        <DropDownInput
                           id={i}
                           name='state_of_birth'
                           labelName={`${dependentFirstName} State of Birth:`}
