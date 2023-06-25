@@ -1,33 +1,7 @@
 import tw from 'tailwind-styled-components';
 import { motion } from 'framer-motion';
-
-// Toggle
-export const ToggleWrapper = tw.div`
-  px-10
-`;
-export const ToggleLabel = tw.label`
-  relative inline-flex items-center justify-center w-full h-full cursor-pointer
-`;
-export const ToggleButton = tw.div`
-  w-11 h-6 bg-gray-400 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-10sa-gold rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600
-`;
-
-// TopNav
-export const TopNavContainer = tw.nav`
-  bg-10sa-deep-purple/60 w-screen h-[50px] fixed top-0 left-0 z-[99999] border-b border-10sa-gold/10 backdrop-blur-[8px] shadow-lg shadow-10sa-purple/25
-`;
-export const NavWrapper = tw.div`
-  w-full h-full flex flex-row justify-evenly items-center
-`;
-export const PhonyAnchor = tw.div`
-  hover:opacity-60 flex items-center justify-center w-full h-full text-xs text-center transition-all duration-300 rounded-full shadow-inner cursor-pointer select-none
-`;
-export const VerticalDivider = tw.div`
-  h-[36px] w-[1px] bg-10sa-gold/30 rounded-full select-none
-`;
-export const ToggleContainer = tw.div`
-  flex flex-col items-center justify-center
-`;
+import type { StylesConfig } from 'react-select';
+import type { OptionTypes } from '../types/formData';
 
 // Globals
 export const MainLabel = tw.label`
@@ -51,11 +25,47 @@ export const ShadowDiv = tw.div`
 export const Divider = tw.div`
   h-[1px] w-full bg-10sa-gold/75 my-0 sm:my-10 hidden sm:block
 `;
+export const AgentInfoBox = tw.div`
+  flex flex-col shadow-xl border-10sa-gold/25 rounded-xl px-4 py-6 border gap-6 mt-6
+`;
 export const ScriptBox = tw(motion.div)`
   rounded-[50px] bg-purple-900 shadow-xl
 `;
-export const AgentInfoBox = tw.div`
-  flex flex-col shadow-xl border-10sa-gold/25 rounded-xl px-4 py-6 border gap-6 mt-6
+export const Break = tw(motion.br)``;
+export const MotionDiv = tw(motion.div)``;
+
+// TopNav
+export const TopNavContainer = tw.nav`
+  bg-10sa-deep-purple/60 w-screen h-[50px] fixed top-0 left-0 z-[99999] border-b border-10sa-gold/10 backdrop-blur-[8px] shadow-lg shadow-10sa-purple/25
+`;
+export const NavWrapper = tw.div`
+  w-full h-full flex flex-row justify-evenly items-center
+`;
+export const PhonyAnchor = tw.div`
+  hover:opacity-60 flex items-center justify-center w-full h-full text-xs text-center transition-all duration-300 rounded-full shadow-inner cursor-pointer select-none
+`;
+export const VerticalDivider = tw.div`
+  h-[36px] w-[1px] bg-10sa-gold/30 rounded-full select-none
+`;
+export const ToggleContainer = tw.div`
+  flex flex-col items-center justify-center
+`;
+
+// SideNav
+export const SideNavContainer = tw.div`
+  relative w-[10svw] min-h-screen
+`;
+export const SymbolContainer = tw.div`
+  flex flex-col gap-8 shadow-xl fixed top-[100px] left-8
+`;
+export const AutoSymbolContainer = tw.div`
+  flex flex-col gap-8 shadow-xl fixed bottom-8 left-8
+`;
+export const Anchor = tw.a`
+  group bg-10sa-gold transition-all rounded-full p-2 inline-flex items-center relative
+`;
+export const AnchorSpan = tw.span`
+  text-white font-semibold absolute transition-all transform -translate-x-8 -translate-y-1/2 top-1/2 w-0 overflow-hidden whitespace-nowrap group-hover:translate-x-14 group-hover:w-auto group-hover:opacity-100 opacity-0
 `;
 
 // Form
@@ -65,7 +75,7 @@ export const FormSectionContainer = tw.section`
 export const HeadingSrOnly = tw.h1`
   cursor-default text-2xl font-medium text-white text-center sr-only
 `;
-export const FormForm = tw.form`
+export const FormTag = tw.form`
   space-y-6
 `;
 export const LogoContainer = tw.div`
@@ -83,7 +93,7 @@ export const H2 = tw.h2`
 export const AddDependentContainer = tw.div`
   flex items-center justify-center gap-6
 `;
-export const RoutingContainer = tw.div`
+export const GoogleRoutingButton = tw.div`
   flex items-center justify-center gap-6
 `;
 export const AddDependentButton = tw.button`
@@ -116,23 +126,6 @@ export const SummaryLi = tw.li`
   rounded-full px-3 font-medium text-base w-32 text-white fill-white
 `;
 
-// SideNav
-export const SideNavContainer = tw.div`
-  relative w-[10svw] min-h-screen
-`;
-export const SymbolContainer = tw.div`
-  flex flex-col gap-8 shadow-xl fixed top-[100px] left-8
-`;
-export const AutoSymbolContainer = tw.div`
-  flex flex-col gap-8 shadow-xl fixed bottom-8 left-8
-`;
-export const Anchor = tw.a`
-  group bg-10sa-gold transition-all rounded-full p-2 inline-flex items-center relative
-`;
-export const AnchorSpan = tw.span`
-  text-white font-semibold absolute transition-all transform -translate-x-8 -translate-y-1/2 top-1/2 w-0 overflow-hidden whitespace-nowrap group-hover:translate-x-14 group-hover:w-auto group-hover:opacity-100 opacity-0
-`;
-
 // Index
 export const MainContainer = tw.div`
   flex items-center justify-center min-h-screen
@@ -145,6 +138,17 @@ export const StatusText = tw.p`
 `;
 export const IndexContainer = tw.div`
   flex items-start justify-between min-h-screen
+`;
+
+// Script Toggle
+export const ToggleWrapper = tw.div`
+  px-10
+`;
+export const ToggleLabel = tw.label`
+  relative inline-flex items-center justify-center w-full h-full cursor-pointer
+`;
+export const ToggleButton = tw.div`
+  w-11 h-6 bg-gray-400 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-10sa-gold rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600
 `;
 
 // DropDownInput
@@ -194,3 +198,79 @@ export const DateInputLabel = tw.label`
 export const AgeContainer = tw.p`
   text-sm text-white font-bold
 `;
+
+// Motion variants
+export const scriptBoxVariants = {
+  initial: {
+    height: 0,
+    opacity: 0,
+  },
+  visible: {
+    height: 'auto',
+    opacity: 1,
+    transition: {
+      height: {
+        duration: 0.4,
+      },
+      opacity: {
+        duration: 0.25,
+        delay: 0.15,
+      },
+    },
+  },
+  hidden: {
+    opacity: 0,
+    height: 0,
+    transition: {
+      height: {
+        duration: 0.2,
+      },
+      opacity: {
+        duration: 0.05,
+      },
+    },
+  },
+};
+
+// SelectCreatable config style
+export const creatableStyles: StylesConfig<OptionTypes> = {
+  control: (provided, state) => ({
+    ...provided,
+    background: 'rgba(80, 49, 88, 1)',
+    borderColor: state.isFocused ? 'rgba(189, 164, 114, 0.4)' : 'rgba(189, 164, 114, 0.4)',
+    borderRadius: '0.5rem',
+    color: '#FFFFFF',
+    fontSize: '0.875rem',
+    margin: '0px',
+    boxShadow: state.isFocused
+      ? 'var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) rgba(189, 164, 114, 1)'
+      : '',
+    '&:hover': {
+      borderColor: 'rgba(189, 164, 114, 0.4)',
+    },
+  }),
+  placeholder: (provided) => ({
+    ...provided,
+    color: 'rgba(156, 163, 175, 1)',
+  }),
+  singleValue: (provided) => ({
+    ...provided,
+    color: '#FFFFFF',
+  }),
+  menu: (provided) => ({
+    ...provided,
+    background: 'rgba(80, 49, 88, 1)',
+    borderRadius: '0.5rem',
+    margin: '0px',
+    padding: '0px',
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    color: state.isSelected ? 'rgba(189, 164, 114, 0.4)' : '#FFFFFF',
+    backgroundColor: state.isFocused ? 'rgba(189, 164, 114, 0.4)' : '',
+  }),
+  input: (provided) => ({
+    ...provided,
+    color: '#FFFFFF',
+  }),
+};

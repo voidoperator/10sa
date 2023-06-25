@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, FC, ReactNode, Context, useEffect } from 'react';
+import React, { createContext, useContext, useState, FC, ReactNode, Context } from 'react';
 import { isBrowser } from '../../utility/utility';
 import type { ConstantDataType } from '../../types/constantData';
 

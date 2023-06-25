@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button } from '../tw/twStyles';
+import { Button } from '../../components/TailwindStyled';
 import { DynamicButtonProps } from '../../types/formData';
 
 const DynamicButton: React.FC<DynamicButtonProps> = ({ labelNameOptions, id, check, pattern, handleClick }) => {

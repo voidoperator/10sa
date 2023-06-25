@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
+import {
+  SideNavContainer,
+  SymbolContainer,
+  Anchor,
+  AnchorSpan,
+  AutoSymbolContainer,
+} from '../../components/TailwindStyled';
 import { AmericoSymbol, HealthSherpaSymbol, MutualOfOmahaSymbol } from '../icons/NavIcons';
-import { SideNavContainer, SymbolContainer, Anchor, AnchorSpan, AutoSymbolContainer } from '../tw/twStyles';
 import { statesAbbreviation } from '../../utility/staticData';
 import { parseCurrency } from '../../utility/utility';
 
@@ -41,7 +47,7 @@ const SideNav = () => {
             additionalGender += formData.additional_insured_list[i].dependent_gender;
           }
           if (formData.additional_insured_list[i].relationship_to_primary !== '') {
-            additionalRelationship += formData.additional_insured_list[i].relationship_to_primary.toLowerCase();
+            additionalRelationship += formData.additional_insured_list[i].relationship_to_primary;
           }
           if (additionalAge !== '' && additionalGender !== '' && additionalRelationship !== '') {
             concatDependentString += `&applicants[][age]=${additionalAge}&applicants[][age_format]=years&applicants[][relationship]=${additionalRelationship}&applicants[][gender]=${additionalGender}`;

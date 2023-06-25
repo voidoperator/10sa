@@ -2,12 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
 @layer base {
   body {
     @apply scrollbar-thin scrollbar-thumb-10sa-gold scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar-track-10sa-deep-purple;
+    font-family: 'Montserrat', sans-serif;
   }
 }
 

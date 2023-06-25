@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useConstantData } from '../contexts/ConstantDataContext';
+import { ToggleWrapper, ToggleButton, ToggleLabel } from '../../components/TailwindStyled';
 import type { ConstantDataType, ScriptToggleProps } from '../../types/constantData';
-import { ToggleWrapper, ToggleButton, ToggleLabel } from '../tw/twStyles';
 
 const ScriptToggle: React.FC<ScriptToggleProps> = ({ id, defaultOption }) => {
   const { constantData, setConstantData } = useConstantData();
@@ -29,6 +29,7 @@ const ScriptToggle: React.FC<ScriptToggleProps> = ({ id, defaultOption }) => {
     <ToggleWrapper>
       <ToggleLabel>
         <input
+          aria-label='Script Toggle'
           name='script-toggle'
           type='checkbox'
           value={isChecked}

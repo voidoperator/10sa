@@ -1,7 +1,6 @@
 import zipcodeHashmap from '../../static/zip_code_database.json';
 
 export type ZipcodeDataType = {
-  zip: string;
   type: string;
   decommissioned: boolean;
   primary_city: string;

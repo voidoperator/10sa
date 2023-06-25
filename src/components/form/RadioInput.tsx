@@ -7,11 +7,12 @@ import {
   RequiredSpan,
   RadioButton,
   RadioLabel,
-} from '../tw/twStyles';
+} from '../../components/TailwindStyled';
 import type { RadioInputProps, FormDataType } from '../../types/formData';
 
 const RadioInput: React.FC<RadioInputProps> = ({
   labelName,
+  index,
   name,
   id,
   options,
@@ -56,8 +57,9 @@ const RadioInput: React.FC<RadioInputProps> = ({
         </MainLabelSpan>
       </div>
       <RadioContainer className={rowOrCol === 'row' ? 'flex-row' : 'flex-col'}>
-        {options.map((option, index) => {
+        {options.map((option, i) => {
           const { label, value, disabled = false } = option;
+          const uniqueId = additional ? `${name}_${index}_${i + 1}` : `${name}_${index}_${i + 1}`;
           let isChecked = false;
           if (additional && typeof id === 'number') {
             isChecked = value.toString() === (formData.additional_insured_list[id] as any)[name];
@@ -65,19 +67,18 @@ const RadioInput: React.FC<RadioInputProps> = ({
             isChecked = value.toString() === formData[name as keyof FormDataType];
           }
           return (
-            <div key={index}>
+            <div key={`${name}_${i}`}>
               <RadioButton
-                key={`${name}_${index + 1}`}
-                type='radio'
-                id={`${name}_${index + 1}`}
+                id={uniqueId}
                 name={name}
+                type='radio'
                 value={value.toString()}
                 required={required}
                 checked={isChecked}
                 onChange={(e) => handleChange(e)}
                 disabled={disabled}
               />
-              <RadioLabel htmlFor={`${name}_${index + 1}`}>{label}</RadioLabel>
+              <RadioLabel htmlFor={uniqueId}>{label}</RadioLabel>
             </div>
           );
         })}

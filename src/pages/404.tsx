@@ -1,6 +1,6 @@
 import React from 'react';
 import Seo from '../components/Seo';
-import { MainContainer, MainWrapper, StatusText } from '../components/tw/twStyles';
+import { MainContainer, MainWrapper, StatusText } from '../components/TailwindStyled';
 
 const NotFoundPage = () => {
   return (

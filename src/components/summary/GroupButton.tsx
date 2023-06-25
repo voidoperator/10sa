@@ -1,6 +1,12 @@
 import React, { useEffect } from 'react';
 import { useFormData } from '../contexts/FormContext';
-import { RequiredSpan, ShadowDiv, MainLabelSpan, GroupButtonContainer, GroupButtonButton } from '../tw/twStyles';
+import {
+  RequiredSpan,
+  ShadowDiv,
+  MainLabelSpan,
+  GroupButtonContainer,
+  GroupButtonButton,
+} from '../../components/TailwindStyled';
 import type { FormDataType, GroupButtonProps } from '../../types/formData';
 
 const GroupButton: React.FC<GroupButtonProps> = ({ labelName, name, id, defaultOption, options, required = true }) => {

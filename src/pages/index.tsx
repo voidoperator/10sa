@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { FormProvider } from '../components/contexts/FormContext';
 import { ConstantDataProvider } from '../components/contexts/ConstantDataContext';
-import { MainContainer, MainWrapper, StatusText, IndexContainer } from '../components/tw/twStyles';
+import { MainContainer, MainWrapper, StatusText, IndexContainer } from '../components/TailwindStyled';
 import Seo from '../components/Seo';
 import TopNav from '../components/nav/TopNav';
 import SideNav from '../components/nav/SideNav';
-import Form from '../components/form/Form';
-import Summary from '../components/form/Summary';
+import Form from '../components/Form';
+import Summary from '../components/summary/Summary';
 
 const index = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);

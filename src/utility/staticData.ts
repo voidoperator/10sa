@@ -1173,7 +1173,7 @@ export const employmentOptions: OptionTypes[] = [
   },
   {
     label: 'Retired',
-    value: 'retired',
+    value: 'Retired',
   },
   {
     label: 'Stay-at-home',

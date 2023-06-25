@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
-import { MainLabel, RequiredSpan, ShadowDiv, TextArea } from '../tw/twStyles';
+import { MainLabel, RequiredSpan, ShadowDiv, TextArea } from '../../components/TailwindStyled';
 import type { TextAreaProps } from '../../types/formData';
 
 const TextAreaInput: React.FC<TextAreaProps> = ({

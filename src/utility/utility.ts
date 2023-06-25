@@ -73,7 +73,7 @@ export const toTitleCase = (string: string) => {
   });
 };
 
-export const formatFormData = (form: FormDataType) => {
+export const sanatizeFormData = (form: FormDataType) => {
   const fieldsToTitleCase = [
     'first_name',
     'middle_name',
@@ -115,8 +115,10 @@ export const formatFormData = (form: FormDataType) => {
     'notes',
   ];
   const fieldsToIgnore = ['is_agent_licensed_in_state', 'eligible_americo_count', 'eligible_mutual_count'];
+  const clearAdditionals = form.additional_insured === 'no';
   return Object.entries(form).reduce((accum, [key, value]) => {
     if (key === 'additional_insured_list' && Array.isArray(value)) {
+      if (clearAdditionals) return { ...accum };
       const insuredArray = value;
       const updatedInsuredArray = insuredArray.map((insuredItem) => {
         const updatedInsuredItem: Record<string, string> = {};

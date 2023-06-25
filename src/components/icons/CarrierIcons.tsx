@@ -4,7 +4,6 @@ const carrierIconsMapper = {
   None: NoneIcon,
   Aetna: AetnaIcon,
   Ambetter: AmbetterIcon,
-  // "Arizona": ArizonaIcon,
   Avmed: AvmedIcon,
   'BlueCross BlueShield': BlueCrossBlueShieldIcon,
   Cigna: CignaIcon,

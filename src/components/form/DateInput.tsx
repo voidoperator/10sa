@@ -4,7 +4,13 @@ import Datepicker from 'react-tw-datepicker';
 import { calculateAge } from '../../utility/utility';
 import type { DateValueType } from 'react-tw-datepicker/dist/types';
 import type { DateInputProps, DateValue } from '../../types/formData';
-import { ShadowDiv, DateInputLabelContainer, DateInputLabel, RequiredSpan, AgeContainer } from '../tw/twStyles';
+import {
+  ShadowDiv,
+  DateInputLabelContainer,
+  DateInputLabel,
+  RequiredSpan,
+  AgeContainer,
+} from '../../components/TailwindStyled';
 
 const datePickerInputClasses =
   'form-input w-full border text-sm rounded-lg bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white';

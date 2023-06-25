@@ -1,7 +1,13 @@
 import React from 'react';
 import { useConstantData } from '../contexts/ConstantDataContext';
-import ScriptToggle from '../form/ScriptToggle';
-import { NavWrapper, PhonyAnchor, VerticalDivider, ToggleContainer, TopNavContainer } from '../tw/twStyles';
+import ScriptToggle from '../local/ScriptToggle';
+import {
+  NavWrapper,
+  PhonyAnchor,
+  VerticalDivider,
+  ToggleContainer,
+  TopNavContainer,
+} from '../../components/TailwindStyled';
 
 const sections = ['Agent', 'Customer', 'Health', 'Quote', 'Disclosure', 'Closure', 'Beneficiary', 'Payment'];
 

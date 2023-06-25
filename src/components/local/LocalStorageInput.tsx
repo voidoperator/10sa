@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useConstantData } from '../contexts/ConstantDataContext';
-import { MainLabel, RequiredSpan, ShadowDiv, TextField } from '../tw/twStyles';
+import { MainLabel, RequiredSpan, ShadowDiv, TextField } from '../../components/TailwindStyled';
 import type { LocalStorageInputProps } from '../../types/constantData';
 
 const LocalStorageInput: React.FC<LocalStorageInputProps> = ({

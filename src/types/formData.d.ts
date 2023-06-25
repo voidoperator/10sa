@@ -126,6 +126,7 @@ export type TextInputProps = {
 
 export type RadioInputProps = {
   id: number | string;
+  index?: number;
   labelName: string;
   name: string;
   options: { label: string; value: string; disabled?: boolean }[];
@@ -215,6 +216,7 @@ export type SelectCreateableProps = {
   name: string;
   placeholder: string;
   options: { label: string; value: string }[];
+  creatable?: boolean;
   required?: boolean;
   additional?: boolean;
   defaultOption?: string | undefined;
