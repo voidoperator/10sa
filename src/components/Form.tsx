@@ -665,9 +665,11 @@ const Form = () => {
               { label: 'No', value: 'no' },
             ]}
           />
-          <Script>
-            {`In order to qualify for Obama Care you can only have one active insurance at a time. So do you plan to cancel your current insurance?`}
-          </Script>
+          {formData.current_insurance === 'yes' && (
+            <Script>
+              {`In order to qualify for Obama Care you can only have one active insurance at a time. So do you plan to cancel your current insurance?`}
+            </Script>
+          )}
           <Script>{`Can I please have your zip code so I can see what plans are available in your area?`}</Script>
           <TextInput
             labelName='Zip Code:'
@@ -1409,7 +1411,7 @@ const Form = () => {
             {`Also with ${formData?.carrier_name || '{Carrier Name}'} all Preventative Care is absolutely free!`}
             <Break />
             <Break />
-            {`Which means that all your checkups, immunizations, screenings basically anything to keep you healthy is 100% free of charge. Does that make sense?`}
+            {`Which means that all your checkups, immunizations, screenings... basically anything to keep you healthy is 100% free of charge. Does that make sense?`}
             <Break />
             <Break />
             {`For your Primary Doctor you have a set copay of ${formData?.pcp_copay || '${PCP Copay}'} per visit.`}
