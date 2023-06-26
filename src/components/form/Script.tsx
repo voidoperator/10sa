@@ -4,7 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 import { useConstantData } from '../contexts/ConstantDataContext';
 import type { ScriptProps } from '../../types/constantData';
 
-const Script: React.FC<ScriptProps> = ({ children }) => {
+const Script: React.FC<ScriptProps> = ({ children, important = false }) => {
   const { constantData } = useConstantData();
   const [isVisible, setIsVisible] = useState<boolean>(false);
 
@@ -16,7 +16,7 @@ const Script: React.FC<ScriptProps> = ({ children }) => {
     <AnimatePresence>
       {isVisible && (
         <MotionDiv key='ScriptBox' variants={scriptBoxVariants} initial='initial' animate='visible' exit='hidden'>
-          <ScriptBox>
+          <ScriptBox className={important ? 'bg-[#f7c11f] text-black font-semibold' : 'bg-purple-900'}>
             <MotionDiv className='p-8'>{children}</MotionDiv>
           </ScriptBox>
         </MotionDiv>

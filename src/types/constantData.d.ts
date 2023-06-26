@@ -25,4 +25,5 @@ export type LocalStorageInputProps = {
 
 export type ScriptProps = {
   children: React.ReactNode;
+  important?: boolean;
 };

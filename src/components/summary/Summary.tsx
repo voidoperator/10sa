@@ -108,7 +108,7 @@ const Summary = () => {
                 </ShadowDiv>
                 <ShadowDiv>
                   {'Americo amount: $'}
-                  {formData.life_total_cost}
+                  {formData.life_total_cost.toFixed(2)}
                 </ShadowDiv>
               </>
             )}
@@ -120,7 +120,7 @@ const Summary = () => {
                 </ShadowDiv>
                 <ShadowDiv>
                   {'Mutual of Omaha amount: $'}
-                  {formData.life_total_cost}
+                  {formData.life_total_cost.toFixed(2)}
                 </ShadowDiv>
               </>
             )}

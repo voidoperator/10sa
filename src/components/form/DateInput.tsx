@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
 import Datepicker from 'react-tw-datepicker';
-import { calculateAge } from '../../utility/utility';
+import { calculateAge, isBrowser } from '../../utility/utility';
 import type { DateValueType } from 'react-tw-datepicker/dist/types';
-import type { DateInputProps, DateValue } from '../../types/formData';
+import type { DateInputProps, DateValue, FormDataType } from '../../types/formData';
 import {
   ShadowDiv,
   DateInputLabelContainer,
@@ -33,6 +33,8 @@ const DateInput: React.FC<DateInputProps> = ({
     startDate: null,
     endDate: null,
   });
+
+  const formatId = additional && typeof id === 'number' ? name + '_' + (id + 1) : name;
 
   useEffect(() => {
     if (!additional && useDefault && defaultKey && defaultValue && value.startDate === null && value.endDate === null) {
@@ -112,12 +114,50 @@ const DateInput: React.FC<DateInputProps> = ({
     }
   };
 
-  const formatId = additional && typeof id === 'number' ? name + '_' + (id + 1) : name;
+  useEffect(() => {
+    const datePicker = document.getElementById(formatId) as HTMLInputElement;
+
+    const observer = new MutationObserver(function () {
+      if (datePicker && datePicker.value === '') {
+        if (!additional && (formData.date_of_birth || formData[ageKey as keyof FormDataType])) {
+          setFormData((prevState) => ({ ...prevState, date_of_birth: '', [ageKey]: null }));
+          setValue({ startDate: null, endDate: null });
+          setUserAge(null);
+        }
+        if (additional && typeof id === 'number') {
+          const dependentIndex = id;
+
+          let additionalInsuredList = formData.additional_insured_list || [];
+
+          additionalInsuredList[dependentIndex] = {
+            ...additionalInsuredList[dependentIndex],
+            id: dependentIndex,
+            [defaultKey]: '',
+            [ageKey]: null,
+          };
+
+          setFormData((prevState) => ({ ...prevState, additional_insured_list: additionalInsuredList }));
+          setValue({ startDate: null, endDate: null });
+          setUserAge(null);
+        }
+      }
+    });
+
+    const config = { attributes: true, childList: true, characterData: true, subtree: true };
+
+    if (datePicker) {
+      observer.observe(datePicker, config);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [formatId, additional, formData, ageKey, setFormData]);
 
   return (
     <ShadowDiv>
       <DateInputLabelContainer>
-        <DateInputLabel htmlFor={formatId} className=''>
+        <DateInputLabel htmlFor={formatId}>
           {labelName}
           {required && <RequiredSpan />}
         </DateInputLabel>

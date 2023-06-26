@@ -130,6 +130,13 @@ const Form = () => {
   }, [formData.employment_status]);
 
   useEffect(() => {
+    if (!formData.date_of_birth || !formData.age === null) return;
+    if (formData.date_of_birth === '') {
+      setFormData((prevState) => ({ ...prevState, age: null }));
+    }
+  }, [formData.date_of_birth]);
+
+  useEffect(() => {
     if (!formData.life_adb_provider) return;
     const init = '';
     if (formData.life_adb_provider === 'mutual') {
@@ -158,9 +165,9 @@ const Form = () => {
       const coverageAmount = parseInt(formData.mutual_face_amount.replace(/[^0-9]/g, ''), 10) || 0;
       const multiplier = (coverageAmount - 50000) / 10000;
       if (formData.mutual_quote_gender === 'male') {
-        mutual_of_omaha_premium = 10.29 + multiplier * 1.18;
+        mutual_of_omaha_premium = 10.289 + multiplier * 1.1811;
       } else if (formData.mutual_quote_gender === 'female') {
-        mutual_of_omaha_premium = 7.53 + multiplier * 0.63;
+        mutual_of_omaha_premium = 7.529 + multiplier * 0.6301;
       }
       mutual_of_omaha_premium = parseFloat(mutual_of_omaha_premium.toFixed(2));
     }
@@ -726,6 +733,7 @@ const Form = () => {
             <Break />
             {`Do you have an active bank account?`}
           </Script>
+          <Script>{`What has you looking for coverage today?`}</Script>
           <TextAreaInput
             labelName='Why are they looking for coverage?'
             name='coverage_reason'
@@ -920,10 +928,10 @@ const Form = () => {
             formData.additional_insured === 'yes' &&
             formData.additional_insured_list?.map((dependent, i) => {
               const dependentFirstName = dependent.full_name
-                ? toTitleCase(dependent.full_name.split(' ')[0])
+                ? `${toTitleCase(dependent.full_name.split(' ')[0])}'s`
                 : `Dependent ${i + 1}`;
               const beneficiaryFirstName = dependent.beneficiary_full_name
-                ? toTitleCase(dependent.beneficiary_full_name.split(' ')[0])
+                ? `${toTitleCase(dependent.beneficiary_full_name.split(' ')[0])}'s`
                 : 'Beneficiary';
               const beneficiaryRelationshipLabel = `${
                 beneficiaryFirstName + "'s"
@@ -1379,7 +1387,9 @@ const Form = () => {
             <>
               <DetailConfirmation
                 detail={formData.life_health_unsubsidized}
-                labelName={`Life & Health Unsubsidized (Health: ${formData?.health_unsubsidized} + Life: $${formData?.life_total_cost}):`}
+                labelName={`Life & Health Unsubsidized (Health: ${
+                  formData?.health_unsubsidized
+                } + Life: $${formData?.life_total_cost.toFixed(2)}):`}
                 id='life_health_unsubsidized'
                 name='life_health_unsubsidized'
               />
@@ -1604,7 +1614,18 @@ const Form = () => {
               { label: 'Citizen', value: 'citizen' },
             ]}
           />
-          <Script>{`What is your weight and height?`}</Script>
+          <Script>{`What is your height and weight?`}</Script>
+          <TextInput
+            labelName="Primary's Height:"
+            name='height'
+            id='height'
+            placeholder="Ex. 5'11"
+            type='text'
+            pattern="^(\d{0,1})'(\d{0,2})$"
+            height={true}
+            defaultKey='height'
+            defaultValue={formData?.height || ''}
+          />
           <TextInput
             labelName="Primary's Weight:"
             name='weight'
@@ -1617,17 +1638,15 @@ const Form = () => {
             defaultKey='weight'
             defaultValue={formData?.weight || ''}
           />
-          <TextInput
-            labelName="Primary's Height:"
-            name='height'
-            id='height'
-            placeholder="Ex. 5'11"
-            type='text'
-            pattern="^(\d{0,1})'(\d{0,2})$"
-            height={true}
-            defaultKey='height'
-            defaultValue={formData?.height || ''}
-          />
+          <Script important>
+            {`Great thank you.`}
+            <Break />
+            <Break />
+            {`So due to new federal marketplace regulations I'm required to email you a Docusign document that you'll have to sign authorizing us to enroll you in this plan on your behalf.`}
+            <Break />
+            <Break />
+            {`If you could check your email, sign it, and let me know when you're done, we'll be ready to proceed.`}
+          </Script>
           <Script>
             {`Okay, so that the Medical Information Bureau can identify your medical records, they will cross check what we have reviewed here to determine your eligibility and approval with ${
               toTitleCase(formData?.carrier_name) || '{Carrier Name}'
@@ -1809,7 +1828,7 @@ const Form = () => {
             {`${formData?.carrier_name || '{Carrier Name}'} Health portion unsubsidized is ${
               formData?.health_unsubsidized || '{Health Unsubsidized}'
             }. And ${toTitleCase(formData?.life_adb_provider) || '{Life ADB Provider}'} Death benefit portion is ${
-              formData?.life_total_cost ? `$${formData?.life_total_cost}` : '{Life Total Cost}'
+              formData?.life_total_cost ? `$${formData?.life_total_cost.toFixed(2)}` : '{Life Total Cost}'
             }.`}
             <Break />
             <Break />

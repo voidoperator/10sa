@@ -68,8 +68,7 @@ const Input: React.FC<Props> = (e: Props) => {
         (e: React.ChangeEvent<HTMLInputElement>) => {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            let value = event.target.value;
-
+            let value = e.target.value;
             // Remove non-digits and limit to 8 characters
             value = value.replace(/\D/g, "").substring(0, 8);
 

@@ -29,7 +29,7 @@ export const AgentInfoBox = tw.div`
   flex flex-col shadow-xl border-10sa-gold/25 rounded-xl px-4 py-6 border gap-6 mt-6
 `;
 export const ScriptBox = tw(motion.div)`
-  rounded-[50px] bg-purple-900 shadow-xl
+  rounded-[50px] shadow-xl
 `;
 export const Break = tw(motion.br)``;
 export const MotionDiv = tw(motion.div)``;
