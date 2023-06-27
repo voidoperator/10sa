@@ -1,8 +1,4 @@
 export type FormDataType = {
-  google_app_url?: string;
-  agent_full_name?: string;
-  agent_license_number?: string;
-  show_script?: string;
   first_name: string;
   middle_name?: string;
   last_name: string;
@@ -74,6 +70,7 @@ export type FormDataType = {
   eligible_mutual_count: number;
   claims_dependents: string;
   carriers: Carrier[];
+  plan_summary_pdf: string;
   is_agent_licensed_in_state: string;
 };
 

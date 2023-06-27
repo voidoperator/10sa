@@ -95,6 +95,7 @@ export const initialFormData: FormDataType = {
   eligible_mutual_count: 0,
   claims_dependents: '',
   carriers: [],
+  plan_summary_pdf: '',
   is_agent_licensed_in_state: '',
 };
 

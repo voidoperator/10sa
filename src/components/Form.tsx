@@ -60,13 +60,14 @@ import {
   getRoutingNumbers,
   parseCurrency,
 } from '../utility/utility';
-import type { Carrier, OptionTypes } from '../types/formData';
+import type { Carrier, FormDataType, OptionTypes } from '../types/formData';
 
 const Form = () => {
   // State management
   const { formData, setFormData } = useFormData();
   const { constantData } = useConstantData();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isSendingEmail, setIsSendingEmail] = useState<boolean>(false);
   const [successful, setSuccessful] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -439,7 +440,7 @@ const Form = () => {
         setCopied(true);
         setTimeout(() => {
           setCopied(false);
-        }, 4000);
+        }, 5000);
       })
       .catch((err) => console.log(`Could not copy text: ${err}`));
   };
@@ -448,7 +449,39 @@ const Form = () => {
     e.preventDefault();
     if (!constantData.google_app_url) return;
     setIsSubmitting(true);
-    const formatData = sanatizeFormData(formData);
+    // Format formData
+    const formatData = sanatizeFormData(formData) as FormDataType;
+
+    // Auto send email to client data
+    const agentName = toTitleCase(constantData.agent_full_name || '');
+    const informationalLink =
+      formData.life_adb_provider === 'americo'
+        ? 'https://www.10sa.org/AmericoInformational.pdf'
+        : 'https://cdn.mutualofomaha.com/mutualofomaha/documents/pdfs/newsroom/mutual-of-omaha-overview-2022.pdf';
+    let phonePretty;
+    let phoneHref;
+    if (constantData.agent_phone_number) {
+      let formatPhonePretty = constantData.agent_phone_number.split('-');
+      const [area = '', three = '', four = ''] = formatPhonePretty;
+      phonePretty = `(${area}) ${three}-${four}`;
+      phoneHref = `${area}${three}${four}`;
+    }
+
+    // Parse information for email
+    const emailData = {
+      customerEmail: formatData.email,
+      customerFirstName: formatData.first_name,
+      carrierName: formatData.carrier_name,
+      adbProviderName: formatData.life_adb_provider,
+      monthlyGrandTotal: formatData.monthly_grand_total,
+      planSummaryLink: formatData.plan_summary_pdf,
+      adbInformationalLink: informationalLink,
+      agentFullName: agentName,
+      agentPhoneNumberPretty: phonePretty,
+      agentPhoneNumberHref: phoneHref,
+      agentEmail: constantData.agent_email,
+      agentLicenseNumber: constantData.agent_license_number,
+    };
     const baseUrl = constantData.google_app_url;
     try {
       const response = await fetch(baseUrl, {
@@ -456,15 +489,14 @@ const Form = () => {
         body: JSON.stringify(formatData),
       });
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        setError(true);
+        setErrorMessage(`HTTP error! status: ${response.status}`);
+        setTimeout(() => {
+          setErrorMessage('');
+          setError(false);
+        }, 8000);
       }
-      backupAndClearFormData();
-      setIsSubmitting(false);
-      setSuccessful(true);
       handleCopyToClipboard();
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
     } catch (error: any) {
       setErrorMessage(error.toString());
       setIsSubmitting(false);
@@ -472,7 +504,42 @@ const Form = () => {
       setTimeout(() => {
         setErrorMessage('');
         setError(false);
-      }, 4000);
+      }, 5000);
+    }
+    setIsSendingEmail(true);
+    try {
+      const response = await fetch('/api/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(emailData),
+      });
+      if (!response.ok) {
+        setError(true);
+        setIsSendingEmail(false);
+        setIsSubmitting(false);
+        setErrorMessage('Failed to send email. Please send it manually.');
+        setTimeout(() => {
+          setErrorMessage('');
+          setError(false);
+        }, 8000);
+      }
+      backupAndClearFormData();
+      setIsSubmitting(false);
+      setIsSendingEmail(false);
+      setSuccessful(true);
+      setTimeout(() => {
+        window.location.reload();
+      }, 6000);
+    } catch (error: any) {
+      setErrorMessage(error.toString());
+      setIsSubmitting(false);
+      setError(true);
+      setTimeout(() => {
+        setErrorMessage('');
+        setError(false);
+      }, 5000);
     }
   };
 
@@ -487,13 +554,18 @@ const Form = () => {
         body: mockFormData,
       });
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        setError(true);
+        setErrorMessage(`HTTP error! status: ${response.status}`);
+        setTimeout(() => {
+          setErrorMessage('');
+          setError(false);
+        }, 8000);
       }
       setIsSubmitting(false);
       setSuccessful(true);
       setTimeout(() => {
         window.location.reload();
-      }, 2000);
+      }, 6000);
     } catch (error: any) {
       setErrorMessage(error.toString());
       setIsSubmitting(false);
@@ -501,7 +573,7 @@ const Form = () => {
       setTimeout(() => {
         setErrorMessage('');
         setError(false);
-      }, 4000);
+      }, 5000);
     }
   };
 
@@ -515,11 +587,20 @@ const Form = () => {
       </MainContainer>
     );
 
+  if (isSendingEmail)
+    return (
+      <MainContainer>
+        <MainWrapper>
+          <StatusText>Sending email to customer...</StatusText>
+        </MainWrapper>
+      </MainContainer>
+    );
+
   if (successful)
     return (
       <MainContainer>
         <MainWrapper>
-          <StatusText>Successfully posted to Google!</StatusText>
+          <StatusText>Posted to Google Sheets & Emailed client!</StatusText>
         </MainWrapper>
       </MainContainer>
     );
@@ -590,6 +671,26 @@ const Form = () => {
             defaultKey='agent_license_number'
             defaultValue={constantData?.agent_license_number || ''}
             externalValue={constantData?.agent_license_number}
+          />
+          <LocalStorageInput
+            labelName='Agent Phone Number:'
+            name='agent_phone_number'
+            id='agent_phone_number'
+            placeholder='Ex. 305-786-5555'
+            defaultKey='agent_phone_number'
+            defaultValue={constantData?.agent_phone_number || ''}
+            externalValue={constantData?.agent_phone_number}
+            phone={true}
+          />
+          <LocalStorageInput
+            labelName='Agent Email:'
+            name='agent_email'
+            id='agent_email'
+            placeholder='Ex. agent@insurance.com'
+            defaultKey='agent_email'
+            uppercase={false}
+            defaultValue={constantData?.agent_email || ''}
+            externalValue={constantData?.agent_email}
           />
         </AgentInfoBox>
       </>
@@ -1324,6 +1425,16 @@ const Form = () => {
             defaultKey='max_out_of_pocket'
             defaultValue={formData?.max_out_of_pocket || ''}
           />
+          <TextInput
+            labelName='(FOR AGENT) URL TO PLAN PDF:'
+            name='plan_summary_pdf'
+            id='plan_summary_pdf'
+            placeholder='Ex. http://bcbsfl.com/2129.pdf'
+            type='text'
+            defaultKey='plan_summary_pdf'
+            uppercase={false}
+            defaultValue={formData?.plan_summary_pdf || ''}
+          />
         </>
         {/* Disclosure */}
         <>
@@ -1589,13 +1700,12 @@ const Form = () => {
           {formData.country_of_birth === 'United States Of America' && (
             <>
               <Script>{`What state were you born in?`}</Script>
-              <SelectCreateable
+              <DropDownInput
                 id={'state_of_birth'}
                 name='state_of_birth'
                 labelName={`${primaryName}'s State of Birth:`}
                 placeholder='Please select a state...'
                 options={unitedStates}
-                defaultOption={formData?.state_of_birth || ''}
               />
             </>
           )}

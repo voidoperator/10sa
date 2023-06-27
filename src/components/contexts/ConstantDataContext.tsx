@@ -6,6 +6,8 @@ export const initialLocalStorageState: ConstantDataType = {
   google_app_url: '',
   agent_full_name: '',
   agent_license_number: '',
+  agent_phone_number: '',
+  agent_email: '',
   show_script: '',
 };
 

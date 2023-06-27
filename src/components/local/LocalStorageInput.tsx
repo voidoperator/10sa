@@ -9,6 +9,7 @@ const LocalStorageInput: React.FC<LocalStorageInputProps> = ({
   labelName,
   placeholder,
   name,
+  phone = false,
   required = true,
   uppercase = true,
   useDefault = true,
@@ -34,6 +35,19 @@ const LocalStorageInput: React.FC<LocalStorageInputProps> = ({
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let value = event.target.value;
+
+    if (phone) {
+      value = value.replace(/\D/g, '');
+      if (value.length > 10) {
+        value = value.substring(0, 10);
+      }
+      const match = value.match(/^(\d{0,3})(\d{0,3})(\d{0,4})$/);
+      if (match) {
+        value = `${match[1] ? match[1] : ''}${match[2] ? '-' + match[2] : ''}${match[3] ? '-' + match[3] : ''}`;
+        value = value.trim().replace(/-$/, '');
+      }
+    }
+
     setValue(value);
     setConstantData((prevState) => ({ ...prevState, [defaultKey]: value }));
   };
