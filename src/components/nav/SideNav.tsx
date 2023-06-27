@@ -7,10 +7,12 @@ import {
   Anchor,
   AnchorSpan,
   AutoSymbolContainer,
+  DownloadsContainer,
 } from '../../components/TailwindStyled';
 import { AmericoSymbol, HealthSherpaSymbol, MutualOfOmahaSymbol } from '../icons/NavIcons';
 import { statesAbbreviation } from '../../utility/staticData';
 import { parseCurrency } from '../../utility/utility';
+import { DownloadAutoSherpaIcon } from '../icons/DownloadAutoSherpaIcon';
 
 const SideNav = () => {
   const { formData, setFormData } = useFormData();
@@ -70,13 +72,13 @@ const SideNav = () => {
   return (
     <SideNavContainer>
       <SymbolContainer>
-        <Anchor href='https://www.healthsherpa.com/' target='_blank'>
+        <Anchor rel='noopener noreferrer' href='https://www.healthsherpa.com/' target='_blank'>
           <HealthSherpaSymbol twClasses='z-10 w-10 bg-10sa-gold rounded-full' />
           <AnchorSpan style={{ transition: 'width 0.5s ease, transform 0.5s ease, opacity 2s ease' }}>
             HealthSherpa
           </AnchorSpan>
         </Anchor>
-        <Anchor href='https://tools.americoagent.com/' target='_blank'>
+        <Anchor rel='noopener noreferrer' href='https://tools.americoagent.com/' target='_blank'>
           <AmericoSymbol twClasses='z-10 w-10 bg-10sa-gold rounded-full' />
           <AnchorSpan style={{ transition: 'width 0.5s ease, transform 0.5s ease, opacity 2s ease' }}>
             Americo
@@ -84,6 +86,7 @@ const SideNav = () => {
         </Anchor>
         <Anchor
           href='https://producer.mutualofomaha.com/enterprise/portal/!ut/p/z1/hY7BDoIwEES_hQNXdiMWibdGE1HxLO7FgKkFUygplf6-jXoxEZ3b7ryZDBAUQF05NrK0je5K5e8TJefVhmfzRY6YstkaOe6zlLE4xgOD4z-AvI0T4ujz9ESmGrbJG_jRsQOSSlevubyr4lQCGXEVRpjobvy7trYfliGG6JyLpNZSieii2xC_RWo9WCg-SejbAm9MjTkPgge1lLo5/dz/d5/L2dBISEvZ0FBIS9nQSEh/'
+          rel='noopener noreferrer'
           target='_blank'
         >
           <MutualOfOmahaSymbol twClasses='z-10 w-10 bg-10sa-gold rounded-full fill-mutual' />
@@ -92,6 +95,23 @@ const SideNav = () => {
           </AnchorSpan>
         </Anchor>
       </SymbolContainer>
+      <DownloadsContainer>
+        <Anchor
+          href='https://github.com/voidoperator/10sa-autosherpa/releases/download/v0.1/AuthoSherpa.zip'
+          rel='noopener noreferrer'
+          target='_blank'
+          className='bg-transparent'
+          title='Download AutoSherpa'
+        >
+          <DownloadAutoSherpaIcon twClasses='z-10 w-10 rounded-full fill-white/75 hover:fill-white transition-all duration-500' />
+          {/* <AnchorSpan
+            className='text-xs'
+            style={{ transition: 'width 0.5s ease, transform 0.5s ease, opacity 2s ease' }}
+          >
+            AutoSherpa Download
+          </AnchorSpan> */}
+        </Anchor>
+      </DownloadsContainer>
       {formData.zip_code &&
         formData.state &&
         formData.gender &&
@@ -100,7 +120,12 @@ const SideNav = () => {
         formData.age !== null &&
         formData.age > -1 && (
           <AutoSymbolContainer>
-            <Anchor href={customLink} target='_blank' className='rounded-xl bottom-0 bg-white'>
+            <Anchor
+              rel='noopener noreferrer'
+              href={customLink}
+              target='_blank'
+              className='rounded-xl bottom-0 bg-white'
+            >
               <HealthSherpaSymbol twClasses='z-10 w-10 bg-white rounded-full' />
               <AnchorSpan style={{ transition: 'width 0.5s ease, transform 0.5s ease, opacity 2s ease' }}>
                 AutoSherpa

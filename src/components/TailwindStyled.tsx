@@ -67,6 +67,9 @@ export const Anchor = tw.a`
 export const AnchorSpan = tw.span`
   text-white font-semibold absolute transition-all transform -translate-x-8 -translate-y-1/2 top-1/2 w-0 overflow-hidden whitespace-nowrap group-hover:translate-x-14 group-hover:w-auto group-hover:opacity-100 opacity-0
 `;
+export const DownloadsContainer = tw.div`
+  flex flex-col gap-8 shadow-xl fixed top-1/2 left-8
+`;
 
 // Form
 export const FormSectionContainer = tw.section`
