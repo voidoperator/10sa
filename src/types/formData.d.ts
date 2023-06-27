@@ -154,7 +154,6 @@ export type DropDownInputProps = {
   labelName: string;
   name: string;
   placeholder: string;
-  defaultOption: string;
   options: { label: string; value: string }[];
   required?: boolean;
   additional?: boolean;

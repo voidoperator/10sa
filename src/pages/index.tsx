@@ -8,14 +8,23 @@ import SideNav from '../components/nav/SideNav';
 import Form from '../components/Form';
 import Summary from '../components/summary/Summary';
 
-const index = () => {
+const Index = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [windowWidth, setWindowWidth] = useState(640);
 
   useEffect(() => {
-    const windowWidth = window.innerWidth;
-    setIsMobile(windowWidth < 640);
+    const handleResize = () => setWindowWidth(window.innerWidth);
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    setIsMobile(windowWidth < 640);
+  }, [windowWidth]);
 
   useEffect(() => {
     setIsLoading(false);
@@ -35,7 +44,10 @@ const index = () => {
       <MainContainer>
         <MainWrapper>
           <StatusText className='text-sm'>
-            Your screen is too small for this application. Please use a desktop device.
+            Your screen is too small for this application.
+            <br />
+            <br />
+            Please use a desktop device.
           </StatusText>
         </MainWrapper>
       </MainContainer>
@@ -45,7 +57,7 @@ const index = () => {
     return (
       <ConstantDataProvider>
         <FormProvider>
-          <Seo subtitle='Script Lead Form' />
+          <Seo subtitle='Lead Form' />
           <IndexContainer>
             <TopNav />
             <SideNav />
@@ -57,4 +69,4 @@ const index = () => {
     );
 };
 
-export default index;
+export default Index;

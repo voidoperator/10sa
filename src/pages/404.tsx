@@ -6,9 +6,9 @@ const NotFoundPage = () => {
   return (
     <MainContainer>
       <Seo subtitle='404: Not Found' />
-      <MainWrapper>
+      <MainWrapper className='flex-col gap-6'>
         <StatusText>404: Not Found</StatusText>
-        <StatusText>You just hit a route that doesn&#39;t exist... the sadness.</StatusText>
+        <StatusText>You just found a path that doesn&#39;t exist... the sadness.</StatusText>
       </MainWrapper>
     </MainContainer>
   );

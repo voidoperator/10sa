@@ -8,7 +8,6 @@ const DropDownInput: React.FC<DropDownInputProps> = ({
   name,
   id,
   placeholder,
-  defaultOption,
   options,
   required = true,
   additional = false,

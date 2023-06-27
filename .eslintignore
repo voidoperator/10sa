@@ -3,8 +3,6 @@ dist
 public
 .cache
 *.log
-gatsby-types.d.ts
-dist
 
 .pnp.*
 .yarn/*

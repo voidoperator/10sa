@@ -1,4 +1,4 @@
-import zipcodeHashmap from '../../static/zip_code_database.json';
+import zipcodeHashmap from './zip_code_database.json';
 
 export type ZipcodeDataType = {
   type: string;

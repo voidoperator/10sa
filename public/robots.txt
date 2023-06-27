@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /admin
+Disallow: /private
+Disallow: /search
+Sitemap: https://10sa.org/sitemap.xml

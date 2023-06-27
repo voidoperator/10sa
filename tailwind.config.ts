@@ -1,11 +1,7 @@
 import type { Config } from 'tailwindcss';
 
 export default {
-  content: [
-    './src/pages/**/*.{js,jsx,ts,tsx}',
-    './src/components/**/*.{js,jsx,ts,tsx}',
-    './lib/react-tw-datepicker/dist/index.esm.js',
-  ],
+  content: ['./src/pages/**/*.{js,jsx,ts,tsx}', './src/components/**/*.{js,jsx,ts,tsx}'],
   theme: {
     screens: {
       sm: '640px',

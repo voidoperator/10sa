@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
-import Datepicker from 'react-tw-datepicker';
+import Datepicker from '../datepicker';
 import { calculateAge, isBrowser } from '../../utility/utility';
-import type { DateValueType } from 'react-tw-datepicker/dist/types';
+import type { DateValueType } from '../datepicker/types';
 import type { DateInputProps, DateValue, FormDataType } from '../../types/formData';
 import {
   ShadowDiv,
@@ -81,6 +81,7 @@ const DateInput: React.FC<DateInputProps> = ({
       };
       setFormData((prevState) => ({ ...prevState, additional_insured_list: additionalInsuredList }));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [useDefault, defaultKey, defaultValue, value]);
 
   const handleValueChange = (newDate: DateValueType, e?: HTMLInputElement | null) => {
@@ -114,45 +115,31 @@ const DateInput: React.FC<DateInputProps> = ({
     }
   };
 
-  useEffect(() => {
-    const datePicker = document.getElementById(formatId) as HTMLInputElement;
-
-    const observer = new MutationObserver(function () {
-      if (datePicker && datePicker.value === '') {
-        if (!additional && (formData.date_of_birth || formData[ageKey as keyof FormDataType])) {
-          setFormData((prevState) => ({ ...prevState, date_of_birth: '', [ageKey]: null }));
-          setValue({ startDate: null, endDate: null });
-          setUserAge(null);
-        }
-        if (additional && typeof id === 'number') {
-          const dependentIndex = id;
-
-          let additionalInsuredList = formData.additional_insured_list || [];
-
-          additionalInsuredList[dependentIndex] = {
-            ...additionalInsuredList[dependentIndex],
-            id: dependentIndex,
-            [defaultKey]: '',
-            [ageKey]: null,
-          };
-
-          setFormData((prevState) => ({ ...prevState, additional_insured_list: additionalInsuredList }));
-          setValue({ startDate: null, endDate: null });
-          setUserAge(null);
-        }
+  const handleInputChange = (value: string) => {
+    if (value === '') {
+      if (!additional && (formData.date_of_birth || formData[ageKey as keyof FormDataType])) {
+        setFormData((prevState) => ({ ...prevState, date_of_birth: '', [ageKey]: null }));
+        setValue({ startDate: null, endDate: null });
+        setUserAge(null);
       }
-    });
+      if (additional && typeof id === 'number') {
+        const dependentIndex = id;
 
-    const config = { attributes: true, childList: true, characterData: true, subtree: true };
+        let additionalInsuredList = formData.additional_insured_list || [];
 
-    if (datePicker) {
-      observer.observe(datePicker, config);
+        additionalInsuredList[dependentIndex] = {
+          ...additionalInsuredList[dependentIndex],
+          id: dependentIndex,
+          [defaultKey]: '',
+          [ageKey]: null,
+        };
+
+        setFormData((prevState) => ({ ...prevState, additional_insured_list: additionalInsuredList }));
+        setValue({ startDate: null, endDate: null });
+        setUserAge(null);
+      }
     }
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [formatId, additional, formData, ageKey, setFormData]);
+  };
 
   return (
     <ShadowDiv>
@@ -165,6 +152,7 @@ const DateInput: React.FC<DateInputProps> = ({
         {value.startDate && userAge !== null && userAge < 0 && showAge && <AgeContainer>Invalid Date</AgeContainer>}
       </DateInputLabelContainer>
       <Datepicker
+        onValueChange={handleInputChange}
         inputId={formatId}
         showFooter={true}
         maxDate={new Date(Date.now())}

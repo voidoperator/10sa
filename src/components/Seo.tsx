@@ -1,6 +1,5 @@
-import * as React from 'react';
-import { Helmet } from 'react-helmet';
-import { useStaticQuery, graphql } from 'gatsby';
+import React from 'react';
+import Head from 'next/head';
 
 interface SeoProps {
   subtitle?: string;
@@ -14,20 +13,6 @@ interface Meta {
 }
 
 const Seo = ({ subtitle, lang = 'en', meta }: SeoProps) => {
-  const { metadata } = useStaticQuery(
-    graphql`
-      query metadataQuery {
-        metadata: contentfulSiteMetadata {
-          title
-          description
-        }
-      }
-    `,
-  );
-
-  const title = metadata.title;
-  const description = metadata.description;
-
   let typeSafeMeta: Array<Meta>;
   if (meta instanceof Array) {
     typeSafeMeta = meta;
@@ -35,37 +20,25 @@ const Seo = ({ subtitle, lang = 'en', meta }: SeoProps) => {
     typeSafeMeta = [];
   }
 
+  const pageTitle = subtitle ? ` || ${subtitle}` : '';
+
   return (
-    <Helmet
-      htmlAttributes={{
-        lang,
-      }}
-      title={title}
-      titleTemplate={title ? `${title} || ${subtitle}` : '10 Steps Ahead || Lead Form'}
-      meta={[
-        {
-          name: `description`,
-          content: description,
-        },
-        {
-          property: `og:title`,
-          content: title,
-        },
-        {
-          property: `og:description`,
-          content: description,
-        },
-        {
-          name: 'theme-color',
-          content: '#0f0f0f',
-        },
-        {
-          property: `og:type`,
-          content: `website`,
-        },
-        ...typeSafeMeta,
-      ]}
-    />
+    <Head>
+      <html lang={lang} />
+      <title>{`10 Steps Ahead${pageTitle}`}</title>
+      <meta name='description' content='10 Steps Ahead' />
+      <meta property='og:title' content='10 Steps Ahead' />
+      <meta property='og:description' content={`10 Steps Ahead${pageTitle}`} />
+      <meta name='theme-color' content='#0f0f0f' />
+      <meta property='og:type' content='website' />
+      {typeSafeMeta.map((metaItem, index) => {
+        return metaItem.name ? (
+          <meta name={metaItem.name} content={metaItem.content} key={index} />
+        ) : (
+          <meta property={metaItem.property} content={metaItem.content} key={index} />
+        );
+      })}
+    </Head>
   );
 };
 

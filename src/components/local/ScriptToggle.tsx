@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { useConstantData } from '../contexts/ConstantDataContext';
 import { ToggleWrapper, ToggleButton, ToggleLabel } from '../../components/TailwindStyled';

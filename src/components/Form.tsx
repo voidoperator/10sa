@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { useFormData, initialDependentState } from './contexts/FormContext';
 import { useConstantData } from './contexts/ConstantDataContext';
@@ -714,7 +715,6 @@ const Form = () => {
             labelName='State:'
             placeholder='Please select a state...'
             options={unitedStates}
-            defaultOption={formData?.state || ''}
           />
           <TextInput
             labelName='City:'
@@ -724,8 +724,8 @@ const Form = () => {
             type='text'
             useDefault={true}
             defaultKey='city'
-            defaultValue={zipcodeData?.primary_city || ''}
-            externalValue={zipcodeData?.primary_city}
+            defaultValue={formData?.city || ''}
+            externalValue={formData?.city}
           />
           <Script>
             {`Just a disclaimer that you do need a bank account in order to qualify.`}
@@ -758,7 +758,6 @@ const Form = () => {
             labelName={`${primaryName}'s Employment Status:`}
             placeholder='Please select an employment status...'
             options={employmentOptions}
-            defaultOption={formData?.employment_status || ''}
           />
           {formData.employment_status === 'Employed' && <Script>{`And what is your current occupation?`}</Script>}
           {(formData.employment_status === 'Retired' || formData.employment_status === 'Unemployed') && (
@@ -1027,7 +1026,6 @@ const Form = () => {
                           placeholder='Please select a state...'
                           additional={true}
                           options={unitedStates}
-                          defaultOption={dependent.state_of_birth || ''}
                         />
                       )}
                       <DropDownInput
@@ -1037,7 +1035,6 @@ const Form = () => {
                         placeholder='Please select an employment status...'
                         additional={true}
                         options={employmentOptions}
-                        defaultOption={dependent.employment_status || ''}
                       />
                       {(dependent.employment_status === 'Employed' ||
                         dependent.employment_status === 'Retired' ||
