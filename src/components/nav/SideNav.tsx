@@ -97,19 +97,13 @@ const SideNav = () => {
       </SymbolContainer>
       <DownloadsContainer>
         <Anchor
-          href='https://github.com/voidoperator/10sa-autosherpa/releases/download/v0.1/AuthoSherpa.zip'
+          href='https://github.com/voidoperator/10sa-autosherpa/releases/download/v0.2/AuthoSherpa.zip'
           rel='noopener noreferrer'
           target='_blank'
           className='bg-transparent'
           title='Download AutoSherpa'
         >
           <DownloadAutoSherpaIcon twClasses='z-10 w-10 rounded-full fill-white/75 hover:fill-white transition-all duration-500' />
-          {/* <AnchorSpan
-            className='text-xs'
-            style={{ transition: 'width 0.5s ease, transform 0.5s ease, opacity 2s ease' }}
-          >
-            AutoSherpa Download
-          </AnchorSpan> */}
         </Anchor>
       </DownloadsContainer>
       {formData.zip_code &&
