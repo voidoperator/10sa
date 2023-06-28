@@ -10,7 +10,7 @@ import {
   DateInputLabel,
   RequiredSpan,
   AgeContainer,
-} from '../../components/TailwindStyled';
+} from '@/components/TailwindStyled';
 
 const datePickerInputClasses =
   'form-input w-full border text-sm rounded-lg bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white';

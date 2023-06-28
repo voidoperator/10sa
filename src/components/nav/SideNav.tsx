@@ -8,7 +8,7 @@ import {
   AnchorSpan,
   AutoSymbolContainer,
   DownloadsContainer,
-} from '../../components/TailwindStyled';
+} from '@/components/TailwindStyled';
 import { AmericoSymbol, HealthSherpaSymbol, MutualOfOmahaSymbol } from '../icons/NavIcons';
 import { statesAbbreviation } from '../../utility/staticData';
 import { parseCurrency } from '../../utility/utility';

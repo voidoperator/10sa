@@ -7,7 +7,7 @@ import {
   VerticalDivider,
   ToggleContainer,
   TopNavContainer,
-} from '../../components/TailwindStyled';
+} from '@/components/TailwindStyled';
 
 const sections = ['Agent', 'Customer', 'Health', 'Quote', 'Disclosure', 'Closure', 'Beneficiary', 'Payment'];
 

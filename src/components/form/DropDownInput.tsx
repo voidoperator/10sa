@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFormData } from '../contexts/FormContext';
-import { ShadowDiv, MainLabel, RequiredSpan, Select } from '../../components/TailwindStyled';
+import { ShadowDiv, MainLabel, RequiredSpan, Select } from '@/components/TailwindStyled';
 import type { DropDownInputProps, FormDataType, InsuredList } from '../../types/formData';
 
 const DropDownInput: React.FC<DropDownInputProps> = ({

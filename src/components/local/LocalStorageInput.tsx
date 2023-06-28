@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { useConstantData } from '../contexts/ConstantDataContext';
-import { MainLabel, RequiredSpan, ShadowDiv, TextField } from '../../components/TailwindStyled';
+import { MainLabel, RequiredSpan, ShadowDiv, TextField } from '@/components/TailwindStyled';
 import type { LocalStorageInputProps } from '../../types/constantData';
 
 const LocalStorageInput: React.FC<LocalStorageInputProps> = ({

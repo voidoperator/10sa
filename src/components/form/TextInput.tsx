@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
-import { MainLabel, RequiredSpan, ShadowDiv, TextField } from '../../components/TailwindStyled';
+import { MainLabel, RequiredSpan, ShadowDiv, TextField } from '@/components/TailwindStyled';
 import type { TextInputProps } from '../../types/formData';
 
 const TextInput: React.FC<TextInputProps> = ({

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import Head from 'next/head';
 import { FormProvider } from '../components/contexts/FormContext';
 import { ConstantDataProvider } from '../components/contexts/ConstantDataContext';
 import { MainContainer, MainWrapper, StatusText, IndexContainer } from '../components/TailwindStyled';
-import Seo from '../components/Seo';
 import TopNav from '../components/nav/TopNav';
 import SideNav from '../components/nav/SideNav';
 import Form from '../components/Form';
@@ -33,6 +33,9 @@ const Index = () => {
   if (isLoading)
     return (
       <MainContainer>
+        <Head>
+          <title>10 Steps Ahead || Loading</title>
+        </Head>
         <MainWrapper>
           <StatusText>Loading...</StatusText>
         </MainWrapper>
@@ -42,6 +45,9 @@ const Index = () => {
   if (!isLoading && isMobile)
     return (
       <MainContainer>
+        <Head>
+          <title>10 Steps Ahead</title>
+        </Head>
         <MainWrapper>
           <StatusText className='text-sm'>
             Your screen is too small for this application.
@@ -57,7 +63,9 @@ const Index = () => {
     return (
       <ConstantDataProvider>
         <FormProvider>
-          <Seo subtitle='Lead Form' />
+          <Head>
+            <title>10 Steps Ahead || Lead Form</title>
+          </Head>
           <IndexContainer>
             <TopNav />
             <SideNav />

@@ -6,7 +6,7 @@ import {
   MainLabelSpan,
   GroupButtonContainer,
   GroupButtonButton,
-} from '../../components/TailwindStyled';
+} from '@/components/TailwindStyled';
 import type { FormDataType, GroupButtonProps } from '../../types/formData';
 
 const GroupButton: React.FC<GroupButtonProps> = ({ labelName, name, id, defaultOption, options, required = true }) => {

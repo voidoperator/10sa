@@ -10,9 +10,9 @@ import DateInput from './form/DateInput';
 import DetailConfirmation from './form/DetailConfirmation';
 import SelectCreateable from './form/SelectCreateable';
 import Script from './form/Script';
-import DynamicButton from './local/DynamicButton';
+import DynamicButton from './form/DynamicButton';
 import LocalStorageInput from './local/LocalStorageInput';
-import { getZipcodeData, ZipcodeDataType } from '../utility/getZipcodeData';
+import { getZipcodeData, ZipcodeDataType } from '@/utility/getZipcodeData';
 import { TenStepsAheadLogo } from './icons/TenStepsAheadLogo';
 import { MutualOfOmahaIcon } from './icons/MutualOfOmahaIcon';
 import { AmericoIcon } from './icons/AmericoIcon';
@@ -405,6 +405,25 @@ const Form = () => {
   }, [formData.life_total_cost, formData.health_unsubsidized]);
 
   // Function handlers
+  const handleEmailDisableButton = () => {
+    if (
+      formData &&
+      formData.monthly_grand_total &&
+      formData.plan_summary_pdf &&
+      formData.email &&
+      formData.life_adb_provider &&
+      formData.first_name &&
+      formData.carrier_name &&
+      constantData.agent_email &&
+      constantData.agent_full_name &&
+      constantData.agent_license_number &&
+      constantData.agent_phone_number
+    ) {
+      return false;
+    }
+    return true;
+  };
+
   const handleHouseholdCheck = () => {
     const { household_size } = formData;
     if (Number(household_size) <= (formData.additional_insured_list?.length ?? 0) + 1) {
@@ -445,10 +464,10 @@ const Form = () => {
       .catch((err) => console.log(`Could not copy text: ${err}`));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleEmailCustomer = async () => {
     if (!constantData.google_app_url) return;
-    setIsSubmitting(true);
+    setIsSendingEmail(true);
+
     // Format formData
     const formatData = sanatizeFormData(formData) as FormDataType;
 
@@ -482,31 +501,7 @@ const Form = () => {
       agentEmail: constantData.agent_email,
       agentLicenseNumber: constantData.agent_license_number,
     };
-    const baseUrl = constantData.google_app_url;
-    try {
-      const response = await fetch(baseUrl, {
-        method: 'POST',
-        body: JSON.stringify(formatData),
-      });
-      if (!response.ok) {
-        setError(true);
-        setErrorMessage(`HTTP error! status: ${response.status}`);
-        setTimeout(() => {
-          setErrorMessage('');
-          setError(false);
-        }, 8000);
-      }
-      handleCopyToClipboard();
-    } catch (error: any) {
-      setErrorMessage(error.toString());
-      setIsSubmitting(false);
-      setError(true);
-      setTimeout(() => {
-        setErrorMessage('');
-        setError(false);
-      }, 5000);
-    }
-    setIsSendingEmail(true);
+
     try {
       const response = await fetch('/api/email', {
         method: 'POST',
@@ -516,22 +511,44 @@ const Form = () => {
         body: JSON.stringify(emailData),
       });
       if (!response.ok) {
-        setError(true);
-        setIsSendingEmail(false);
-        setIsSubmitting(false);
-        setErrorMessage('Failed to send email. Please send it manually.');
-        setTimeout(() => {
-          setErrorMessage('');
-          setError(false);
-        }, 8000);
+        const data = await response.json();
+        throw new Error(` emailing client... ${data.error}`);
       }
-      backupAndClearFormData();
-      setIsSubmitting(false);
       setIsSendingEmail(false);
       setSuccessful(true);
       setTimeout(() => {
-        window.location.reload();
+        setSuccessful(false);
+      }, 4000);
+    } catch (error: any) {
+      setErrorMessage(error.toString());
+      setIsSendingEmail(false);
+      setError(true);
+      setTimeout(() => {
+        setErrorMessage('');
+        setError(false);
       }, 6000);
+    }
+  };
+
+  const handlePostToGoogle = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!constantData.google_app_url) return;
+    setIsSubmitting(true);
+    const formatDataJson = sanatizeFormData(formData) as FormDataType;
+    const baseUrl = constantData.google_app_url;
+    try {
+      const response = await fetch(baseUrl, {
+        method: 'POST',
+        body: JSON.stringify(formatDataJson),
+      });
+      if (!response.ok) {
+        throw new Error(`Error posting to Google: ${response.status}`);
+      }
+      setIsSubmitting(false);
+      setSuccessful(true);
+      setTimeout(() => {
+        setSuccessful(false);
+      }, 4000);
     } catch (error: any) {
       setErrorMessage(error.toString());
       setIsSubmitting(false);
@@ -539,7 +556,7 @@ const Form = () => {
       setTimeout(() => {
         setErrorMessage('');
         setError(false);
-      }, 5000);
+      }, 6000);
     }
   };
 
@@ -554,18 +571,13 @@ const Form = () => {
         body: mockFormData,
       });
       if (!response.ok) {
-        setError(true);
-        setErrorMessage(`HTTP error! status: ${response.status}`);
-        setTimeout(() => {
-          setErrorMessage('');
-          setError(false);
-        }, 8000);
+        throw new Error(`Error posting to Google: ${response.status}`);
       }
       setIsSubmitting(false);
       setSuccessful(true);
       setTimeout(() => {
-        window.location.reload();
-      }, 6000);
+        setSuccessful(false);
+      }, 4000);
     } catch (error: any) {
       setErrorMessage(error.toString());
       setIsSubmitting(false);
@@ -573,7 +585,7 @@ const Form = () => {
       setTimeout(() => {
         setErrorMessage('');
         setError(false);
-      }, 5000);
+      }, 6000);
     }
   };
 
@@ -600,7 +612,7 @@ const Form = () => {
     return (
       <MainContainer>
         <MainWrapper>
-          <StatusText>Posted to Google Sheets & Emailed client!</StatusText>
+          <StatusText>Success!</StatusText>
         </MainWrapper>
       </MainContainer>
     );
@@ -694,7 +706,7 @@ const Form = () => {
           />
         </AgentInfoBox>
       </>
-      <FormTag autoComplete='off' autoCapitalize='on' onSubmit={handleSubmit}>
+      <FormTag autoComplete='off' autoCapitalize='on' onSubmit={handlePostToGoogle}>
         {/* Customer Details */}
         <>
           <Divider />
@@ -1978,9 +1990,12 @@ const Form = () => {
         <>
           <Divider />
           <ButtonContainer>
-            <Button type='submit'>Submit</Button>
-            <Button type='button' onClick={handleCopyToClipboard}>
-              {copied ? 'Succesfully copied!' : 'Copy for Extension'}
+            <Button type='submit'>Send to Google Sheets</Button>
+            <Button type='button' onClick={handleEmailCustomer} disabled={handleEmailDisableButton()}>
+              Email Customer
+            </Button>
+            <Button type='button' onClick={handleCopyToClipboard} disabled={!formData}>
+              {copied ? 'Succesfully copied!' : 'Copy for AutoMerico'}
             </Button>
           </ButtonContainer>
         </>

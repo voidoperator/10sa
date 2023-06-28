@@ -115,10 +115,8 @@ export const sanatizeFormData = (form: FormDataType) => {
     'notes',
   ];
   const fieldsToIgnore = ['is_agent_licensed_in_state', 'eligible_americo_count', 'eligible_mutual_count'];
-  const clearAdditionals = form.additional_insured === 'no';
   return Object.entries(form).reduce((accum, [key, value]) => {
     if (key === 'additional_insured_list' && Array.isArray(value)) {
-      if (clearAdditionals) return { ...accum };
       const insuredArray = value;
       const updatedInsuredArray = insuredArray.map((insuredItem) => {
         const updatedInsuredItem: Record<string, string> = {};

@@ -2,7 +2,7 @@ import React from 'react';
 import Select from 'react-select';
 import Creatable from 'react-select/creatable';
 import { useFormData } from '../contexts/FormContext';
-import { creatableStyles, MainLabel, RequiredSpan, ShadowDiv } from '../../components/TailwindStyled';
+import { creatableStyles, MainLabel, RequiredSpan, ShadowDiv } from '@/components/TailwindStyled';
 import type { OnChangeValue } from 'react-select';
 import type { SelectCreateableProps, OptionTypes } from '../../types/formData';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFormData } from '../contexts/FormContext';
-import { SummarySection, SummaryContainer, SummaryUl, SummaryLi, ShadowDiv } from '../../components/TailwindStyled';
+import { SummarySection, SummaryContainer, SummaryUl, SummaryLi, ShadowDiv } from '@/components/TailwindStyled';
 import GroupButton from './GroupButton';
 import TextInput from '../form/TextInput';
 import RadioInput from '../form/RadioInput';

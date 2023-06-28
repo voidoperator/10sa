@@ -25,7 +25,7 @@ const DynamicButton: React.FC<DynamicButtonProps> = ({ labelNameOptions, id, che
   }, [check]);
 
   return (
-    <Button id={id} onClick={handleClick} disabled={disabled}>
+    <Button id={id} onClick={handleClick} disabled={disabled} type='button'>
       {dynamicLabel}
     </Button>
   );
