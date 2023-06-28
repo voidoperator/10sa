@@ -501,6 +501,7 @@ const Form = () => {
       agentEmail: constantData.agent_email,
       agentLicenseNumber: constantData.agent_license_number,
     };
+
     try {
       const response = await fetch('/api/email', {
         method: 'POST',
@@ -1039,10 +1040,10 @@ const Form = () => {
             formData.additional_insured === 'yes' &&
             formData.additional_insured_list?.map((dependent, i) => {
               const dependentFirstName = dependent.full_name
-                ? `${toTitleCase(dependent.full_name.split(' ')[0])}'s`
+                ? `${toTitleCase(dependent.full_name.split(' ')[0])}`
                 : `Dependent ${i + 1}`;
               const beneficiaryFirstName = dependent.beneficiary_full_name
-                ? `${toTitleCase(dependent.beneficiary_full_name.split(' ')[0])}'s`
+                ? `${toTitleCase(dependent.beneficiary_full_name.split(' ')[0])}`
                 : 'Beneficiary';
               const beneficiaryRelationshipLabel = `${
                 beneficiaryFirstName + "'s"
@@ -1079,7 +1080,7 @@ const Form = () => {
                   <RadioInput
                     id={i}
                     index={i}
-                    labelName={`${dependentFirstName} Gender:`}
+                    labelName={`${dependentFirstName + "'s"} Gender:`}
                     name='dependent_gender'
                     additional={true}
                     options={[
@@ -1090,7 +1091,7 @@ const Form = () => {
                   <RadioInput
                     id={i}
                     index={i}
-                    labelName={`${dependentFirstName} Relationship to Primary`}
+                    labelName={`${dependentFirstName + "'s"} Relationship to Primary`}
                     name='relationship_to_primary'
                     additional={true}
                     options={[
@@ -1100,7 +1101,7 @@ const Form = () => {
                   />
                   <DateInput
                     id={i}
-                    labelName={`${dependentFirstName} Date of Birth:`}
+                    labelName={`${dependentFirstName + "'s"} Date of Birth:`}
                     name='date_of_birth'
                     additional={true}
                     ageKey='age'
@@ -1109,7 +1110,7 @@ const Form = () => {
                   />
                   <TextInput
                     id={i}
-                    labelName={`${dependentFirstName} Social Security Number:`}
+                    labelName={`${dependentFirstName + "'s"} Social Security Number:`}
                     name='ssn'
                     placeholder='Ex. 123-45-6789'
                     type='text'
@@ -1124,7 +1125,7 @@ const Form = () => {
                       <SelectCreateable
                         id={i}
                         name='country_of_birth'
-                        labelName={`${dependentFirstName} Country of Birth:`}
+                        labelName={`${dependentFirstName + "'s"} Country of Birth:`}
                         placeholder='Please select a country...'
                         additional={true}
                         options={countries}
@@ -1134,7 +1135,7 @@ const Form = () => {
                         <DropDownInput
                           id={i}
                           name='state_of_birth'
-                          labelName={`${dependentFirstName} State of Birth:`}
+                          labelName={`${dependentFirstName + "'s"} State of Birth:`}
                           placeholder='Please select a state...'
                           additional={true}
                           options={unitedStates}
@@ -1142,7 +1143,7 @@ const Form = () => {
                       )}
                       <DropDownInput
                         id={i}
-                        labelName={`${dependentFirstName} Employment Status:`}
+                        labelName={`${dependentFirstName + "'s"} Employment Status:`}
                         name='employment_status'
                         placeholder='Please select an employment status...'
                         additional={true}
@@ -1163,7 +1164,7 @@ const Form = () => {
                       )}
                       <TextInput
                         id={i}
-                        labelName={`${dependentFirstName} Weight:`}
+                        labelName={`${dependentFirstName + "'s"} Weight:`}
                         name='weight'
                         placeholder='Ex. 150 lb'
                         type='text'
@@ -1176,7 +1177,7 @@ const Form = () => {
                       />
                       <TextInput
                         id={i}
-                        labelName={`${dependentFirstName} Height:`}
+                        labelName={`${dependentFirstName + "'s"} Height:`}
                         name='height'
                         placeholder="Ex. 5'11"
                         type='text'
