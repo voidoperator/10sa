@@ -501,7 +501,6 @@ const Form = () => {
       agentEmail: constantData.agent_email,
       agentLicenseNumber: constantData.agent_license_number,
     };
-
     try {
       const response = await fetch('/api/email', {
         method: 'POST',
