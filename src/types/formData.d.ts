@@ -243,7 +243,6 @@ export type Carrier =
   | 'None'
   | 'Aetna'
   | 'Ambetter'
-  | 'Arizona'
   | 'Avmed'
   | 'BlueCross BlueShield'
   | 'Cigna'

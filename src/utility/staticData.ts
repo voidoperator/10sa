@@ -126,7 +126,7 @@ export const preferredCarriers: PreferredCarriers = {
   iowa: ['Oscar'],
   kansas: ['Aetna', 'Cigna', 'Oscar'],
   kentucky: ['None'],
-  louisiana: ['Ambetter', 'Arizona', 'UnitedHealthcare (UHC)'],
+  louisiana: ['Ambetter', 'UnitedHealthcare (UHC)'],
   maine: ['None'],
   maryland: ['UnitedHealthcare (UHC)'],
   massachusetts: ['None'],
@@ -150,7 +150,7 @@ export const preferredCarriers: PreferredCarriers = {
   rhode_island: ['None'],
   south_carolina: ['Aetna', 'Ambetter', 'BlueCross BlueShield', 'Cigna', 'Molina', 'UnitedHealthcare (UHC)'],
   south_dakota: ['None'],
-  tennessee: ['Aetna', 'Ambetter', 'Arizona', 'Oscar', 'UnitedHealthcare (UHC)'],
+  tennessee: ['Aetna', 'Ambetter', 'Oscar', 'UnitedHealthcare (UHC)'],
   texas: [
     'Aetna',
     'Ambetter',
