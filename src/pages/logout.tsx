@@ -95,7 +95,6 @@ const Logout = () => {
             break;
         }
       } else {
-        console.log('here');
         console.error(error);
       }
     }

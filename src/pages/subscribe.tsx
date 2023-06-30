@@ -27,11 +27,11 @@ const Payment = () => {
       const userSID = value.data()?.SID;
       const cookieSID = Cookies.get('SID');
       if (userSID !== cookieSID) {
-        auth.signOut().then(() => router.push('/login'));
+        auth.signOut().then(() => router.push('/'));
         return;
       }
       if (userIsPremium) {
-        router.push('/');
+        router.push('/form');
         return;
       }
     }

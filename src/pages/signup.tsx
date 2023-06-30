@@ -62,7 +62,7 @@ const SignUp = () => {
       const cookieSID = Cookies.get('SID');
       if (userSID === cookieSID) {
         if (userIsPremium) {
-          router.push('/');
+          router.push('/form');
           return;
         }
         router.push('/subscribe');
