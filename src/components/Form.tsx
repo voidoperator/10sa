@@ -49,7 +49,7 @@ import {
   banks,
   routingNumbers,
   mockJsonData,
-} from '../utility/staticData';
+} from '@/utility/staticData';
 import {
   toTitleCase,
   sanatizeFormData,
@@ -59,8 +59,8 @@ import {
   getDayWithSuffix,
   getRoutingNumbers,
   parseCurrency,
-} from '../utility/utility';
-import type { Carrier, FormDataType, OptionTypes } from '../types/formData';
+} from '@/utility/utility';
+import type { Carrier, FormDataType, OptionTypes } from '@/types/formData';
 
 const Form = () => {
   // State management

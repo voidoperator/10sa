@@ -5,7 +5,7 @@ import GroupButton from './GroupButton';
 import TextInput from '../form/TextInput';
 import RadioInput from '../form/RadioInput';
 import { CarrierIcon, CarrierIconKey } from '../icons/CarrierIcons';
-import { toTitleCase } from '../../utility/utility';
+import { toTitleCase } from '@/utility/utility';
 
 const Summary = () => {
   const { formData } = useFormData();

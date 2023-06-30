@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
 import Datepicker from '../datepicker';
-import { calculateAge, isBrowser } from '../../utility/utility';
+import { calculateAge, isBrowser } from '@/utility/utility';
 import type { DateValueType } from '../datepicker/types';
-import type { DateInputProps, DateValue, FormDataType } from '../../types/formData';
+import type { DateInputProps, DateValue, FormDataType } from '@/types/formData';
 import {
   ShadowDiv,
   DateInputLabelContainer,

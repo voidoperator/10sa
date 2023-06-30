@@ -1,7 +1,21 @@
 import tw from 'tailwind-styled-components';
 import { motion } from 'framer-motion';
 import type { StylesConfig } from 'react-select';
-import type { OptionTypes } from '../types/formData';
+import type { OptionTypes } from '@/types/formData';
+
+// Auth Form
+export const GenericContainer = tw.div`
+  block
+`;
+export const ErrorLabelContainer = tw.div`
+  absolute flex items-center justify-end top-0 left-1/2
+`;
+export const ErrorText = tw.span`
+  bg-[#e05823] px-3 py-2 rounded-lg text-white text-sm font-medium absolute left-1/2 bottom-full -translate-x-1/2 -translate-y-2 whitespace-nowrap pointer-events-none
+`;
+export const ErrorLabelArrow = tw.span`
+  before:content-[""] absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full border-8 border-solid border-transparent border-t-[#e05823]
+`;
 
 // Globals
 export const MainLabel = tw.label`

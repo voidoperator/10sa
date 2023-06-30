@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { MotionDiv, ScriptBox, scriptBoxVariants } from '@/components/TailwindStyled';
 import { AnimatePresence } from 'framer-motion';
 import { useConstantData } from '../contexts/ConstantDataContext';
-import type { ScriptProps } from '../../types/constantData';
+import type { ScriptProps } from '@/types/constantData';
 
 const Script: React.FC<ScriptProps> = ({ children, important = false }) => {
   const { constantData } = useConstantData();

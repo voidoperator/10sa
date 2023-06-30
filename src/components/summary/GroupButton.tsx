@@ -7,7 +7,7 @@ import {
   GroupButtonContainer,
   GroupButtonButton,
 } from '@/components/TailwindStyled';
-import type { FormDataType, GroupButtonProps } from '../../types/formData';
+import type { FormDataType, GroupButtonProps } from '@/types/formData';
 
 const GroupButton: React.FC<GroupButtonProps> = ({ labelName, name, id, defaultOption, options, required = true }) => {
   const { formData, setFormData } = useFormData();

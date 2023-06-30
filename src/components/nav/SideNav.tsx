@@ -10,8 +10,8 @@ import {
   DownloadsContainer,
 } from '@/components/TailwindStyled';
 import { AmericoSymbol, HealthSherpaSymbol, MutualOfOmahaSymbol } from '../icons/NavIcons';
-import { statesAbbreviation } from '../../utility/staticData';
-import { parseCurrency } from '../../utility/utility';
+import { statesAbbreviation } from '@/utility/staticData';
+import { parseCurrency } from '@/utility/utility';
 import { DownloadAutoSherpaIcon } from '../icons/DownloadAutoSherpaIcon';
 
 const SideNav = () => {

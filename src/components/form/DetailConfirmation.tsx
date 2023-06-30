@@ -1,6 +1,6 @@
 import React from 'react';
 import { ShadowDiv, MainLabel, MainLabelSpan, SubLabel, SubLabelSpan } from '@/components/TailwindStyled';
-import type { DetailConfirmationProps } from '../../types/formData';
+import type { DetailConfirmationProps } from '@/types/formData';
 
 const DetailConfirmation: React.FC<DetailConfirmationProps> = ({
   id,

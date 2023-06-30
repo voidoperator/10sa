@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, FC, ReactNode, Context } from 'react';
-import { isBrowser } from '../../utility/utility';
-import type { FormDataType, InsuredList } from '../../types/formData';
+import { isBrowser } from '@/utility/utility';
+import type { FormDataType, InsuredList } from '@//types/formData';
 
 export const initialDependentState: InsuredList = {
   id: 0,

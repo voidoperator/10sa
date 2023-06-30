@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useConstantData } from '../contexts/ConstantDataContext';
 import { ToggleWrapper, ToggleButton, ToggleLabel } from '@/components/TailwindStyled';
-import type { ConstantDataType, ScriptToggleProps } from '../../types/constantData';
+import type { ConstantDataType, ScriptToggleProps } from '@/types/constantData';
 
 const ScriptToggle: React.FC<ScriptToggleProps> = ({ id, defaultOption }) => {
   const { constantData, setConstantData } = useConstantData();

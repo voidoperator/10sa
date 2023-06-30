@@ -8,7 +8,7 @@ import {
   RadioButton,
   RadioLabel,
 } from '@/components/TailwindStyled';
-import type { RadioInputProps, FormDataType } from '../../types/formData';
+import type { RadioInputProps, FormDataType } from '@/types/formData';
 
 const RadioInput: React.FC<RadioInputProps> = ({
   labelName,
