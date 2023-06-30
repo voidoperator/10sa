@@ -59,22 +59,21 @@ const Index = () => {
       </MainContainer>
     );
 
-  if (!isLoading && !isMobile)
-    return (
-      <ConstantDataProvider>
-        <FormProvider>
-          <Head>
-            <title>10 Steps Ahead || Lead Form</title>
-          </Head>
-          <IndexContainer>
-            <TopNav />
-            <SideNav />
-            <Form />
-            <Summary />
-          </IndexContainer>
-        </FormProvider>
-      </ConstantDataProvider>
-    );
+  return (
+    <ConstantDataProvider>
+      <FormProvider>
+        <Head>
+          <title>10 Steps Ahead || Lead Form</title>
+        </Head>
+        <IndexContainer>
+          <TopNav />
+          <SideNav />
+          <Form />
+          <Summary />
+        </IndexContainer>
+      </FormProvider>
+    </ConstantDataProvider>
+  );
 };
 
 export default Index;
