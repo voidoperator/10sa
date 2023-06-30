@@ -54,29 +54,31 @@ const Login = () => {
 
   const router = useRouter();
   const [user] = useAuthState(auth);
-  const userIsPremium = usePremiumStatus(user ? user : null);
+  const [userIsPremium, loadingPremium] = usePremiumStatus(user ? user : null);
 
-  const uid = user?.uid;
-  const userDocRef = uid ? doc(db, 'users', uid) : undefined;
+  // const userIsPremium = usePremiumStatus(user ? user : null);
 
-  const [value, loadingDoc] = useDocument(userDocRef, {
-    snapshotListenOptions: { includeMetadataChanges: true },
-  });
+  // const uid = user?.uid;
+  // const userDocRef = uid ? doc(db, 'users', uid) : undefined;
 
-  useEffect(() => {
-    if (!loadingDoc && value?.exists) {
-      const userSID = value.data()?.SID;
-      const cookieSID = Cookies.get('SID');
-      if (userSID !== cookieSID) {
-        auth.signOut();
-        return;
-      }
-      if (userIsPremium) {
-        router.push('/form');
-        return;
-      }
-    }
-  }, [loadingDoc, router, userIsPremium, value]);
+  // const [value, loadingDoc] = useDocument(userDocRef, {
+  //   snapshotListenOptions: { includeMetadataChanges: true },
+  // });
+
+  // useEffect(() => {
+  //   if (!loadingDoc && value?.exists) {
+  //     const userSID = value.data()?.SID;
+  //     const cookieSID = Cookies.get('SID');
+  //     if (userSID !== cookieSID) {
+  //       auth.signOut();
+  //       return;
+  //     }
+  //     if (userIsPremium) {
+  //       router.push('/form');
+  //       return;
+  //     }
+  //   }
+  // }, [loadingDoc, router, userIsPremium, value]);
 
   const onSubmitHandler = async (data: LoginFormValues) => {
     const { email, password } = data;
@@ -103,8 +105,12 @@ const Login = () => {
             secure: process.env.NODE_ENV !== 'development',
           });
           setSuccess(true);
-          if (userIsPremium) {
+          if (!loadingPremium && userIsPremium) {
             router.push('/form');
+            return;
+          }
+          if (!loadingPremium && !userIsPremium) {
+            router.push('/subscribe');
             return;
           }
         } catch (e: any) {
@@ -114,6 +120,7 @@ const Login = () => {
           }
           if (e.response.data.error === 'invalidSID') {
             setIsLoggedIn(true);
+            return;
           }
           if (e.response.data.error === 'auth/user-not-found') {
             setUserEmail(data.email);
@@ -235,6 +242,7 @@ const Login = () => {
                 type='email'
                 register={register}
                 placeholder='Enter your email'
+                autoComplete='username'
                 errorMessage={errors.email?.message || emailRequired}
                 onChange={(e) => setUserEmail(e.target.value)}
                 required

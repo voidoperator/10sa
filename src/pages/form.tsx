@@ -16,8 +16,8 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 
 const Index = () => {
   const router = useRouter();
-  const [user] = useAuthState(auth);
-  const userIsPremium = usePremiumStatus(user ? user : null);
+  const [user, loadingUser] = useAuthState(auth);
+  const [userIsPremium, loadingPremium] = usePremiumStatus(user ? user : null);
 
   const uid = user?.uid;
   const userDocRef = uid ? doc(db, 'users', uid) : undefined;
@@ -27,6 +27,10 @@ const Index = () => {
   });
 
   useEffect(() => {
+    if (loadingUser) return;
+    if (!user) {
+      router.push('/');
+    }
     const cookieSID = Cookies.get('SID');
     if (!cookieSID) {
       auth.signOut().then(() => router.push('/'));
@@ -38,12 +42,15 @@ const Index = () => {
         router.push('/');
         return;
       }
-      if (!userIsPremium) {
+      if (!loadingPremium && userIsPremium) {
+        return;
+      }
+      if (!loadingPremium && !userIsPremium) {
         router.push('/subscribe');
         return;
       }
     }
-  }, [loadingDoc, router, userIsPremium, value]);
+  }, [loadingDoc, loadingPremium, loadingUser, router, user, userIsPremium, value]);
 
   return (
     <ConstantDataProvider>

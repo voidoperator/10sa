@@ -151,7 +151,7 @@ export const MainWrapper = tw.div`
   flex w-full xl:max-w-4xl lg:max-w-2xl md:max-w-xl sm:max-w-lg max-w-[200px] p-4 border rounded-lg shadow sm:p-6 md:p-8 bg-10sa-purple border-10sa-gold/40 items-center justify-center
 `;
 export const StatusText = tw.p`
-  text-xl
+  text-xl text-center
 `;
 export const IndexContainer = tw.div`
   flex items-start justify-between min-h-screen

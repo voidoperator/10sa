@@ -12,8 +12,8 @@ import usePremiumStatus from '@/stripe/usePremiumStatus';
 const Payment = () => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const [user] = useAuthState(auth);
-  const userIsPremium = usePremiumStatus(user ? user : null);
+  const [user, loadingUser] = useAuthState(auth);
+  const [userIsPremium, loadingPremium] = usePremiumStatus(user ? user : null);
 
   const uid = user?.uid;
   const userDocRef = uid ? doc(db, 'users', uid) : undefined;
@@ -23,6 +23,10 @@ const Payment = () => {
   });
 
   useEffect(() => {
+    if (loadingUser) return;
+    if (!user) {
+      router.push('/');
+    }
     if (!loadingDoc && value?.exists) {
       const userSID = value.data()?.SID;
       const cookieSID = Cookies.get('SID');
@@ -30,12 +34,12 @@ const Payment = () => {
         auth.signOut().then(() => router.push('/'));
         return;
       }
-      if (userIsPremium) {
+      if (!loadingPremium && userIsPremium) {
         router.push('/form');
         return;
       }
     }
-  }, [loadingDoc, router, userIsPremium, value]);
+  }, [loadingDoc, loadingPremium, loadingUser, router, user, userIsPremium, value]);
 
   const handleClick = async () => {
     if (!uid) return;

@@ -46,8 +46,8 @@ const SignUp = () => {
   const [accountExists, setAccountExists] = useState<boolean>(false);
 
   const router = useRouter();
-  const [user] = useAuthState(auth);
-  const userIsPremium = usePremiumStatus(user ? user : null);
+  const [user, loadingUser] = useAuthState(auth);
+  const [userIsPremium, loadingPremium] = usePremiumStatus(user ? user : null);
 
   const uid = user?.uid;
   const userDocRef = uid ? doc(db, 'users', uid) : undefined;
@@ -57,19 +57,22 @@ const SignUp = () => {
   });
 
   useEffect(() => {
+    if (loadingUser) return;
     if (!loadingDoc && value?.exists) {
       const userSID = value.data()?.SID;
       const cookieSID = Cookies.get('SID');
       if (userSID === cookieSID) {
-        if (userIsPremium) {
+        if (!loadingPremium && userIsPremium) {
           router.push('/form');
           return;
         }
-        router.push('/subscribe');
-        return;
+        if (!loadingPremium && !userIsPremium) {
+          router.push('/subscribe');
+          return;
+        }
       }
     }
-  }, [loadingDoc, router, userIsPremium, value]);
+  }, [loadingDoc, loadingPremium, loadingUser, router, userIsPremium, value]);
 
   const onSubmitHandler = async (data: SignUpFormValues) => {
     const { email, password } = data;

@@ -1,6 +1,7 @@
 import '@/styles/global.css';
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { MainContainer, MainWrapper, StatusText } from '@/components/TailwindStyled';
 import type { AppProps } from 'next/app';
 
@@ -55,7 +56,11 @@ function App({ Component, pageProps }: AppProps) {
       </MainContainer>
     );
 
-  return <Component {...pageProps} />;
+  return (
+    <ErrorBoundary>
+      <Component {...pageProps} />
+    </ErrorBoundary>
+  );
 }
 
 export default App;

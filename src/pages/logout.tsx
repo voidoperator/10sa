@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { FirebaseError } from 'firebase/app';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -45,6 +46,7 @@ const Logout = () => {
   const [resetPasswordQuestion, setResetPasswordQuestion] = useState<boolean>(false);
   const [resetPasswordEmailSent, setResetPasswordEmailSent] = useState<boolean>(false);
   const [emailRequired, setEmailRequired] = useState<string>('');
+  const router = useRouter();
 
   const onSubmitHandler = async (data: LogoutFormValues) => {
     await signOut(auth);
@@ -62,6 +64,9 @@ const Logout = () => {
             await signOut(auth);
             setIsLoggedOut(true);
             setUserEmail(email);
+            setTimeout(() => {
+              router.push('/');
+            }, 5000);
             return;
           }
         } catch (error) {
@@ -150,6 +155,7 @@ const Logout = () => {
                 type='email'
                 register={register}
                 placeholder='Enter your email'
+                autoComplete='username'
                 errorMessage={errors.email?.message || emailRequired}
                 onChange={(e) => setUserEmail(e.target.value)}
                 required
@@ -160,6 +166,7 @@ const Logout = () => {
                 type='password'
                 register={register}
                 placeholder='Enter your password'
+                autoComplete='current-password'
                 errorMessage={errors.password?.message || wrongPassword}
                 required
               />
