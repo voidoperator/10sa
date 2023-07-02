@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { usePremiumStatus } from '@/hooks/usePremiumStatus';
-import { useDocument } from 'react-firebase-hooks/firestore';
-import Cookies from 'js-cookie';
-import { useForm } from 'react-hook-form';
+import { useSecureRoute } from '@/hooks/useSecureRoute';
+import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import Link from 'next/link';
 import { signupValidationSchema } from '@/utility/validationSchemas';
 import { FirebaseError } from 'firebase/app';
-import { auth, db, doc } from '@/firebase/firebaseClient';
-import { createUserWithEmailAndPassword, sendEmailVerification, signOut } from 'firebase/auth';
 import {
   Button,
   FormSectionContainer,
@@ -23,120 +18,61 @@ import {
   ShadowDiv,
   GenericContainer,
   StatusText,
+  Select,
+  MainLabel,
 } from '@/components/TailwindStyled';
 import RegisterInput from '@/components/paywall/RegisterInput';
+import RegisterDropdown from '@/components/paywall/RegisterDropdown';
+import { toTitleCase } from '@/utility/utility';
 import type { SignUpFormValues } from '@/types/firebaseData';
-import { useSecureRoute } from '@/hooks/useSecureRoute';
 
 const SignUp = () => {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<SignUpFormValues>({
     defaultValues: {
       email: '',
       password: '',
       confirmPassword: '',
+      agency: '',
     },
     resolver: yupResolver(signupValidationSchema),
     mode: 'onTouched',
   });
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [serverError, setServerError] = useState<string>('');
-  const [userEmail, setUserEmail] = useState<string>('');
+  const [userEmail, setUserEmail] = useState<string>('julionunez.10sa@gmail.com');
+  const [selectedAgency, setSelectedAgency] = useState<string>('10 Steps Ahead');
   const [verifyEmailSent, setVerifyEmailSent] = useState<boolean>(false);
   const [accountExists, setAccountExists] = useState<boolean>(false);
   const [hasRouted, setHasRouted] = useState<boolean>(false);
-
   const router = useRouter();
-  const [user, loadingUser] = useAuthState(auth);
-  const [userIsPremium, loadingPremium] = usePremiumStatus(user ? user : null);
-
-  // useEffect(() => {
-  //   if (loadingUser) return;
-  //   console.log(user);
-  // }, [loadingUser, user]);
-
-  // const uid = user?.uid;
-  // const userDocRef = uid ? doc(db, 'users', uid) : undefined;
-
-  // const [value, loadingValue] = useDocument(userDocRef, {
-  //   snapshotListenOptions: { includeMetadataChanges: true },
-  // });
-
-  // const userDocRef = user ? doc(db, 'users', user.uid) : undefined;
-
-  // const [value, loadingValue] = useDocument(userDocRef, {
-  //   snapshotListenOptions: { includeMetadataChanges: true },
-  // });
 
   useSecureRoute();
 
-  useEffect(() => {
-    if (loadingUser) return;
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 750);
-  }, [loadingUser]);
-
-  // useEffect(() => {
-  //   if (loadingUser || loadingValue || hasRouted) return;
-  //   if (value?.exists) {
-  //     const userSID = value.data()?.SID;
-  //     const cookieSID = Cookies.get('SID');
-  //     if (!cookieSID || !user) {
-  //       if (user && !cookieSID) {
-  //         signOut(auth);
-  //         setIsLoading(false);
-  //         return;
-  //       }
-  //       if (cookieSID && !user) {
-  //         Cookies.remove('SID');
-  //         Cookies.remove('UID');
-  //         setIsLoading(false);
-  //         return;
-  //       }
-  //       router.push('/');
-  //       return;
-  //     }
-  //     if (userSID === cookieSID) {
-  //       if (!loadingPremium && userIsPremium) {
-  //         setHasRouted(true);
-  //         router.push('/form');
-  //         return;
-  //       }
-  //       if (!loadingPremium && !userIsPremium) {
-  //         setHasRouted(true);
-  //         router.push('/subscribe');
-  //         return;
-  //       }
-  //     } else {
-  //       Cookies.remove('SID');
-  //       Cookies.remove('UID');
-  //       signOut(auth);
-  //       return;
-  //     }
-  //   }
-  //   setTimeout(() => {
-  //     setIsLoading(false);
-  //   }, 450);
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [loadingUser, loadingValue, loadingPremium, userIsPremium]);
-
   const onSubmitHandler = async (data: SignUpFormValues) => {
-    const { email, password } = data;
+    const { email, password, agency } = data;
     try {
-      const response = await axios.post('/api/signup', { email, password });
-      if (response.data.userStatus === 'initialized') {
+      const response = await axios.post('/api/signup', { email, password, agency });
+      if (response.data.userStatus === 'init') {
         setUserEmail(email);
+        setSelectedAgency(toTitleCase(agency));
         setVerifyEmailSent(true);
+        setHasRouted(true);
+        setTimeout(() => {
+          router.replace('/');
+        }, 5000);
       }
     } catch (error: unknown) {
+      console.log(error);
       if (error instanceof FirebaseError) {
+        console.log(error.code);
         switch (error.code) {
-          case 'auth/email-already-in-use':
-            setUserEmail(data.email);
+          case 'auth/email-already-exists':
+            setUserEmail(email);
             setAccountExists(true);
             setTimeout(() => {
               setAccountExists(false);
@@ -147,58 +83,16 @@ const SignUp = () => {
             console.error(error);
             break;
         }
+      }
+      if (error instanceof AxiosError) {
+        setServerError(`Error: ${error.response?.data.error.message}`);
       } else {
         console.error(error);
       }
     }
   };
 
-  // const onSubmitHandler = async (data: SignUpFormValues) => {
-  //   const { email, password } = data;
-  //   try {
-  //     const response = await createUserWithEmailAndPassword(auth, email, password);
-  //     const { user } = response;
-  //     if (user) {
-  //       await sendEmailVerification(user);
-  //       try {
-  //         const initUserResponse = await axios.post('/api/signup', { uid: user.uid, email: user.email });
-  //         if (initUserResponse.data.userStatus === 'initialized') {
-  //           signOut(auth);
-  //         } else {
-  //           console.error('Could not log user out.');
-  //         }
-  //       } catch (error) {
-  //         console.log('Unhandled error: ', error);
-  //       }
-  //     }
-  //     if (user.email) {
-  //       setUserEmail(user.email);
-  //     }
-  //     if (!user.emailVerified) {
-  //       setVerifyEmailSent(true);
-  //     }
-  //   } catch (error: unknown) {
-  //     if (error instanceof FirebaseError) {
-  //       switch (error.code) {
-  //         case 'auth/email-already-in-use':
-  //           setUserEmail(data.email);
-  //           setAccountExists(true);
-  //           setTimeout(() => {
-  //             setAccountExists(false);
-  //           }, 30000);
-  //           break;
-  //         default:
-  //           setServerError(`Error ${error.message}`);
-  //           console.error(error);
-  //           break;
-  //       }
-  //     } else {
-  //       console.error(error);
-  //     }
-  //   }
-  // };
-
-  if (isLoading)
+  if (!isLoading)
     return (
       <MainContainer>
         <Head>
@@ -220,6 +114,26 @@ const SignUp = () => {
           <H2>Sign Up</H2>
           <FormTag onSubmit={handleSubmit(onSubmitHandler)}>
             <ShadowDiv className='gap-6'>
+              <Controller
+                name='agency'
+                control={control}
+                defaultValue=''
+                render={({ field }) => (
+                  <RegisterDropdown
+                    id='agency'
+                    label='Agency'
+                    field={field}
+                    errorMessage={errors.agency?.message}
+                    options={[
+                      { value: '', label: 'Please select your agency...', disabled: true },
+                      { value: '10_steps_ahead', label: '10 Steps Ahead' },
+                      { value: 'diversity_life', label: 'Diversity Life' },
+                      { value: 'proper_with_purpose', label: 'Proper With Purpose' },
+                      { value: 'legacy_life', label: 'Legacy Life' },
+                    ]}
+                  />
+                )}
+              />
               <RegisterInput
                 id='email'
                 label='Email'
@@ -249,14 +163,14 @@ const SignUp = () => {
                 autoComplete='off'
                 required
               />
-              <p>
+              <p className='select-none'>
                 Already have an account?{' '}
                 <Link href='/' className='underline text-blue-400 hover:text-blue-200 transition-colors'>
                   Login
                 </Link>
               </p>
             </ShadowDiv>
-            <Button type='submit' disabled={verifyEmailSent}>
+            <Button type='submit' disabled={verifyEmailSent || hasRouted}>
               Sign Up
             </Button>
             {serverError && (
@@ -283,8 +197,10 @@ const SignUp = () => {
             {verifyEmailSent && (
               <ShadowDiv className='bg-green-600 text-white font-medium border-green-700 border-2 select-none text-sm'>
                 <GenericContainer>
-                  A verification email has been sent to <span className='font-semibold'>{userEmail}</span>.
+                  An account has been created for <span className='font-semibold'>{userEmail}</span> under{' '}
+                  {selectedAgency}.
                 </GenericContainer>
+                <GenericContainer>A verification email has been sent.</GenericContainer>
                 <GenericContainer>
                   Please check your email and proceed to{' '}
                   <Link

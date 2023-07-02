@@ -18,6 +18,7 @@ export const signupValidationSchema = Yup.object({
     .label('confirmPassword')
     .required('Confirming password is required')
     .oneOf([Yup.ref('password'), ''], 'Passwords must match'),
+  agency: Yup.string().required('This field is required'),
 });
 
 export const logoutValidationSchema = Yup.object({

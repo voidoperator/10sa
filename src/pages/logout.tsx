@@ -65,13 +65,15 @@ const Logout = () => {
           const logoutResponse = await axios.post('/api/logout', { uid: user.uid });
           const { SID } = logoutResponse.data;
           if (SID === 'empty') {
+            localStorage.removeItem('agency');
+            Cookies.remove('agency');
             Cookies.remove('UID');
             Cookies.remove('SID');
             await signOut(auth);
             setIsLoggedOut(true);
             setUserEmail(email);
             setTimeout(() => {
-              router.push('/');
+              router.replace('/');
             }, 7000);
             return;
           }

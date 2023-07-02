@@ -25,8 +25,8 @@ import RegisterInput from '@/components/paywall/RegisterInput';
 import { loginValidationSchema } from '@/utility/validationSchemas';
 import type { LoginFormValues } from '@/types/firebaseData';
 import { usePremiumStatus } from '@/hooks/usePremiumStatus';
-import { useDocument } from 'react-firebase-hooks/firestore';
 import { useSecureRoute } from '@/hooks/useSecureRoute';
+import { useSetAgency } from '@/hooks/useSetAgency';
 
 const Login = () => {
   const {
@@ -61,72 +61,30 @@ const Login = () => {
   const [userIsPremium, loadingPremium] = usePremiumStatus(user);
 
   useSecureRoute();
+  useSetAgency();
 
   useEffect(() => {
-    if (loadingUser) return;
+    if (loadingUser && loadingPremium) return;
     setTimeout(() => {
       setIsLoading(false);
     }, 750);
-  }, [loadingUser]);
+  }, [loadingPremium, loadingUser]);
 
-  // useEffect(() => {
-  //   if (success && !loadingPremium && !hasRouted && !loadingUser) {
-  //     if (userIsPremium) {
-  //       setHasRouted(true);
-  //       setTimeout(() => {
-  //         window.location.replace('/form');
-  //       }, 5000);
-  //     } else {
-  //       setHasRouted(true);
-  //       setTimeout(() => {
-  //         window.location.replace('/subscribe');
-  //       }, 5000);
-  //     }
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [success, loadingPremium, userIsPremium]);
-
-  // useEffect(() => {
-  //   if (loadingUser || loadingValue || hasRouted) return;
-  //   const cookieSID = Cookies.get('SID');
-  //   if (value?.exists) {
-  //     const userSID = value.data()?.SID;
-  //     if (!cookieSID || !user) {
-  //       if (user && !cookieSID) {
-  //         setIsLoading(false);
-  //         return;
-  //       }
-  //       if (cookieSID && !user) {
-  //         Cookies.remove('SID');
-  //         Cookies.remove('UID');
-  //         setIsLoading(false);
-  //         return;
-  //       }
-  //       // router.push('/');
-  //       // return;
-  //     }
-  //     if (userSID === cookieSID) {
-  //       if (!loadingPremium && userIsPremium) {
-  //         setHasRouted(true);
-  //         router.push('/form');
-  //         return;
-  //       }
-  //       if (!loadingPremium && !userIsPremium) {
-  //         setHasRouted(true);
-  //         router.push('/subscribe');
-  //         return;
-  //       }
-  //     } else {
-  //       Cookies.remove('SID');
-  //       Cookies.remove('UID');
-  //       return;
-  //     }
-  //   }
-  //   setTimeout(() => {
-  //     setIsLoading(false);
-  //   }, 450);
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [loadingUser, loadingValue, loadingPremium, userIsPremium, value, user]);
+  useEffect(() => {
+    if (success && !loadingPremium && !hasRouted && !loadingUser) {
+      if (userIsPremium) {
+        setHasRouted(true);
+        setTimeout(() => {
+          router.replace('/form');
+        }, 2000);
+      } else {
+        setHasRouted(true);
+        setTimeout(() => {
+          router.replace('/subscribe');
+        }, 2000);
+      }
+    }
+  }, [hasRouted, loadingPremium, loadingUser, router, success, userIsPremium]);
 
   const onSubmitHandler = async (data: LoginFormValues) => {
     const { email, password } = data;
@@ -153,19 +111,6 @@ const Login = () => {
             secure: process.env.NODE_ENV !== 'development',
           });
           setSuccess(true);
-          if (!loadingPremium && !hasRouted && !loadingUser) {
-            if (userIsPremium) {
-              setHasRouted(true);
-              setTimeout(() => {
-                window.location.replace('/form');
-              }, 2000);
-            } else {
-              setHasRouted(true);
-              setTimeout(() => {
-                window.location.replace('/subscribe');
-              }, 2000);
-            }
-          }
         } catch (e: any) {
           const { code, message } = e?.response?.data?.error;
           if (code === 'auth/argument-error') {

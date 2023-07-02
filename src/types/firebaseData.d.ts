@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes } from 'react';
+import type { InputHTMLAttributes, SelectHTMLAttributes } from 'react';
 
 export type LoginFormValues = {
   email: string;
@@ -9,6 +9,7 @@ export type SignUpFormValues = {
   email: string;
   password: string;
   confirmPassword: string;
+  agency: string;
 };
 
 export type LogoutFormValues = {
@@ -26,4 +27,22 @@ export interface RegisterInputProps extends InputHTMLAttributes<HTMLInputElement
   type: 'text' | 'email' | 'password';
   errorMessage: string | undefined;
   register: UseFormRegister<any>;
+}
+
+export interface DropdownOption {
+  value: string;
+  label: string;
+  disabled?: boolean;
+}
+export interface RegisterDropdownProps extends SelectHTMLAttributes<HTMLSelectElement> {
+  label: string;
+  options: Option[];
+  errorMessage: string | undefined;
+  field: {
+    onChange: (...event: any[]) => void;
+    onBlur: () => void;
+    name: string;
+    ref: (instance: HTMLSelectElement | null) => void;
+    value?: any;
+  };
 }

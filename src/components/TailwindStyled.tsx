@@ -11,7 +11,7 @@ export const ErrorLabelContainer = tw.div`
   absolute flex items-center justify-end top-0 left-1/2
 `;
 export const ErrorText = tw.span`
-  bg-[#e05823] px-3 py-2 rounded-lg text-white text-sm font-medium absolute left-1/2 bottom-full -translate-x-1/2 -translate-y-2 whitespace-nowrap pointer-events-none
+  bg-[#e05823] px-3 py-2 rounded-lg text-white text-sm font-medium absolute left-1/2 bottom-full -translate-x-1/2 -translate-y-2 whitespace-nowrap pointer-events-none select-none
 `;
 export const ErrorLabelArrow = tw.span`
   before:content-[""] absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full border-8 border-solid border-transparent border-t-[#e05823]
@@ -19,7 +19,7 @@ export const ErrorLabelArrow = tw.span`
 
 // Globals
 export const MainLabel = tw.label`
-  block mb-2 text-sm font-medium text-white
+  block mb-2 text-sm font-medium text-white select-none
 `;
 export const MainLabelSpan = tw.span`
   block mb-2 text-sm font-medium text-white cursor-default
@@ -105,7 +105,7 @@ export const Button = tw.button`
   disabled:bg-slate-500 disabled:text-slate-200 hover:bg-10sa-gold/60 bg-purple-800 border border-10sa-gold/25 active:bg-10sa-gold/100 w-full transition-all text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center focus:ring-blue-800 select-none disabled:cursor-not-allowed
 `;
 export const H2 = tw.h2`
-  cursor-default text-xl font-medium text-white
+  cursor-default text-xl font-medium text-white select-none
 `;
 export const AddDependentContainer = tw.div`
   flex items-center justify-center gap-6
