@@ -12,18 +12,18 @@ const Success = () => {
         <title>DoublePlay | Success</title>
       </Head>
       <MainWrapper className='flex-col gap-6'>
-        {/* {loading ? (
-          <StatusText>Loading...</StatusText>
-        ) : session ? (
-          <>
-            <h1>Payment Successful!</h1>
-            <p>
-              Thank you for your payment. Your transaction has been completed, and a receipt for your purchase has been
-              emailed to you.
-            </p>
-            <p>Your payment ID is: {session.payment_intent}</p>
-          </>
-        ) : (
+        {/* {loading ? ( */}
+        <StatusText>Loading...</StatusText>
+        {/* ) : session ? ( */}
+        <>
+          <h1>Payment Successful!</h1>
+          <p>
+            Thank you for your payment. Your transaction has been completed, and a receipt for your purchase has been
+            emailed to you.
+          </p>
+          <p>Your payment ID is: ######</p>
+        </>
+        {/* ) : (
           <StatusText>Something went wrong.</StatusText>
         )} */}
       </MainWrapper>

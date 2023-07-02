@@ -7,49 +7,109 @@ import { auth, db, doc } from '@/firebase/firebaseClient';
 import { useDocument } from 'react-firebase-hooks/firestore';
 import Cookies from 'js-cookie';
 import { createCheckoutSession } from '@/stripe/createCheckoutSession';
-import usePremiumStatus from '@/stripe/usePremiumStatus';
+import { usePremiumStatus } from '@/hooks/usePremiumStatus';
+import { signOut } from 'firebase/auth';
+import { useSecureRoute } from '@/hooks/useSecureRoute';
 
 const Payment = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [stripeIsLoading, setStripeIsLoading] = useState(false);
+  // const [hasRouted, setHasRouted] = useState<boolean>(false);
+  const [sessionStarted, setSessionStarted] = useState<boolean>(false);
+
+  // const router = useRouter();
   const [user, loadingUser] = useAuthState(auth);
-  const [userIsPremium, loadingPremium] = usePremiumStatus(user ? user : null);
+  // const [userIsPremium, loadingPremium] = usePremiumStatus(user ? user : null);
 
-  const uid = user?.uid;
-  const userDocRef = uid ? doc(db, 'users', uid) : undefined;
+  // const userDocRef = user ? doc(db, 'users', user.uid) : undefined;
 
-  const [value, loadingDoc] = useDocument(userDocRef, {
-    snapshotListenOptions: { includeMetadataChanges: true },
-  });
+  // const [value, loadingValue] = useDocument(userDocRef, {
+  //   snapshotListenOptions: { includeMetadataChanges: true },
+  // });
+
+  // useEffect(() => {
+  //   if (loadingUser || loadingValue || hasRouted) return;
+  //   if (value?.exists) {
+  //     const userSID = value.data()?.SID;
+  //     const cookieSID = Cookies.get('SID');
+  //     if (!cookieSID || !user) {
+  //       if (user && !cookieSID) {
+  //         // signOut(auth);
+  //         setIsLoading(false);
+  //         return;
+  //       }
+  //       if (cookieSID && !user) {
+  //         Cookies.remove('SID');
+  //         Cookies.remove('UID');
+  //         setIsLoading(false);
+  //         return;
+  //       }
+  //       router.push('/');
+  //       return;
+  //     }
+  //     if (userSID === cookieSID) {
+  //       if (!loadingPremium && userIsPremium) {
+  //         setHasRouted(true);
+  //         router.push('/form');
+  //         return;
+  //       }
+  //       if (!loadingPremium && !userIsPremium) {
+  //         setHasRouted(true);
+  //         router.push('/subscribe');
+  //         return;
+  //       }
+  //     } else {
+  //       Cookies.remove('SID');
+  //       Cookies.remove('UID');
+  //       return;
+  //     }
+  //   }
+  //   if (!value?.exists) {
+  //     Cookies.remove('SID');
+  //     Cookies.remove('UID');
+  //     router.push('/');
+  //     return;
+  //   }
+  //   setTimeout(() => {
+  //     setIsLoading(false);
+  //   }, 450);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [loadingUser, loadingValue, loadingPremium, userIsPremium]);
+
+  useSecureRoute();
 
   useEffect(() => {
     if (loadingUser) return;
-    if (!user) {
-      router.push('/');
-    }
-    if (!loadingDoc && value?.exists) {
-      const userSID = value.data()?.SID;
-      const cookieSID = Cookies.get('SID');
-      if (userSID !== cookieSID) {
-        auth.signOut().then(() => router.push('/'));
-        return;
-      }
-      if (!loadingPremium && userIsPremium) {
-        router.push('/form');
-        return;
-      }
-    }
-  }, [loadingDoc, loadingPremium, loadingUser, router, user, userIsPremium, value]);
+    setIsLoading(false);
+  }, [loadingUser]);
 
   const handleClick = async () => {
-    if (!uid) return;
-    setIsLoading(true);
+    if (loadingUser || sessionStarted) return;
+    if (!user) return;
+
+    setStripeIsLoading(true);
     try {
-      await createCheckoutSession(uid);
+      setSessionStarted(true);
+      await createCheckoutSession(user.uid);
     } catch (error) {
       console.error('Error: ', error);
+      setSessionStarted(false);
+      setStripeIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <MainContainer>
+        <Head>
+          <title>DoublePlay | Loading</title>
+        </Head>
+        <MainWrapper>
+          <StatusText>Loading...</StatusText>
+        </MainWrapper>
+      </MainContainer>
+    );
+  }
 
   return (
     <MainContainer>
@@ -57,8 +117,8 @@ const Payment = () => {
         <title>DoublePlay | Subscribe</title>
       </Head>
       <MainWrapper className='flex-col gap-6'>
-        <Button onClick={handleClick} disabled={isLoading}>
-          {isLoading ? 'Loading...' : 'Subscribe'}
+        <Button onClick={handleClick} disabled={stripeIsLoading}>
+          {stripeIsLoading ? 'Loading...' : 'Subscribe'}
         </Button>
       </MainWrapper>
     </MainContainer>

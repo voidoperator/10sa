@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { FirebaseError } from 'firebase/app';
@@ -21,6 +21,7 @@ import {
   MainWrapper,
   ShadowDiv,
   GenericContainer,
+  StatusText,
 } from '@/components/TailwindStyled';
 import type { LogoutFormValues } from '@/types/firebaseData';
 
@@ -37,6 +38,7 @@ const Logout = () => {
     resolver: yupResolver(logoutValidationSchema),
     mode: 'onTouched',
   });
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [serverError, setServerError] = useState<string>('');
   const [userEmail, setUserEmail] = useState<string>('');
   const [wrongPassword, setWrongPassword] = useState<string>('');
@@ -47,6 +49,10 @@ const Logout = () => {
   const [resetPasswordEmailSent, setResetPasswordEmailSent] = useState<boolean>(false);
   const [emailRequired, setEmailRequired] = useState<string>('');
   const router = useRouter();
+
+  useEffect(() => {
+    setIsLoading(false);
+  }, []);
 
   const onSubmitHandler = async (data: LogoutFormValues) => {
     await signOut(auth);
@@ -66,10 +72,16 @@ const Logout = () => {
             setUserEmail(email);
             setTimeout(() => {
               router.push('/');
-            }, 5000);
+            }, 7000);
             return;
           }
         } catch (error) {
+          setServerError(
+            'An unknown error has occurred. Please check the console error & conctact your admistrator or try again.',
+          );
+          setTimeout(() => {
+            setServerError('');
+          }, 20000);
           console.error(error);
         }
       }
@@ -139,6 +151,18 @@ const Logout = () => {
     }
   };
 
+  if (isLoading)
+    return (
+      <MainContainer>
+        <Head>
+          <title>DoublePlay | Loading</title>
+        </Head>
+        <MainWrapper>
+          <StatusText>Loading...</StatusText>
+        </MainWrapper>
+      </MainContainer>
+    );
+
   return (
     <MainContainer>
       <Head>
@@ -155,7 +179,6 @@ const Logout = () => {
                 type='email'
                 register={register}
                 placeholder='Enter your email'
-                autoComplete='username'
                 errorMessage={errors.email?.message || emailRequired}
                 onChange={(e) => setUserEmail(e.target.value)}
                 required
@@ -166,7 +189,6 @@ const Logout = () => {
                 type='password'
                 register={register}
                 placeholder='Enter your password'
-                autoComplete='current-password'
                 errorMessage={errors.password?.message || wrongPassword}
                 required
               />
@@ -220,12 +242,12 @@ const Logout = () => {
                   The account for <span className='font-semibold'>{userEmail}</span> has been successfully logged out.
                 </GenericContainer>
                 <GenericContainer>
-                  If you wish to login proceed to{' '}
+                  You&apos;ll be redirected to login shortly... or{' '}
                   <Link
-                    href='/login'
+                    href='/'
                     className='underline text-blue-700 font-semibold hover:text-blue-900 transition-colors'
                   >
-                    login.
+                    click here.
                   </Link>
                 </GenericContainer>
               </ShadowDiv>

@@ -8,8 +8,8 @@ export async function createCheckoutSession(uid: string) {
 
   const checkoutSession = {
     price: 'price_1NNjbEI8liYtjwxvLcWnR5VU',
-    success_url: window.location.origin,
-    cancel_url: window.location.origin,
+    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/success`,
+    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/subscribe`,
   };
 
   // Create a new checkout session

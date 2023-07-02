@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import usePremiumStatus from '@/stripe/usePremiumStatus';
+import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 import { useDocument } from 'react-firebase-hooks/firestore';
 import Cookies from 'js-cookie';
 import { useForm } from 'react-hook-form';
@@ -22,9 +22,11 @@ import {
   MainWrapper,
   ShadowDiv,
   GenericContainer,
+  StatusText,
 } from '@/components/TailwindStyled';
 import RegisterInput from '@/components/paywall/RegisterInput';
 import type { SignUpFormValues } from '@/types/firebaseData';
+import { useSecureRoute } from '@/hooks/useSecureRoute';
 
 const SignUp = () => {
   const {
@@ -40,62 +42,94 @@ const SignUp = () => {
     resolver: yupResolver(signupValidationSchema),
     mode: 'onTouched',
   });
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [serverError, setServerError] = useState<string>('');
   const [userEmail, setUserEmail] = useState<string>('');
   const [verifyEmailSent, setVerifyEmailSent] = useState<boolean>(false);
   const [accountExists, setAccountExists] = useState<boolean>(false);
+  const [hasRouted, setHasRouted] = useState<boolean>(false);
 
   const router = useRouter();
   const [user, loadingUser] = useAuthState(auth);
   const [userIsPremium, loadingPremium] = usePremiumStatus(user ? user : null);
 
-  const uid = user?.uid;
-  const userDocRef = uid ? doc(db, 'users', uid) : undefined;
+  // useEffect(() => {
+  //   if (loadingUser) return;
+  //   console.log(user);
+  // }, [loadingUser, user]);
 
-  const [value, loadingDoc] = useDocument(userDocRef, {
-    snapshotListenOptions: { includeMetadataChanges: true },
-  });
+  // const uid = user?.uid;
+  // const userDocRef = uid ? doc(db, 'users', uid) : undefined;
+
+  // const [value, loadingValue] = useDocument(userDocRef, {
+  //   snapshotListenOptions: { includeMetadataChanges: true },
+  // });
+
+  // const userDocRef = user ? doc(db, 'users', user.uid) : undefined;
+
+  // const [value, loadingValue] = useDocument(userDocRef, {
+  //   snapshotListenOptions: { includeMetadataChanges: true },
+  // });
+
+  useSecureRoute();
 
   useEffect(() => {
     if (loadingUser) return;
-    if (!loadingDoc && value?.exists) {
-      const userSID = value.data()?.SID;
-      const cookieSID = Cookies.get('SID');
-      if (userSID === cookieSID) {
-        if (!loadingPremium && userIsPremium) {
-          router.push('/form');
-          return;
-        }
-        if (!loadingPremium && !userIsPremium) {
-          router.push('/subscribe');
-          return;
-        }
-      }
-    }
-  }, [loadingDoc, loadingPremium, loadingUser, router, userIsPremium, value]);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 750);
+  }, [loadingUser]);
+
+  // useEffect(() => {
+  //   if (loadingUser || loadingValue || hasRouted) return;
+  //   if (value?.exists) {
+  //     const userSID = value.data()?.SID;
+  //     const cookieSID = Cookies.get('SID');
+  //     if (!cookieSID || !user) {
+  //       if (user && !cookieSID) {
+  //         signOut(auth);
+  //         setIsLoading(false);
+  //         return;
+  //       }
+  //       if (cookieSID && !user) {
+  //         Cookies.remove('SID');
+  //         Cookies.remove('UID');
+  //         setIsLoading(false);
+  //         return;
+  //       }
+  //       router.push('/');
+  //       return;
+  //     }
+  //     if (userSID === cookieSID) {
+  //       if (!loadingPremium && userIsPremium) {
+  //         setHasRouted(true);
+  //         router.push('/form');
+  //         return;
+  //       }
+  //       if (!loadingPremium && !userIsPremium) {
+  //         setHasRouted(true);
+  //         router.push('/subscribe');
+  //         return;
+  //       }
+  //     } else {
+  //       Cookies.remove('SID');
+  //       Cookies.remove('UID');
+  //       signOut(auth);
+  //       return;
+  //     }
+  //   }
+  //   setTimeout(() => {
+  //     setIsLoading(false);
+  //   }, 450);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [loadingUser, loadingValue, loadingPremium, userIsPremium]);
 
   const onSubmitHandler = async (data: SignUpFormValues) => {
     const { email, password } = data;
     try {
-      const response = await createUserWithEmailAndPassword(auth, email, password);
-      const { user } = response;
-      if (user) {
-        await sendEmailVerification(user);
-        try {
-          const initUserResponse = await axios.post('/api/signup', { uid: user.uid, email: user.email });
-          if (initUserResponse.data.userStatus === 'initialized') {
-            signOut(auth);
-          } else {
-            console.error('Could not log user out.');
-          }
-        } catch (error) {
-          console.log('Unhandled error: ', error);
-        }
-      }
-      if (user.email) {
-        setUserEmail(user.email);
-      }
-      if (!user.emailVerified) {
+      const response = await axios.post('/api/signup', { email, password });
+      if (response.data.userStatus === 'initialized') {
+        setUserEmail(email);
         setVerifyEmailSent(true);
       }
     } catch (error: unknown) {
@@ -118,6 +152,63 @@ const SignUp = () => {
       }
     }
   };
+
+  // const onSubmitHandler = async (data: SignUpFormValues) => {
+  //   const { email, password } = data;
+  //   try {
+  //     const response = await createUserWithEmailAndPassword(auth, email, password);
+  //     const { user } = response;
+  //     if (user) {
+  //       await sendEmailVerification(user);
+  //       try {
+  //         const initUserResponse = await axios.post('/api/signup', { uid: user.uid, email: user.email });
+  //         if (initUserResponse.data.userStatus === 'initialized') {
+  //           signOut(auth);
+  //         } else {
+  //           console.error('Could not log user out.');
+  //         }
+  //       } catch (error) {
+  //         console.log('Unhandled error: ', error);
+  //       }
+  //     }
+  //     if (user.email) {
+  //       setUserEmail(user.email);
+  //     }
+  //     if (!user.emailVerified) {
+  //       setVerifyEmailSent(true);
+  //     }
+  //   } catch (error: unknown) {
+  //     if (error instanceof FirebaseError) {
+  //       switch (error.code) {
+  //         case 'auth/email-already-in-use':
+  //           setUserEmail(data.email);
+  //           setAccountExists(true);
+  //           setTimeout(() => {
+  //             setAccountExists(false);
+  //           }, 30000);
+  //           break;
+  //         default:
+  //           setServerError(`Error ${error.message}`);
+  //           console.error(error);
+  //           break;
+  //       }
+  //     } else {
+  //       console.error(error);
+  //     }
+  //   }
+  // };
+
+  if (isLoading)
+    return (
+      <MainContainer>
+        <Head>
+          <title>DoublePlay | Loading</title>
+        </Head>
+        <MainWrapper>
+          <StatusText>Loading...</StatusText>
+        </MainWrapper>
+      </MainContainer>
+    );
 
   return (
     <MainContainer>
@@ -160,7 +251,7 @@ const SignUp = () => {
               />
               <p>
                 Already have an account?{' '}
-                <Link href='/login' className='underline text-blue-400 hover:text-blue-200 transition-colors'>
+                <Link href='/' className='underline text-blue-400 hover:text-blue-200 transition-colors'>
                   Login
                 </Link>
               </p>
@@ -181,7 +272,7 @@ const SignUp = () => {
                 <GenericContainer>
                   Please proceed to{' '}
                   <Link
-                    href='/login'
+                    href='/'
                     className='underline text-blue-700 font-semibold hover:text-blue-900 transition-colors'
                   >
                     login.
@@ -197,7 +288,7 @@ const SignUp = () => {
                 <GenericContainer>
                   Please check your email and proceed to{' '}
                   <Link
-                    href='/login'
+                    href='/'
                     className='underline text-blue-700 font-semibold hover:text-blue-900 transition-colors'
                   >
                     login.

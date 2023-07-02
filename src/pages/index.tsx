@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { FirebaseError } from 'firebase/app';
 import { auth, db, doc } from '@/firebase/firebaseClient';
-import { signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from 'firebase/auth';
-import { useAuthState } from 'react-firebase-hooks/auth';
+import { signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, signOut } from 'firebase/auth';
+import { useAuthState, useIdToken } from 'react-firebase-hooks/auth';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
@@ -18,13 +18,15 @@ import {
   ShadowDiv,
   H2,
   GenericContainer,
+  StatusText,
 } from '@/components/TailwindStyled';
 import Link from 'next/link';
 import RegisterInput from '@/components/paywall/RegisterInput';
 import { loginValidationSchema } from '@/utility/validationSchemas';
 import type { LoginFormValues } from '@/types/firebaseData';
-import usePremiumStatus from '@/stripe/usePremiumStatus';
+import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 import { useDocument } from 'react-firebase-hooks/firestore';
+import { useSecureRoute } from '@/hooks/useSecureRoute';
 
 const Login = () => {
   const {
@@ -51,34 +53,80 @@ const Login = () => {
   const [resetPasswordQuestion, setResetPasswordQuestion] = useState<boolean>(false);
   const [resetPasswordEmailSent, setResetPasswordEmailSent] = useState<boolean>(false);
   const [emailRequired, setEmailRequired] = useState<string>('');
+  const [hasRouted, setHasRouted] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const router = useRouter();
-  const [user] = useAuthState(auth);
-  const [userIsPremium, loadingPremium] = usePremiumStatus(user ? user : null);
+  const [user, loadingUser] = useAuthState(auth);
+  const [userIsPremium, loadingPremium] = usePremiumStatus(user);
 
-  // const userIsPremium = usePremiumStatus(user ? user : null);
+  useSecureRoute();
 
-  // const uid = user?.uid;
-  // const userDocRef = uid ? doc(db, 'users', uid) : undefined;
-
-  // const [value, loadingDoc] = useDocument(userDocRef, {
-  //   snapshotListenOptions: { includeMetadataChanges: true },
-  // });
+  useEffect(() => {
+    if (loadingUser) return;
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 750);
+  }, [loadingUser]);
 
   // useEffect(() => {
-  //   if (!loadingDoc && value?.exists) {
-  //     const userSID = value.data()?.SID;
-  //     const cookieSID = Cookies.get('SID');
-  //     if (userSID !== cookieSID) {
-  //       auth.signOut();
-  //       return;
-  //     }
+  //   if (success && !loadingPremium && !hasRouted && !loadingUser) {
   //     if (userIsPremium) {
-  //       router.push('/form');
+  //       setHasRouted(true);
+  //       setTimeout(() => {
+  //         window.location.replace('/form');
+  //       }, 5000);
+  //     } else {
+  //       setHasRouted(true);
+  //       setTimeout(() => {
+  //         window.location.replace('/subscribe');
+  //       }, 5000);
+  //     }
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [success, loadingPremium, userIsPremium]);
+
+  // useEffect(() => {
+  //   if (loadingUser || loadingValue || hasRouted) return;
+  //   const cookieSID = Cookies.get('SID');
+  //   if (value?.exists) {
+  //     const userSID = value.data()?.SID;
+  //     if (!cookieSID || !user) {
+  //       if (user && !cookieSID) {
+  //         setIsLoading(false);
+  //         return;
+  //       }
+  //       if (cookieSID && !user) {
+  //         Cookies.remove('SID');
+  //         Cookies.remove('UID');
+  //         setIsLoading(false);
+  //         return;
+  //       }
+  //       // router.push('/');
+  //       // return;
+  //     }
+  //     if (userSID === cookieSID) {
+  //       if (!loadingPremium && userIsPremium) {
+  //         setHasRouted(true);
+  //         router.push('/form');
+  //         return;
+  //       }
+  //       if (!loadingPremium && !userIsPremium) {
+  //         setHasRouted(true);
+  //         router.push('/subscribe');
+  //         return;
+  //       }
+  //     } else {
+  //       Cookies.remove('SID');
+  //       Cookies.remove('UID');
   //       return;
   //     }
   //   }
-  // }, [loadingDoc, router, userIsPremium, value]);
+  //   setTimeout(() => {
+  //     setIsLoading(false);
+  //   }, 450);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [loadingUser, loadingValue, loadingPremium, userIsPremium, value, user]);
 
   const onSubmitHandler = async (data: LoginFormValues) => {
     const { email, password } = data;
@@ -105,13 +153,18 @@ const Login = () => {
             secure: process.env.NODE_ENV !== 'development',
           });
           setSuccess(true);
-          if (!loadingPremium && userIsPremium) {
-            router.push('/form');
-            return;
-          }
-          if (!loadingPremium && !userIsPremium) {
-            router.push('/subscribe');
-            return;
+          if (!loadingPremium && !hasRouted && !loadingUser) {
+            if (userIsPremium) {
+              setHasRouted(true);
+              setTimeout(() => {
+                window.location.replace('/form');
+              }, 2000);
+            } else {
+              setHasRouted(true);
+              setTimeout(() => {
+                window.location.replace('/subscribe');
+              }, 2000);
+            }
           }
         } catch (e: any) {
           const { code, message } = e?.response?.data?.error;
@@ -226,6 +279,19 @@ const Login = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <MainContainer>
+        <Head>
+          <title>DoublePlay | Loading</title>
+        </Head>
+        <MainWrapper>
+          <StatusText>Loading...</StatusText>
+        </MainWrapper>
+      </MainContainer>
+    );
+  }
+
   return (
     <MainContainer>
       <Head>
@@ -242,7 +308,6 @@ const Login = () => {
                 type='email'
                 register={register}
                 placeholder='Enter your email'
-                autoComplete='username'
                 errorMessage={errors.email?.message || emailRequired}
                 onChange={(e) => setUserEmail(e.target.value)}
                 required
@@ -253,7 +318,6 @@ const Login = () => {
                 type='password'
                 register={register}
                 placeholder='Enter your password'
-                autoComplete='current-password'
                 errorMessage={errors.password?.message || wrongPassword}
                 required
               />
