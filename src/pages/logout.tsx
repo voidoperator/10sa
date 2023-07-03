@@ -7,14 +7,13 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import axios from 'axios';
 import RegisterInput from '@/components/paywall/RegisterInput';
 import Cookies from 'js-cookie';
-import Link from 'next/link';
 import { logoutValidationSchema } from '@/utility/validationSchemas';
 import { auth } from '../firebase/firebaseClient';
 import { signInWithEmailAndPassword } from '@firebase/auth';
 import { sendPasswordResetEmail, signOut } from 'firebase/auth';
+import { DoublePlayLogo } from '@/components/icons/DoublePlayLogo';
 import {
   Button,
-  FormSectionContainer,
   FormTag,
   H2,
   MainContainer,
@@ -22,6 +21,13 @@ import {
   ShadowDiv,
   GenericContainer,
   StatusText,
+  SmallParagraph,
+  QuestionButton,
+  ErrorToast,
+  SuccessToast,
+  NextLink,
+  PaywallSection,
+  LogoContainer,
 } from '@/components/TailwindStyled';
 import type { LogoutFormValues } from '@/types/firebaseData';
 
@@ -171,9 +177,12 @@ const Logout = () => {
         <title>DoublePlay | Logout</title>
       </Head>
       <MainWrapper className='flex-col gap-6'>
-        <FormSectionContainer>
-          <H2>Logout</H2>
+        <LogoContainer>
+          <DoublePlayLogo twClasses='w-2/3 4xl:max-w-4xl 3xl:max-w-3xl 2xl:max-w-3xl xl:max-w-2xl lg:max-w-xl hover:opacity-90 transition-all' />
+        </LogoContainer>
+        <PaywallSection>
           <FormTag onSubmit={handleSubmit(onSubmitHandler)}>
+            <H2>Logout</H2>
             <ShadowDiv className='gap-6'>
               <RegisterInput
                 id='email'
@@ -183,6 +192,7 @@ const Logout = () => {
                 placeholder='Enter your email'
                 errorMessage={errors.email?.message || emailRequired}
                 onChange={(e) => setUserEmail(e.target.value)}
+                autoComplete='email'
                 required
               />
               <RegisterInput
@@ -192,70 +202,50 @@ const Logout = () => {
                 register={register}
                 placeholder='Enter your password'
                 errorMessage={errors.password?.message || wrongPassword}
+                autoComplete='password'
                 required
               />
               <Button type='submit' disabled={isLoggedOut}>
                 Logout
               </Button>
-              {resetPasswordQuestion || (
-                <p>
+              {!resetPasswordQuestion || (
+                <SmallParagraph>
                   Forgot your password?{' '}
-                  <button
-                    type='button'
-                    className='underline text-blue-400 hover:text-blue-200 transition-colors'
-                    onClick={sendResetPasswordEmail}
-                    disabled={emailSent}
-                  >
+                  <QuestionButton type='button' onClick={sendResetPasswordEmail} disabled={emailSent}>
                     Send reset password email
-                  </button>
-                </p>
+                  </QuestionButton>
+                </SmallParagraph>
               )}
             </ShadowDiv>
-            {serverError && (
-              <ShadowDiv className='bg-orange-600 text-dp-text-primary font-medium border-orange-700 border-2 select-none text-sm'>
-                {serverError}
-              </ShadowDiv>
-            )}
+            {serverError && <ErrorToast>{serverError}</ErrorToast>}
             {accountDoesntExist && (
-              <ShadowDiv className='bg-orange-600 text-dp-text-primary font-medium border-orange-700 border-2 select-none text-sm'>
+              <ErrorToast>
                 <GenericContainer>An account with that email doesn&apos;t exists.</GenericContainer>
                 <GenericContainer>
-                  Please{' '}
-                  <Link
-                    href='/signup'
-                    className='underline text-blue-700 font-semibold hover:text-blue-900 transition-colors'
-                  >
-                    create an account.
-                  </Link>
+                  Please <NextLink href='/signup'>create an account.</NextLink>
                 </GenericContainer>
-              </ShadowDiv>
+              </ErrorToast>
             )}
             {resetPasswordEmailSent && (
-              <ShadowDiv className='bg-green-600 text-dp-text-primary font-medium border-green-700/75 border-2 select-none text-sm'>
+              <SuccessToast>
                 <GenericContainer>
                   A password reset link has been sent to <span className='font-semibold'>{userEmail}</span>.
                 </GenericContainer>
                 <GenericContainer>Please check your email.</GenericContainer>
-              </ShadowDiv>
+              </SuccessToast>
             )}
             {isLoggedOut && (
-              <ShadowDiv className='bg-green-600 text-dp-text-primary font-medium border-green-700 border-2 select-none text-sm'>
+              <SuccessToast>
                 <GenericContainer>
                   The account for <span className='font-semibold'>{userEmail}</span> has been successfully logged out.
                 </GenericContainer>
                 <GenericContainer>
-                  You&apos;ll be redirected to login shortly... or{' '}
-                  <Link
-                    href='/'
-                    className='underline text-blue-700 font-semibold hover:text-blue-900 transition-colors'
-                  >
-                    click here.
-                  </Link>
+                  You&apos;ll be redirected to login shortly... or <NextLink href='/'>click here.</NextLink>
                 </GenericContainer>
-              </ShadowDiv>
+              </SuccessToast>
             )}
           </FormTag>
-        </FormSectionContainer>
+        </PaywallSection>
       </MainWrapper>
     </MainContainer>
   );

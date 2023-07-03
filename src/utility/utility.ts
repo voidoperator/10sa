@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import type { FormDataType, RoutingNumbers, OptionTypes } from '../types/formData';
 
 export const isBrowser = () => typeof window !== 'undefined';
@@ -164,24 +165,4 @@ export const sanatizeFormData = (form: FormDataType) => {
     }
     return { ...accum, [key]: value };
   }, {});
-};
-
-export const backupAndClearFormData = () => {
-  const currentFormData = localStorage.getItem('formData') || '';
-  if (currentFormData) {
-    localStorage.setItem('backupFormData', localStorage.getItem('formData') || '');
-    localStorage.removeItem('formData');
-    window.location.reload();
-  }
-};
-
-export const restoreBackupFormData = () => {
-  const backupData = localStorage.getItem('backupFormData');
-  if (backupData) {
-    localStorage.setItem('formData', backupData);
-    localStorage.removeItem('backupFormData');
-    window.location.reload();
-  } else {
-    console.log('No backup data found');
-  }
 };

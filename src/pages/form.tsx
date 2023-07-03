@@ -8,6 +8,7 @@ import TopNav from '../components/nav/TopNav';
 import SideNav from '../components/nav/SideNav';
 import Form from '../components/Form';
 import Summary from '../components/summary/Summary';
+import LogOutButton from '@/components/paywall/LogOutButton';
 
 const FormPage = () => {
   useSecureRoute();
@@ -25,6 +26,7 @@ const FormPage = () => {
           <Summary />
         </IndexContainer>
       </FormProvider>
+      <LogOutButton />
     </ConstantDataProvider>
   );
 };

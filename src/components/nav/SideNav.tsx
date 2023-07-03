@@ -94,6 +94,27 @@ const SideNav = () => {
             Mutual
           </AnchorSpan>
         </Anchor>
+        {formData.zip_code &&
+          formData.state &&
+          formData.gender &&
+          formData.annual_household_income &&
+          formData.household_size &&
+          formData.age !== null &&
+          formData.age > -1 && (
+            <Anchor
+              rel='noopener noreferrer'
+              href={customLink}
+              target='_blank'
+              className='rounded-xl bottom-0 bg-white'
+            >
+              <HealthSherpaSymbol twClasses='z-10 w-10 bg-white rounded-full' />
+              <AnchorSpan
+                style={{ color: 'white', transition: 'width 0.5s ease, transform 0.5s ease, opacity 2s ease' }}
+              >
+                AutoSherpa
+              </AnchorSpan>
+            </Anchor>
+          )}
       </SymbolContainer>
       <DownloadsContainer>
         <Anchor
@@ -106,29 +127,6 @@ const SideNav = () => {
           <DownloadAutoSherpaIcon twClasses='z-10 w-10 rounded-full fill-white/75 hover:fill-white transition-all duration-500' />
         </Anchor>
       </DownloadsContainer>
-      {formData.zip_code &&
-        formData.state &&
-        formData.gender &&
-        formData.annual_household_income &&
-        formData.household_size &&
-        formData.age !== null &&
-        formData.age > -1 && (
-          <AutoSymbolContainer>
-            <Anchor
-              rel='noopener noreferrer'
-              href={customLink}
-              target='_blank'
-              className='rounded-xl bottom-0 bg-white'
-            >
-              <HealthSherpaSymbol twClasses='z-10 w-10 bg-white rounded-full shadow-xl' />
-              <AnchorSpan
-                style={{ color: 'white', transition: 'width 0.5s ease, transform 0.5s ease, opacity 2s ease' }}
-              >
-                AutoSherpa
-              </AnchorSpan>
-            </Anchor>
-          </AutoSymbolContainer>
-        )}
     </SideNavContainer>
   );
 };

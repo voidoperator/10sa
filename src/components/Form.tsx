@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { useFormData, initialDependentState } from './contexts/FormContext';
 import { useConstantData } from './contexts/ConstantDataContext';
 import TextInput from './form/TextInput';
@@ -53,8 +54,6 @@ import {
 import {
   toTitleCase,
   sanatizeFormData,
-  backupAndClearFormData,
-  restoreBackupFormData,
   getNextMonth,
   getDayWithSuffix,
   getRoutingNumbers,
@@ -83,6 +82,8 @@ const Form = () => {
   const [bankNameKey, setBankNameKey] = useState<number>(0);
   const [prevBankName, setPrevBankName] = useState(formData.bank_name);
   const [googleRoutingUrl, setGoogleRoutingUrl] = useState<string>('');
+
+  const router = useRouter();
 
   // Set formData
   useEffect(() => {
@@ -586,6 +587,26 @@ const Form = () => {
         setErrorMessage('');
         setError(false);
       }, 6000);
+    }
+  };
+
+  const backupAndClearFormData = async () => {
+    const currentFormData = localStorage.getItem('formData') || '';
+    if (currentFormData) {
+      localStorage.setItem('backupFormData', localStorage.getItem('formData') || '');
+      localStorage.removeItem('formData');
+      router.reload();
+    }
+  };
+
+  const restoreBackupFormData = () => {
+    const backupData = localStorage.getItem('backupFormData');
+    if (backupData) {
+      localStorage.setItem('formData', backupData);
+      localStorage.removeItem('backupFormData');
+      router.reload();
+    } else {
+      console.log('No backup data found');
     }
   };
 

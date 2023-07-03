@@ -28,6 +28,13 @@ input[type='number']::-webkit-outer-spin-button {
   margin: 0;
 }
 
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 .americo_1 {
   fill: #0c233f;
 }

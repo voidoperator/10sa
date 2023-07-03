@@ -1,29 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
-import { H2, MainContainer, MainWrapper, StatusText } from '@/components/TailwindStyled';
-import Link from 'next/link';
+import LogOutButton from '@/components/paywall/LogOutButton';
+import { H2, LogoContainer, MainContainer, MainWrapper, NextLink, SmallParagraph } from '@/components/TailwindStyled';
+import { DoublePlayLogo } from '@/components/icons/DoublePlayLogo';
 
 const Success = () => {
-  const router = useRouter();
-
   return (
     <MainContainer>
       <Head>
         <title>DoublePlay | Success</title>
       </Head>
       <MainWrapper className='flex-col gap-6'>
+        <LogoContainer className='pb-12'>
+          <DoublePlayLogo twClasses='w-full 4xl:max-w-4xl 3xl:max-w-3xl 2xl:max-w-3xl xl:max-w-2xl lg:max-w-xl hover:opacity-90 transition-all' />
+        </LogoContainer>
         <H2>Payment Successful!</H2>
-        <p className='select-none'>
+        <SmallParagraph className='font-medium text-base'>
           Your transaction has been completed, and a receipt for your purchase has been emailed to you.
-        </p>
-        <Link
-          href='/form'
-          className='text-lg select-none underline text-blue-700 font-semibold hover:text-blue-900 transition-colors'
-        >
-          Click here to access DouplePlay.
-        </Link>
+        </SmallParagraph>
+        <NextLink href='/form'>Click here to enter DouplePlay</NextLink>
       </MainWrapper>
+      <LogOutButton />
     </MainContainer>
   );
 };

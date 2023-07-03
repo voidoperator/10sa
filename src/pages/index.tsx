@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { FirebaseError } from 'firebase/app';
-import { auth, db, doc } from '@/firebase/firebaseClient';
+import { auth } from '@/firebase/firebaseClient';
 import { signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, signOut } from 'firebase/auth';
-import { useAuthState, useIdToken } from 'react-firebase-hooks/auth';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
@@ -11,7 +11,6 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import axios from 'axios';
 import {
   Button,
-  FormSectionContainer,
   FormTag,
   MainContainer,
   MainWrapper,
@@ -19,14 +18,21 @@ import {
   H2,
   GenericContainer,
   StatusText,
+  SuccessToast,
+  ErrorToast,
+  QuestionButton,
+  NextLink,
+  SmallParagraph,
+  LogoContainer,
+  PaywallSection,
 } from '@/components/TailwindStyled';
-import Link from 'next/link';
 import RegisterInput from '@/components/paywall/RegisterInput';
 import { loginValidationSchema } from '@/utility/validationSchemas';
 import type { LoginFormValues } from '@/types/firebaseData';
 import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 import { useSecureRoute } from '@/hooks/useSecureRoute';
 import { useSetAgency } from '@/hooks/useSetAgency';
+import { DoublePlayLogo } from '@/components/icons/DoublePlayLogo';
 
 const Login = () => {
   const {
@@ -243,7 +249,10 @@ const Login = () => {
         <title>DoublePlay | Login</title>
       </Head>
       <MainWrapper className='flex-col gap-6'>
-        <FormSectionContainer>
+        <LogoContainer>
+          <DoublePlayLogo twClasses='w-2/3 4xl:max-w-4xl 3xl:max-w-3xl 2xl:max-w-3xl xl:max-w-2xl lg:max-w-xl hover:opacity-90 transition-all' />
+        </LogoContainer>
+        <PaywallSection>
           <FormTag onSubmit={handleSubmit(onSubmitHandler)}>
             <H2>Login</H2>
             <ShadowDiv className='gap-6'>
@@ -255,6 +264,7 @@ const Login = () => {
                 placeholder='Enter your email'
                 errorMessage={errors.email?.message || emailRequired}
                 onChange={(e) => setUserEmail(e.target.value)}
+                autoComplete='email'
                 required
               />
               <RegisterInput
@@ -264,52 +274,35 @@ const Login = () => {
                 register={register}
                 placeholder='Enter your password'
                 errorMessage={errors.password?.message || wrongPassword}
+                autoComplete='password'
                 required
               />
               <Button type='submit' disabled={success}>
                 Login
               </Button>
-              <p>
-                Don&apos;t have an account?{' '}
-                <Link href='/signup' className='underline text-blue-400 hover:text-blue-200 transition-colors'>
-                  Create account
-                </Link>
-              </p>
+              <SmallParagraph>
+                Don&apos;t have an account? <NextLink href='/signup'>Create account</NextLink>
+              </SmallParagraph>
               {resetPasswordQuestion && (
-                <p>
+                <SmallParagraph>
                   Forgot your password?{' '}
-                  <button
-                    type='button'
-                    className='underline text-blue-400 hover:text-blue-200 transition-colors'
-                    onClick={sendResetPasswordEmail}
-                    disabled={emailSent}
-                  >
+                  <QuestionButton type='button' onClick={sendResetPasswordEmail} disabled={emailSent}>
                     Send reset password email
-                  </button>
-                </p>
+                  </QuestionButton>
+                </SmallParagraph>
               )}
             </ShadowDiv>
-            {serverError && (
-              <ShadowDiv className='bg-orange-600 text-dp-text-primary font-medium border-orange-700 border-2 select-none text-sm'>
-                {serverError}
-              </ShadowDiv>
-            )}
+            {serverError && <ShadowDiv className=''>{serverError}</ShadowDiv>}
             {accountDoesntExist && (
-              <ShadowDiv className='bg-orange-600 text-dp-text-primary font-medium border-orange-700 border-2 select-none text-sm'>
+              <ErrorToast>
                 <GenericContainer>An account with that email doesn&apos;t exists.</GenericContainer>
                 <GenericContainer>
-                  Please{' '}
-                  <Link
-                    href='/signup'
-                    className='underline text-blue-700 font-semibold hover:text-blue-900 transition-colors'
-                  >
-                    create an account.
-                  </Link>
+                  Please <NextLink href='/signup'>create an account.</NextLink>
                 </GenericContainer>
-              </ShadowDiv>
+              </ErrorToast>
             )}
             {needsToVerifyEmail && (
-              <ShadowDiv className='bg-orange-600 text-dp-text-primary font-medium border-orange-700 border-2 select-none text-sm'>
+              <ErrorToast>
                 <GenericContainer>
                   The email <span className='font-semibold'>{userEmail}</span> has not been verified yet.
                 </GenericContainer>
@@ -317,61 +310,51 @@ const Login = () => {
                 <br />
                 <GenericContainer>
                   Didn&apos;t receive it?{' '}
-                  <button
-                    type='button'
-                    className='underline text-blue-700 font-semibold hover:text-blue-900 transition-colors'
-                    disabled={emailSent}
-                    onClick={sendEmailVerificationAgain}
-                  >
+                  <QuestionButton type='button' disabled={emailSent} onClick={sendEmailVerificationAgain}>
                     Send it again.
-                  </button>
+                  </QuestionButton>
                 </GenericContainer>
-              </ShadowDiv>
+              </ErrorToast>
             )}
             {isLoggedIn && (
-              <ShadowDiv className='bg-orange-600 text-dp-text-primary font-medium border-orange-700 border-2 select-none text-sm'>
+              <ErrorToast>
                 <GenericContainer>
                   Error: This account is currently logged in somewhere else.
                   <br />
                   <br />
                   Either logout from the other session manually or{' '}
-                  <Link
-                    href='/logout'
-                    className='underline text-blue-700 font-semibold hover:text-blue-900 transition-colors'
-                  >
-                    force logout the other session.
-                  </Link>
+                  <NextLink href='/logout'>force logout the other session.</NextLink>
                 </GenericContainer>
-              </ShadowDiv>
+              </ErrorToast>
             )}
             {verifyEmailSent && (
-              <ShadowDiv className='bg-green-600 text-dp-text-primary font-medium border-green-700/75 border-2 select-none text-sm'>
+              <SuccessToast>
                 <GenericContainer>
                   A verification email has been sent to <span className='font-semibold'>{userEmail}</span>.
                 </GenericContainer>
                 <GenericContainer>Please check your email and try again.</GenericContainer>
-              </ShadowDiv>
+              </SuccessToast>
             )}
             {resetPasswordEmailSent && (
-              <ShadowDiv className='bg-green-600 text-dp-text-primary font-medium border-green-700/75 border-2 select-none text-sm'>
+              <SuccessToast>
                 <GenericContainer>
                   A password reset link has been sent to <span className='font-semibold'>{userEmail}</span>.
                 </GenericContainer>
                 <GenericContainer>Please check your email.</GenericContainer>
-              </ShadowDiv>
+              </SuccessToast>
             )}
             {success && (
-              <ShadowDiv className='bg-green-600 text-dp-text-primary font-medium border-green-700 border-2 select-none text-sm'>
+              <SuccessToast>
                 <GenericContainer>
                   Successfully logged in!
                   <br />
                   <br />
                   Checking subscription status...
                 </GenericContainer>
-              </ShadowDiv>
+              </SuccessToast>
             )}
           </FormTag>
-        </FormSectionContainer>
+        </PaywallSection>
       </MainWrapper>
     </MainContainer>
   );

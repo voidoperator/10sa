@@ -1,80 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
-import { Button, MainContainer, MainWrapper, StatusText } from '@/components/TailwindStyled';
-import { useRouter } from 'next/router';
+import LogOutButton from '@/components/paywall/LogOutButton';
+import { Button, LogoContainer, MainContainer, MainWrapper, StatusText } from '@/components/TailwindStyled';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth, db, doc } from '@/firebase/firebaseClient';
-import { useDocument } from 'react-firebase-hooks/firestore';
-import Cookies from 'js-cookie';
+import { auth } from '@/firebase/firebaseClient';
 import { createCheckoutSession } from '@/stripe/createCheckoutSession';
-import { usePremiumStatus } from '@/hooks/usePremiumStatus';
-import { signOut } from 'firebase/auth';
 import { useSecureRoute } from '@/hooks/useSecureRoute';
+import { DoublePlayLogo } from '@/components/icons/DoublePlayLogo';
 
 const Payment = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [stripeIsLoading, setStripeIsLoading] = useState(false);
-  // const [hasRouted, setHasRouted] = useState<boolean>(false);
   const [sessionStarted, setSessionStarted] = useState<boolean>(false);
 
-  // const router = useRouter();
   const [user, loadingUser] = useAuthState(auth);
-  // const [userIsPremium, loadingPremium] = usePremiumStatus(user ? user : null);
-
-  // const userDocRef = user ? doc(db, 'users', user.uid) : undefined;
-
-  // const [value, loadingValue] = useDocument(userDocRef, {
-  //   snapshotListenOptions: { includeMetadataChanges: true },
-  // });
-
-  // useEffect(() => {
-  //   if (loadingUser || loadingValue || hasRouted) return;
-  //   if (value?.exists) {
-  //     const userSID = value.data()?.SID;
-  //     const cookieSID = Cookies.get('SID');
-  //     if (!cookieSID || !user) {
-  //       if (user && !cookieSID) {
-  //         // signOut(auth);
-  //         setIsLoading(false);
-  //         return;
-  //       }
-  //       if (cookieSID && !user) {
-  //         Cookies.remove('SID');
-  //         Cookies.remove('UID');
-  //         setIsLoading(false);
-  //         return;
-  //       }
-  //       router.push('/');
-  //       return;
-  //     }
-  //     if (userSID === cookieSID) {
-  //       if (!loadingPremium && userIsPremium) {
-  //         setHasRouted(true);
-  //         router.push('/form');
-  //         return;
-  //       }
-  //       if (!loadingPremium && !userIsPremium) {
-  //         setHasRouted(true);
-  //         router.push('/subscribe');
-  //         return;
-  //       }
-  //     } else {
-  //       Cookies.remove('SID');
-  //       Cookies.remove('UID');
-  //       return;
-  //     }
-  //   }
-  //   if (!value?.exists) {
-  //     Cookies.remove('SID');
-  //     Cookies.remove('UID');
-  //     router.push('/');
-  //     return;
-  //   }
-  //   setTimeout(() => {
-  //     setIsLoading(false);
-  //   }, 450);
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [loadingUser, loadingValue, loadingPremium, userIsPremium]);
 
   useSecureRoute();
 
@@ -84,7 +23,7 @@ const Payment = () => {
   }, [loadingUser]);
 
   const handleClick = async () => {
-    if (loadingUser || sessionStarted) return;
+    if (loadingUser || sessionStarted || stripeIsLoading) return;
     if (!user) return;
 
     setStripeIsLoading(true);
@@ -117,10 +56,14 @@ const Payment = () => {
         <title>DoublePlay | Subscribe</title>
       </Head>
       <MainWrapper className='flex-col gap-6'>
+        <LogoContainer className='pb-8'>
+          <DoublePlayLogo twClasses='w-full 4xl:max-w-4xl 3xl:max-w-3xl 2xl:max-w-3xl xl:max-w-2xl lg:max-w-xl hover:opacity-90 transition-all' />
+        </LogoContainer>
         <Button onClick={handleClick} disabled={stripeIsLoading}>
           {stripeIsLoading ? 'Loading...' : 'Subscribe'}
         </Button>
       </MainWrapper>
+      <LogOutButton />
     </MainContainer>
   );
 };

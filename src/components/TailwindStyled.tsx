@@ -1,4 +1,5 @@
 import tw from 'tailwind-styled-components';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import type { StylesConfig } from 'react-select';
 import type { OptionTypes } from '@/types/formData';
@@ -47,6 +48,26 @@ export const ScriptBox = tw(motion.div)`
 `;
 export const Break = tw(motion.br)``;
 export const MotionDiv = tw(motion.div)``;
+
+// Paywall
+export const PaywallSection = tw.section`
+  4xl:max-w-4xl 3xl:max-w-3xl xl:max-w-xl lg:max-w-lg md:max-w-md sm:max-w-sm w-full p-4 bg-dp-form-color rounded-lg shadow sm:p-6 md:p-8
+`;
+export const ErrorToast = tw.div`
+  flex flex-col shadow-xl rounded-xl p-4 border gap-2 bg-orange-600 text-dp-text-secondary font-medium border-orange-700/75 select-none text-sm
+`;
+export const SuccessToast = tw.div`
+  flex flex-col shadow-xl rounded-xl p-4 border gap-2 bg-green-600 text-dp-text-secondary font-medium border-green-700/75 select-none text-sm
+`;
+export const QuestionButton = tw.button`
+  underline text-blue-600 hover:text-blue-200 transition-colors font-medium select-none
+`;
+export const NextLink = tw(Link)`
+  underline text-blue-600 hover:text-blue-800 transition-colors font-medium
+`;
+export const SmallParagraph = tw.p`
+  text-sm select-none
+`;
 
 // TopNav
 export const TopNavContainer = tw.nav`
