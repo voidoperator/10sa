@@ -290,12 +290,12 @@ const Login = () => {
               )}
             </ShadowDiv>
             {serverError && (
-              <ShadowDiv className='bg-orange-600 text-white font-medium border-orange-700 border-2 select-none text-sm'>
+              <ShadowDiv className='bg-orange-600 text-dp-text-primary font-medium border-orange-700 border-2 select-none text-sm'>
                 {serverError}
               </ShadowDiv>
             )}
             {accountDoesntExist && (
-              <ShadowDiv className='bg-orange-600 text-white font-medium border-orange-700 border-2 select-none text-sm'>
+              <ShadowDiv className='bg-orange-600 text-dp-text-primary font-medium border-orange-700 border-2 select-none text-sm'>
                 <GenericContainer>An account with that email doesn&apos;t exists.</GenericContainer>
                 <GenericContainer>
                   Please{' '}
@@ -309,7 +309,7 @@ const Login = () => {
               </ShadowDiv>
             )}
             {needsToVerifyEmail && (
-              <ShadowDiv className='bg-orange-600 text-white font-medium border-orange-700 border-2 select-none text-sm'>
+              <ShadowDiv className='bg-orange-600 text-dp-text-primary font-medium border-orange-700 border-2 select-none text-sm'>
                 <GenericContainer>
                   The email <span className='font-semibold'>{userEmail}</span> has not been verified yet.
                 </GenericContainer>
@@ -329,7 +329,7 @@ const Login = () => {
               </ShadowDiv>
             )}
             {isLoggedIn && (
-              <ShadowDiv className='bg-orange-600 text-white font-medium border-orange-700 border-2 select-none text-sm'>
+              <ShadowDiv className='bg-orange-600 text-dp-text-primary font-medium border-orange-700 border-2 select-none text-sm'>
                 <GenericContainer>
                   Error: This account is currently logged in somewhere else.
                   <br />
@@ -345,7 +345,7 @@ const Login = () => {
               </ShadowDiv>
             )}
             {verifyEmailSent && (
-              <ShadowDiv className='bg-green-600 text-white font-medium border-green-700/75 border-2 select-none text-sm'>
+              <ShadowDiv className='bg-green-600 text-dp-text-primary font-medium border-green-700/75 border-2 select-none text-sm'>
                 <GenericContainer>
                   A verification email has been sent to <span className='font-semibold'>{userEmail}</span>.
                 </GenericContainer>
@@ -353,7 +353,7 @@ const Login = () => {
               </ShadowDiv>
             )}
             {resetPasswordEmailSent && (
-              <ShadowDiv className='bg-green-600 text-white font-medium border-green-700/75 border-2 select-none text-sm'>
+              <ShadowDiv className='bg-green-600 text-dp-text-primary font-medium border-green-700/75 border-2 select-none text-sm'>
                 <GenericContainer>
                   A password reset link has been sent to <span className='font-semibold'>{userEmail}</span>.
                 </GenericContainer>
@@ -361,7 +361,7 @@ const Login = () => {
               </ShadowDiv>
             )}
             {success && (
-              <ShadowDiv className='bg-green-600 text-white font-medium border-green-700 border-2 select-none text-sm'>
+              <ShadowDiv className='bg-green-600 text-dp-text-primary font-medium border-green-700 border-2 select-none text-sm'>
                 <GenericContainer>
                   Successfully logged in!
                   <br />

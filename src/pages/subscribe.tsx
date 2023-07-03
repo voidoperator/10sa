@@ -105,7 +105,7 @@ const Payment = () => {
           <title>DoublePlay | Loading</title>
         </Head>
         <MainWrapper>
-          <StatusText>Loading...</StatusText>
+          <StatusText>Loading... Please wait...</StatusText>
         </MainWrapper>
       </MainContainer>
     );

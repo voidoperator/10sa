@@ -174,12 +174,12 @@ const SignUp = () => {
               Sign Up
             </Button>
             {serverError && (
-              <ShadowDiv className='bg-orange-600 text-white font-medium border-orange-700 border-2 select-none text-sm'>
+              <ShadowDiv className='bg-orange-600 text-dp-text-primary font-medium border-orange-700 border-2 select-none text-sm'>
                 {serverError}
               </ShadowDiv>
             )}
             {accountExists && (
-              <ShadowDiv className='bg-orange-600 text-white font-medium border-orange-700 border-2 select-none text-sm'>
+              <ShadowDiv className='bg-orange-600 text-dp-text-primary font-medium border-orange-700 border-2 select-none text-sm'>
                 <GenericContainer>
                   An account with the email <span className='font-semibold'>{userEmail}</span> already exists.
                 </GenericContainer>
@@ -195,7 +195,7 @@ const SignUp = () => {
               </ShadowDiv>
             )}
             {verifyEmailSent && (
-              <ShadowDiv className='bg-green-600 text-white font-medium border-green-700 border-2 select-none text-sm'>
+              <ShadowDiv className='bg-green-600 text-dp-text-primary font-medium border-green-700 border-2 select-none text-sm'>
                 <GenericContainer>
                   An account has been created for <span className='font-semibold'>{userEmail}</span> under{' '}
                   {selectedAgency}.

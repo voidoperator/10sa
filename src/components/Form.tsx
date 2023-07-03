@@ -13,7 +13,7 @@ import Script from './form/Script';
 import DynamicButton from './form/DynamicButton';
 import LocalStorageInput from './local/LocalStorageInput';
 import { getZipcodeData, ZipcodeDataType } from '@/utility/getZipcodeData';
-import { TenStepsAheadLogo } from './icons/TenStepsAheadLogo';
+import { DoublePlayLogo } from './icons/DoublePlayLogo';
 import { MutualOfOmahaIcon } from './icons/MutualOfOmahaIcon';
 import { AmericoIcon } from './icons/AmericoIcon';
 import { CloseIcon } from './icons/CloseIcon';
@@ -629,7 +629,7 @@ const Form = () => {
   return (
     <FormSectionContainer>
       <LogoContainer>
-        <TenStepsAheadLogo twClasses='w-full 4xl:max-w-4xl 3xl:max-w-3xl 2xl:max-w-3xl xl:max-w-2xl lg:max-w-xl hover:opacity-90 transition-all' />
+        <DoublePlayLogo twClasses='w-2/3 4xl:max-w-4xl 3xl:max-w-3xl 2xl:max-w-3xl xl:max-w-2xl lg:max-w-xl hover:opacity-90 transition-all' />
       </LogoContainer>
       {/* Clear | Restore | Test */}
       <>
@@ -720,7 +720,7 @@ const Form = () => {
             {`Can I please have your full name?`}
           </Script>
           <TextInput
-            labelName='First Name'
+            labelName='First Name:'
             name='first_name'
             id='first_name'
             placeholder='Ex. John'
@@ -739,7 +739,7 @@ const Form = () => {
             defaultValue={formData?.middle_name || ''}
           />
           <TextInput
-            labelName='Last Name'
+            labelName='Last Name:'
             name='last_name'
             id='last_name'
             placeholder='Ex. Doe'
@@ -1238,7 +1238,7 @@ const Form = () => {
                     tabIndex={-1}
                     onClick={() => removeDependent(i)}
                   >
-                    <CloseIcon twClasses='text-white fill-white' />
+                    <CloseIcon twClasses='text-dp-text-primary fill-white' />
                   </RemoveDependentButton>
                 </AdditionalInsuredContainer>
               );

@@ -212,12 +212,12 @@ const Logout = () => {
               )}
             </ShadowDiv>
             {serverError && (
-              <ShadowDiv className='bg-orange-600 text-white font-medium border-orange-700 border-2 select-none text-sm'>
+              <ShadowDiv className='bg-orange-600 text-dp-text-primary font-medium border-orange-700 border-2 select-none text-sm'>
                 {serverError}
               </ShadowDiv>
             )}
             {accountDoesntExist && (
-              <ShadowDiv className='bg-orange-600 text-white font-medium border-orange-700 border-2 select-none text-sm'>
+              <ShadowDiv className='bg-orange-600 text-dp-text-primary font-medium border-orange-700 border-2 select-none text-sm'>
                 <GenericContainer>An account with that email doesn&apos;t exists.</GenericContainer>
                 <GenericContainer>
                   Please{' '}
@@ -231,7 +231,7 @@ const Logout = () => {
               </ShadowDiv>
             )}
             {resetPasswordEmailSent && (
-              <ShadowDiv className='bg-green-600 text-white font-medium border-green-700/75 border-2 select-none text-sm'>
+              <ShadowDiv className='bg-green-600 text-dp-text-primary font-medium border-green-700/75 border-2 select-none text-sm'>
                 <GenericContainer>
                   A password reset link has been sent to <span className='font-semibold'>{userEmail}</span>.
                 </GenericContainer>
@@ -239,7 +239,7 @@ const Logout = () => {
               </ShadowDiv>
             )}
             {isLoggedOut && (
-              <ShadowDiv className='bg-green-600 text-white font-medium border-green-700 border-2 select-none text-sm'>
+              <ShadowDiv className='bg-green-600 text-dp-text-primary font-medium border-green-700 border-2 select-none text-sm'>
                 <GenericContainer>
                   The account for <span className='font-semibold'>{userEmail}</span> has been successfully logged out.
                 </GenericContainer>

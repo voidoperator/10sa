@@ -16,7 +16,7 @@ const Script: React.FC<ScriptProps> = ({ children, important = false }) => {
     <AnimatePresence>
       {isVisible && (
         <MotionDiv key='ScriptBox' variants={scriptBoxVariants} initial='initial' animate='visible' exit='hidden'>
-          <ScriptBox className={important ? 'bg-[#f7c11f] text-black font-semibold' : 'bg-purple-900'}>
+          <ScriptBox className={important ? 'bg-[#e4b21b] text-dp-text-secondary font-semibold' : 'bg-blue-600'}>
             <MotionDiv className='p-8'>{children}</MotionDiv>
           </ScriptBox>
         </MotionDiv>

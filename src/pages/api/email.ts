@@ -20,8 +20,8 @@ const email = async (req: NextApiRequest, res: NextApiResponse) => {
 
   // Load the service account key
   const privateKey = {
-    client_email: process.env.SERVICE_WORKER_EMAIL || '',
-    private_key: (process.env.GMAIL_API_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
+    client_email: process.env.SERVICE_WORKER_EMAIL,
+    private_key: process.env.GMAIL_API_PRIVATE_KEY!.replace(/\\n/g, '\n'),
   };
   const auth = new Google.auth.JWT(
     privateKey.client_email,

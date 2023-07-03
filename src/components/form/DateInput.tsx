@@ -13,7 +13,7 @@ import {
 } from '@/components/TailwindStyled';
 
 const datePickerInputClasses =
-  'form-input w-full border text-sm rounded-lg bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white';
+  'form-input w-full border text-sm rounded-lg bg-dp-secondary border-dp-hint/0 placeholder-dp-placeholder-text text-dp-text-primary';
 
 const DateInput: React.FC<DateInputProps> = ({
   id,
@@ -163,7 +163,6 @@ const DateInput: React.FC<DateInputProps> = ({
         popoverDirection='down'
         useRange={false}
         placeholder={'Enter or select a date: MM/DD/YYYY'}
-        inputClassName={datePickerInputClasses}
       />
     </ShadowDiv>
   );

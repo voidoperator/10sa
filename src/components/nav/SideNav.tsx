@@ -73,14 +73,14 @@ const SideNav = () => {
     <SideNavContainer>
       <SymbolContainer>
         <Anchor rel='noopener noreferrer' href='https://www.healthsherpa.com/' target='_blank'>
-          <HealthSherpaSymbol twClasses='z-10 w-10 bg-10sa-gold rounded-full' />
-          <AnchorSpan style={{ transition: 'width 0.5s ease, transform 0.5s ease, opacity 2s ease' }}>
+          <HealthSherpaSymbol twClasses='z-10 w-10 rounded-full' />
+          <AnchorSpan style={{ color: 'white', transition: 'width 0.5s ease, transform 0.5s ease, opacity 2s ease' }}>
             HealthSherpa
           </AnchorSpan>
         </Anchor>
         <Anchor rel='noopener noreferrer' href='https://tools.americoagent.com/' target='_blank'>
-          <AmericoSymbol twClasses='z-10 w-10 bg-10sa-gold rounded-full' />
-          <AnchorSpan style={{ transition: 'width 0.5s ease, transform 0.5s ease, opacity 2s ease' }}>
+          <AmericoSymbol twClasses='z-10 w-10 rounded-full' />
+          <AnchorSpan style={{ color: 'white', transition: 'width 0.5s ease, transform 0.5s ease, opacity 2s ease' }}>
             Americo
           </AnchorSpan>
         </Anchor>
@@ -89,8 +89,8 @@ const SideNav = () => {
           rel='noopener noreferrer'
           target='_blank'
         >
-          <MutualOfOmahaSymbol twClasses='z-10 w-10 bg-10sa-gold rounded-full fill-mutual' />
-          <AnchorSpan style={{ transition: 'width 0.5s ease, transform 0.5s ease, opacity 2s ease' }}>
+          <MutualOfOmahaSymbol twClasses='z-10 w-10 rounded-full fill-mutual' />
+          <AnchorSpan style={{ color: 'white', transition: 'width 0.5s ease, transform 0.5s ease, opacity 2s ease' }}>
             Mutual
           </AnchorSpan>
         </Anchor>
@@ -120,8 +120,10 @@ const SideNav = () => {
               target='_blank'
               className='rounded-xl bottom-0 bg-white'
             >
-              <HealthSherpaSymbol twClasses='z-10 w-10 bg-white rounded-full' />
-              <AnchorSpan style={{ transition: 'width 0.5s ease, transform 0.5s ease, opacity 2s ease' }}>
+              <HealthSherpaSymbol twClasses='z-10 w-10 bg-white rounded-full shadow-xl' />
+              <AnchorSpan
+                style={{ color: 'white', transition: 'width 0.5s ease, transform 0.5s ease, opacity 2s ease' }}
+              >
                 AutoSherpa
               </AnchorSpan>
             </Anchor>

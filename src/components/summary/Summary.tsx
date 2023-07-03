@@ -139,13 +139,13 @@ const Summary = () => {
           )}
         {formData.state && (
           <ShadowDiv className='w-full'>
-            <div>Preferred carriers for {toTitleCase(formData.state)}:</div>
+            <div className='font-semibold text-sm'>Preferred carriers for {toTitleCase(formData.state)}:</div>
             <SummaryUl>
               {formData.carriers &&
                 formData.carriers.map((carrier, i) => {
                   return (
                     <SummaryLi key={carrier + i} title={carrier}>
-                      <CarrierIcon icon={carrier as CarrierIconKey} twClasses='max-w-xs text-white' />
+                      <CarrierIcon icon={carrier as CarrierIconKey} twClasses='max-w-xs fill-black' />
                     </SummaryLi>
                   );
                 })}

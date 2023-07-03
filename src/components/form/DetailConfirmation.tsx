@@ -10,7 +10,7 @@ const DetailConfirmation: React.FC<DetailConfirmationProps> = ({
   error = false,
   additional = false,
 }) => {
-  const textColor = error ? 'text-orange-400 cursor-pointer' : 'text-white cursor-default';
+  const textColor = error ? 'text-red-500 font-bold cursor-pointer' : 'text-dp-text-primary cursor-default';
   const formatId = additional && typeof id === 'number' ? name + '_' + (id + 1) : id.toString();
 
   if (!error) {

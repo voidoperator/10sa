@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { auth } from '@/firebase/firebaseClient';
 
 const isUserPremium = async (): Promise<boolean> => {
+  if (!auth) return false;
   await auth?.currentUser?.getIdToken(true);
   const decodedToken = await auth.currentUser?.getIdTokenResult();
   return decodedToken?.claims.stripeRole ? true : false;

@@ -24,12 +24,12 @@ const GroupButton: React.FC<GroupButtonProps> = ({ labelName, name, id, defaultO
     options.forEach((_, index) => {
       const button = document.getElementById(id + '_' + (index + 1));
       if (button && button !== event.target) {
-        button.classList.remove('bg-10sa-gold/60');
-        button.classList.add('bg-10sa-deep-purple');
+        button.classList.remove('bg-blue-500');
+        button.classList.add('bg-dp-secondary');
       }
     });
-    target.classList.remove('bg-10sa-deep-purple');
-    target.classList.add('bg-10sa-gold/60');
+    target.classList.remove('bg-dp-secondary');
+    target.classList.add('bg-blue-500');
     setFormData((prevState) => ({ ...prevState, [name]: value }));
   };
 
@@ -43,7 +43,7 @@ const GroupButton: React.FC<GroupButtonProps> = ({ labelName, name, id, defaultO
         {options.map((option, index) => {
           const { label, value } = option;
           const leftRightStyle = index ? 'rounded-r-3xl border' : 'rounded-l-3xl border';
-          const defaultOptionStyle = value === defaultOption ? 'bg-10sa-gold/60' : 'bg-10sa-deep-purple';
+          const defaultOptionStyle = value === defaultOption ? 'bg-blue-500 text-dp-text-secondary' : 'bg-dp-secondary';
           return (
             <GroupButtonButton
               id={id + '_' + (index + 1)}
