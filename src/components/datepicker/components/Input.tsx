@@ -57,7 +57,7 @@ const Input: React.FC<Props> = (e: Props) => {
     const border = BORDER_COLOR.focus[primaryColor as keyof typeof BORDER_COLOR.focus];
     const ring = RING_COLOR['second-focus'][primaryColor as keyof (typeof RING_COLOR)['second-focus']];
 
-    const defaultInputClassName = `form-input border-0 focus:ring-2 relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full bg-dp-secondary text-white rounded-lg tracking-wide font-medium text-black text-sm placeholder-dp-placeholder-text focus:ring disabled:opacity-40 disabled:cursor-not-allowed`;
+    const defaultInputClassName = `form-input border-0 focus:ring-2 relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full bg-dp-secondary text-dp-text-primary rounded-lg tracking-wide font-medium text-black text-sm placeholder-dp-placeholder-text focus:ring disabled:opacity-40 disabled:cursor-not-allowed`;
 
     return typeof inputClassName === 'function'
       ? inputClassName(defaultInputClassName)

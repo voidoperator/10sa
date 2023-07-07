@@ -42,7 +42,16 @@ const GroupButton: React.FC<GroupButtonProps> = ({ labelName, name, id, defaultO
       <GroupButtonContainer>
         {options.map((option, index) => {
           const { label, value } = option;
-          const leftRightStyle = index ? 'rounded-r-3xl border' : 'rounded-l-3xl border';
+          let leftRightStyle = '';
+          if (options.length === 3) {
+            if (index === 0) leftRightStyle = 'rounded-l-3xl border';
+            if (index === 1) leftRightStyle = 'border';
+            if (index === 2) leftRightStyle = 'rounded-r-3xl border';
+          } else {
+            if (index === 0) leftRightStyle = 'rounded-l-3xl border';
+            if (index === 1) leftRightStyle = 'rounded-r-3xl border';
+          }
+          // const leftRightStyle = index ? 'rounded-r-3xl border' : 'rounded-l-3xl border';
           const defaultOptionStyle = value === defaultOption ? 'bg-blue-500 text-dp-text-secondary' : 'bg-dp-secondary';
           return (
             <GroupButtonButton

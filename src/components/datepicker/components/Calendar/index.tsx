@@ -57,7 +57,7 @@ const Calendar: React.FC<Props> = ({
     changeDatepickerValue,
     hideDatepicker,
     asSingle,
-    i18n,
+    i18n = 'en',
     startWeekOn,
     input,
   } = useContext(DatepickerContext);

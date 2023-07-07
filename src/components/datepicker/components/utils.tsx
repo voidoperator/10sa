@@ -114,7 +114,7 @@ export const Arrow = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
   return (
     <div
       ref={ref}
-      className='absolute z-20 h-4 w-4 rotate-45 mt-0.5 ml-[1.2rem] border-l border-t bg-slate-800 border-slate-600'
+      className='absolute z-20 h-4 w-4 rotate-45 mt-0.5 ml-[1.2rem] border-l border-t bg-dp-secondary/70 backdrop-blur-xl border-dp-secondary/70'
     />
   );
 });

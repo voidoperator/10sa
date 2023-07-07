@@ -159,10 +159,11 @@ const DateInput: React.FC<DateInputProps> = ({
         value={value}
         asSingle={true}
         onChange={handleValueChange}
-        displayFormat='MM/DD/YYYY'
         popoverDirection='down'
-        useRange={false}
+        displayFormat='MM/DD/YYYY'
         placeholder={'Enter or select a date: MM/DD/YYYY'}
+        useRange={false}
+        i18n='en'
       />
     </ShadowDiv>
   );

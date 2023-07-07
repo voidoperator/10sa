@@ -2,6 +2,7 @@ export type ConstantDataType = {
   google_app_url: string | undefined;
   agent_full_name: string | undefined;
   agent_license_number: string | undefined;
+  agent_npn: string | undefined;
   agent_phone_number: string | undefined;
   agent_email: string | undefined;
   show_script: string | undefined;

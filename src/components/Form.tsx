@@ -60,6 +60,7 @@ import {
   parseCurrency,
 } from '@/utility/utility';
 import type { Carrier, FormDataType, OptionTypes } from '@/types/formData';
+import Cookies from 'js-cookie';
 
 const Form = () => {
   // State management
@@ -177,11 +178,10 @@ const Form = () => {
 
     const eligibleMutualInsuredList =
       formData.additional_insured_list?.filter(
-        (member) => member.age !== null && (member.age === 18 || member.age === 19 || member.age >= 60),
+        (member) => member.age !== null && member.age >= 18 && member.age <= 70,
       ) || [];
     const eligibleMutualCount =
-      (formData.age !== null && (formData.age === 18 || formData.age === 19 || formData.age >= 60) ? 1 : 0) +
-      eligibleMutualInsuredList.length;
+      (formData.age !== null && formData.age >= 18 && formData.age <= 70 ? 1 : 0) + eligibleMutualInsuredList.length;
     const mutualMonthlyAmount = eligibleMutualCount * mutual_of_omaha_premium;
     const grandTotal =
       formData.life_adb_provider === 'americo'
@@ -190,13 +190,32 @@ const Form = () => {
 
     const formatGrandTotal = grandTotal ? `$${grandTotal.toFixed(2).toString()}` : '';
 
-    setFormData((prevState) => ({
-      ...prevState,
-      monthly_grand_total: formatGrandTotal,
-      eligible_americo_count: eligibleAmericoCount,
-      eligible_mutual_count: eligibleMutualCount,
-      life_total_cost: americoMonthlyAmount || mutualMonthlyAmount,
-    }));
+    if (formData.life_adb_provider === 'americo') {
+      setFormData((prevState) => ({
+        ...prevState,
+        monthly_grand_total: formatGrandTotal,
+        eligible_americo_count: eligibleAmericoCount,
+        eligible_mutual_count: eligibleMutualCount,
+        life_total_cost: americoMonthlyAmount,
+      }));
+    }
+    if (formData.life_adb_provider === 'none') {
+      const grandTotal = formatGrandTotal ? formatGrandTotal : '$0';
+      setFormData((prevState) => ({
+        ...prevState,
+        monthly_grand_total: grandTotal,
+        life_total_cost: 0,
+      }));
+    }
+    if (formData.life_adb_provider === 'mutual') {
+      setFormData((prevState) => ({
+        ...prevState,
+        monthly_grand_total: formatGrandTotal,
+        eligible_americo_count: eligibleAmericoCount,
+        eligible_mutual_count: eligibleMutualCount,
+        life_total_cost: mutualMonthlyAmount,
+      }));
+    }
   }, [
     JSON.stringify(formData.additional_insured_list),
     formData.additional_insured,
@@ -406,7 +425,9 @@ const Form = () => {
   }, [formData.life_total_cost, formData.health_unsubsidized]);
 
   // Function handlers
-  const handleEmailDisableButton = () => {
+  const handleEmailADBDisableButton = () => {
+    const agency = Cookies.get('agency') || localStorage.getItem('agency');
+    if (!agency) return true;
     if (
       formData &&
       formData.monthly_grand_total &&
@@ -418,7 +439,29 @@ const Form = () => {
       constantData.agent_email &&
       constantData.agent_full_name &&
       constantData.agent_license_number &&
-      constantData.agent_phone_number
+      constantData.agent_phone_number &&
+      agency
+    ) {
+      return false;
+    }
+    return true;
+  };
+
+  const handleEmailHealthDisableButton = () => {
+    const agency = Cookies.get('agency') || localStorage.getItem('agency');
+    if (!agency) return true;
+    if (
+      formData &&
+      formData.monthly_grand_total &&
+      formData.plan_summary_pdf &&
+      formData.email &&
+      formData.first_name &&
+      formData.carrier_name &&
+      constantData.agent_email &&
+      constantData.agent_full_name &&
+      constantData.agent_license_number &&
+      constantData.agent_phone_number &&
+      agency
     ) {
       return false;
     }
@@ -465,9 +508,12 @@ const Form = () => {
       .catch((err) => console.log(`Could not copy text: ${err}`));
   };
 
-  const handleEmailCustomer = async () => {
-    if (!constantData.google_app_url) return;
+  const handleEmailCustomerADB = async () => {
+    if (isSendingEmail) return;
     setIsSendingEmail(true);
+
+    // Retrieve agency
+    const agency = Cookies.get('agency') || localStorage.getItem('agency');
 
     // Format formData
     const formatData = sanatizeFormData(formData) as FormDataType;
@@ -489,6 +535,8 @@ const Form = () => {
 
     // Parse information for email
     const emailData = {
+      type: 'adb',
+      agency: agency,
       customerEmail: formatData.email,
       customerFirstName: formatData.first_name,
       carrierName: formatData.carrier_name,
@@ -496,6 +544,72 @@ const Form = () => {
       monthlyGrandTotal: formatData.monthly_grand_total,
       planSummaryLink: formatData.plan_summary_pdf,
       adbInformationalLink: informationalLink,
+      agentFullName: agentName,
+      agentPhoneNumberPretty: phonePretty,
+      agentPhoneNumberHref: phoneHref,
+      agentEmail: constantData.agent_email,
+      agentLicenseNumber: constantData.agent_license_number,
+    };
+
+    try {
+      const response = await fetch('/api/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(emailData),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(` emailing client... ${data.error}`);
+      }
+      setIsSendingEmail(false);
+      setSuccessful(true);
+      setTimeout(() => {
+        setSuccessful(false);
+      }, 4000);
+    } catch (error: any) {
+      setErrorMessage(error.toString());
+      setIsSendingEmail(false);
+      setError(true);
+      setTimeout(() => {
+        setErrorMessage('');
+        setError(false);
+      }, 6000);
+    }
+  };
+
+  // TODO CHANGE THIS TO ONLY EMAIL HEALTH TEMPLATE
+  const handleEmailCustomerHealth = async () => {
+    if (isSendingEmail) return;
+    setIsSendingEmail(true);
+
+    // Retrieve agency
+    const agency = Cookies.get('agency') || localStorage.getItem('agency');
+
+    // Format formData
+    const formatData = sanatizeFormData(formData) as FormDataType;
+
+    // Auto send email to client data
+    const agentName = toTitleCase(constantData.agent_full_name || '');
+    let phonePretty;
+    let phoneHref;
+    if (constantData.agent_phone_number) {
+      let formatPhonePretty = constantData.agent_phone_number.split('-');
+      const [area = '', three = '', four = ''] = formatPhonePretty;
+      phonePretty = `(${area}) ${three}-${four}`;
+      phoneHref = `${area}${three}${four}`;
+    }
+
+    // Parse information for email
+    const emailData = {
+      type: 'health',
+      agency: agency,
+      customerEmail: formatData.email,
+      customerFirstName: formatData.first_name,
+      carrierName: formatData.carrier_name,
+      monthlyGrandTotal: formatData.monthly_grand_total,
+      planSummaryLink: formatData.plan_summary_pdf,
       agentFullName: agentName,
       agentPhoneNumberPretty: phonePretty,
       agentPhoneNumberHref: phoneHref,
@@ -704,6 +818,15 @@ const Form = () => {
             defaultKey='agent_license_number'
             defaultValue={constantData?.agent_license_number || ''}
             externalValue={constantData?.agent_license_number}
+          />
+          <LocalStorageInput
+            labelName='Agent NPN:'
+            name='agent_npn'
+            id='agent_npn'
+            placeholder='Ex. 123456789'
+            defaultKey='agent_npn'
+            defaultValue={constantData?.agent_npn || ''}
+            externalValue={constantData?.agent_npn}
           />
           <LocalStorageInput
             labelName='Agent Phone Number:'
@@ -926,16 +1049,17 @@ const Form = () => {
             defaultValue={formData?.annual_household_income || ''}
           />
           <Script>{`Great. Can I please have your date of birth?`}</Script>
-          {formData.age !== null && formData.age < 18 && (
+          {formData.age !== null && (formData.age < 18 || formData.age > 70) && (
             <EligibilityIconContainer>
               <IneligibleIcon twClasses={'h-10'} />
             </EligibilityIconContainer>
           )}
-          {formData.age !== null && (formData.age === 18 || formData.age === 19 || formData.age >= 60) && (
-            <EligibilityIconContainer>
-              <MutualOfOmahaIcon twClasses={'h-10'} />
-            </EligibilityIconContainer>
-          )}
+          {formData.age !== null &&
+            (formData.age === 18 || formData.age === 19 || (formData.age >= 60 && formData.age <= 70)) && (
+              <EligibilityIconContainer>
+                <MutualOfOmahaIcon twClasses={'h-10'} />
+              </EligibilityIconContainer>
+            )}
           {formData.age !== null && formData.age >= 20 && formData.age <= 59 && (
             <EligibilityIconContainer>
               <AmericoIcon twClasses={'h-10'} />
@@ -1077,11 +1201,12 @@ const Form = () => {
                       <IneligibleIcon twClasses={'h-10'} />
                     </EligibilityIconContainer>
                   )}
-                  {dependent.age !== null && (dependent.age === 18 || dependent.age === 19 || dependent.age >= 60) && (
-                    <EligibilityIconContainer>
-                      <MutualOfOmahaIcon twClasses={'h-10'} />
-                    </EligibilityIconContainer>
-                  )}
+                  {dependent.age !== null &&
+                    (dependent.age === 18 || dependent.age === 19 || dependent.age >= 60 || dependent.age <= 70) && (
+                      <EligibilityIconContainer>
+                        <MutualOfOmahaIcon twClasses={'h-10'} />
+                      </EligibilityIconContainer>
+                    )}
                   {dependent.age !== null && dependent.age >= 20 && dependent.age <= 59 && (
                     <EligibilityIconContainer>
                       <AmericoIcon twClasses={'h-10'} />
@@ -1721,16 +1846,20 @@ const Form = () => {
               error={true}
             />
           )}
-          <Script>{`Were you born in the United States?`}</Script>
-          <SelectCreateable
-            id={'country_of_birth'}
-            name='country_of_birth'
-            labelName={`${primaryName}'s Country of Birth:`}
-            placeholder='Please select a country...'
-            options={countries}
-            defaultOption={formData?.country_of_birth || ''}
-          />
-          {formData.country_of_birth === 'United States Of America' && (
+          {formData.life_adb_provider !== 'none' && (
+            <>
+              <Script>{`Were you born in the United States?`}</Script>
+              <SelectCreateable
+                id={'country_of_birth'}
+                name='country_of_birth'
+                labelName={`${primaryName}'s Country of Birth:`}
+                placeholder='Please select a country...'
+                options={countries}
+                defaultOption={formData?.country_of_birth || ''}
+              />
+            </>
+          )}
+          {formData.life_adb_provider !== 'none' && formData.country_of_birth === 'United States Of America' && (
             <>
               <Script>{`What state were you born in?`}</Script>
               <DropDownInput
@@ -1742,42 +1871,46 @@ const Form = () => {
               />
             </>
           )}
-          {formData.country_of_birth !== 'United States Of America' && (
+          {formData.life_adb_provider !== 'none' && formData.country_of_birth !== 'United States Of America' && (
             <Script>{`Are you a resident or a citizen?`}</Script>
           )}
-          <RadioInput
-            labelName='Immigration status:'
-            name='immigration_status'
-            id='immigration_status'
-            options={[
-              { label: 'Resident', value: 'resident' },
-              { label: 'Citizen', value: 'citizen' },
-            ]}
-          />
-          <Script>{`What is your height and weight?`}</Script>
-          <TextInput
-            labelName="Primary's Height:"
-            name='height'
-            id='height'
-            placeholder="Ex. 5'11"
-            type='text'
-            pattern="^(\d{0,1})'(\d{0,2})$"
-            height={true}
-            defaultKey='height'
-            defaultValue={formData?.height || ''}
-          />
-          <TextInput
-            labelName="Primary's Weight:"
-            name='weight'
-            id='weight'
-            placeholder='Ex. 150 lb'
-            type='text'
-            pattern='^\d+(\.\d+)?$'
-            uppercase={false}
-            weight={true}
-            defaultKey='weight'
-            defaultValue={formData?.weight || ''}
-          />
+          {formData.life_adb_provider !== 'none' && (
+            <>
+              <RadioInput
+                labelName='Immigration status:'
+                name='immigration_status'
+                id='immigration_status'
+                options={[
+                  { label: 'Resident', value: 'resident' },
+                  { label: 'Citizen', value: 'citizen' },
+                ]}
+              />
+              <Script>{`What is your height and weight?`}</Script>
+              <TextInput
+                labelName="Primary's Height:"
+                name='height'
+                id='height'
+                placeholder="Ex. 5'11"
+                type='text'
+                pattern="^(\d{0,1})'(\d{0,2})$"
+                height={true}
+                defaultKey='height'
+                defaultValue={formData?.height || ''}
+              />
+              <TextInput
+                labelName="Primary's Weight:"
+                name='weight'
+                id='weight'
+                placeholder='Ex. 150 lb'
+                type='text'
+                pattern='^\d+(\.\d+)?$'
+                uppercase={false}
+                weight={true}
+                defaultKey='weight'
+                defaultValue={formData?.weight || ''}
+              />
+            </>
+          )}
           <Script important>
             {`Great thank you.`}
             <Break />
@@ -1809,44 +1942,48 @@ const Form = () => {
         </>
         {/* Beneficiary Information */}
         <>
-          <Divider />
-          <H2 id='beneficiary'>Beneficiary Information</H2>
-          <Script>
-            {`As we discussed, one of the benefits you are receiving today is a Death Benefit. God forbid you were to pass away, who would you like to put down as a Beneficiary? It can be a parent, spouse, child or your estate.`}
-          </Script>
-          <TextInput
-            labelName={`${primaryName}'s Beneficiary's Full Name:`}
-            name='beneficiary_full_name'
-            id='beneficiary_full_name'
-            placeholder='Ex. Jane Doe'
-            type='text'
-            defaultKey='beneficiary_full_name'
-            defaultValue={formData?.beneficiary_full_name || ''}
-          />
-          <TextInput
-            labelName={`${beneficiaryName}'s Relationship to ${primaryName}:`}
-            name='beneficiary_relationship'
-            id='beneficiary_relationship'
-            placeholder='Ex. Son, Daughter, Spouse'
-            type='text'
-            defaultKey='beneficiary_relationship'
-            defaultValue={formData?.beneficiary_relationship || ''}
-          />
-          <Script>
-            {`{OPTIONAL}`}
-            <Break />
-            <Break />
-            {`Can I also have their date of birth?`}
-          </Script>
-          <DateInput
-            labelName={`${beneficiaryName}'s Date of Birth (Optional):`}
-            name='beneficiary_date_of_birth'
-            id='beneficiary_date_of_birth'
-            ageKey='beneficiary_age'
-            defaultKey='beneficiary_date_of_birth'
-            required={false}
-            defaultValue={formData?.beneficiary_date_of_birth || ''}
-          />
+          {formData.life_adb_provider !== 'none' && (
+            <>
+              <Divider />
+              <H2 id='beneficiary'>Beneficiary Information</H2>
+              <Script>
+                {`As we discussed, one of the benefits you are receiving today is a Death Benefit. God forbid you were to pass away, who would you like to put down as a Beneficiary? It can be a parent, spouse, child or your estate.`}
+              </Script>
+              <TextInput
+                labelName={`${primaryName}'s Beneficiary's Full Name:`}
+                name='beneficiary_full_name'
+                id='beneficiary_full_name'
+                placeholder='Ex. Jane Doe'
+                type='text'
+                defaultKey='beneficiary_full_name'
+                defaultValue={formData?.beneficiary_full_name || ''}
+              />
+              <TextInput
+                labelName={`${beneficiaryName}'s Relationship to ${primaryName}:`}
+                name='beneficiary_relationship'
+                id='beneficiary_relationship'
+                placeholder='Ex. Son, Daughter, Spouse'
+                type='text'
+                defaultKey='beneficiary_relationship'
+                defaultValue={formData?.beneficiary_relationship || ''}
+              />
+              <Script>
+                {`{OPTIONAL}`}
+                <Break />
+                <Break />
+                {`Can I also have their date of birth?`}
+              </Script>
+              <DateInput
+                labelName={`${beneficiaryName}'s Date of Birth (Optional):`}
+                name='beneficiary_date_of_birth'
+                id='beneficiary_date_of_birth'
+                ageKey='beneficiary_age'
+                defaultKey='beneficiary_date_of_birth'
+                required={false}
+                defaultValue={formData?.beneficiary_date_of_birth || ''}
+              />
+            </>
+          )}
         </>
         {/* Payment Method */}
         <>
@@ -2007,14 +2144,21 @@ const Form = () => {
             {`Have a great day ${toTitleCase(formData?.first_name) || '{Client First Name}'}. Bye bye!`}
           </Script>
         </>
-        {/* Submit | Copy */}
+        {/* Submit | Email | Copy */}
         <>
           <Divider />
           <ButtonContainer>
             <Button type='submit'>Send to Google Sheets</Button>
-            <Button type='button' onClick={handleEmailCustomer} disabled={handleEmailDisableButton()}>
-              Email Customer
-            </Button>
+            {formData.life_adb_provider !== 'none' && (
+              <Button type='button' onClick={handleEmailCustomerADB} disabled={handleEmailADBDisableButton()}>
+                Email Customer
+              </Button>
+            )}
+            {formData.life_adb_provider === 'none' && (
+              <Button type='button' onClick={handleEmailCustomerHealth} disabled={handleEmailHealthDisableButton()}>
+                Email Customer w/o ADB
+              </Button>
+            )}
             <Button type='button' onClick={handleCopyToClipboard} disabled={!formData}>
               {copied ? 'Succesfully copied!' : 'Copy for AutoMerico'}
             </Button>

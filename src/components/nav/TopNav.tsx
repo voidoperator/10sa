@@ -1,5 +1,6 @@
 import React from 'react';
 import { useConstantData } from '../contexts/ConstantDataContext';
+import { useFormData } from '../contexts/FormContext';
 import ScriptToggle from '../local/ScriptToggle';
 import {
   NavWrapper,
@@ -13,6 +14,7 @@ const sections = ['Agent', 'Customer', 'Health', 'Quote', 'Disclosure', 'Closure
 
 const TopNav = () => {
   const { constantData } = useConstantData();
+  const { formData } = useFormData();
 
   const handleClick = (id: string) => {
     const element = document.getElementById(id);
@@ -32,6 +34,7 @@ const TopNav = () => {
     <TopNavContainer>
       <NavWrapper>
         {sections.map((section, index) => {
+          if (formData.life_adb_provider === 'none' && section === 'Beneficiary') return;
           return (
             <React.Fragment key={section + index}>
               <PhonyAnchor onClick={() => handleClick(section.toLowerCase())}>{section}</PhonyAnchor>

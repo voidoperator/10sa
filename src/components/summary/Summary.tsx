@@ -1,6 +1,13 @@
 import React from 'react';
 import { useFormData } from '../contexts/FormContext';
-import { SummarySection, SummaryContainer, SummaryUl, SummaryLi, ShadowDiv } from '@/components/TailwindStyled';
+import {
+  SummarySection,
+  SummaryContainer,
+  SummaryUl,
+  SummaryLi,
+  ShadowDiv,
+  ShadowDivRow,
+} from '@/components/TailwindStyled';
 import GroupButton from './GroupButton';
 import TextInput from '../form/TextInput';
 import RadioInput from '../form/RadioInput';
@@ -38,6 +45,7 @@ const Summary = () => {
             name='life_adb_provider'
             options={[
               { label: 'Americo', value: 'americo' },
+              { label: 'None', value: 'none' },
               { label: 'Mutual', value: 'mutual' },
             ]}
             defaultOption={formData?.life_adb_provider || 'americo'}
@@ -93,35 +101,39 @@ const Summary = () => {
             />
           </>
         )}
-        {formData.household_size && <ShadowDiv>Household size: {formData.household_size}</ShadowDiv>}
+        {formData.household_size && (
+          <ShadowDivRow>
+            Household size: <span className='font-medium'>{formData.household_size}</span>
+          </ShadowDivRow>
+        )}
         {formData.additional_insured && (formData.eligible_americo_count > 0 || formData.eligible_mutual_count > 0) && (
           <>
-            <ShadowDiv>
+            <ShadowDivRow>
               {'Applying for coverage: '}
-              {formData.applying_for_coverage}
-            </ShadowDiv>
+              <span className='font-medium'>{formData.applying_for_coverage}</span>
+            </ShadowDivRow>
             {formData.life_adb_provider === 'americo' && (
               <>
-                <ShadowDiv>
+                <ShadowDivRow>
                   {'Americo sales: '}
-                  {formData.eligible_americo_count}
-                </ShadowDiv>
-                <ShadowDiv>
-                  {'Americo amount: $'}
-                  {formData.life_total_cost.toFixed(2)}
-                </ShadowDiv>
+                  <span className='font-medium'>{formData.eligible_americo_count}</span>
+                </ShadowDivRow>
+                <ShadowDivRow className='font-semibold'>
+                  {'Americo amount:'}
+                  <span className='font-medium'>{' $' + formData.life_total_cost.toFixed(2)}</span>
+                </ShadowDivRow>
               </>
             )}
             {formData.life_adb_provider === 'mutual' && (
               <>
-                <ShadowDiv>
+                <ShadowDivRow>
                   {'Mutual of Omaha sales: '}
-                  {formData.eligible_mutual_count}
-                </ShadowDiv>
-                <ShadowDiv>
-                  {'Mutual of Omaha amount: $'}
-                  {formData.life_total_cost.toFixed(2)}
-                </ShadowDiv>
+                  <span className='font-medium'>{formData.eligible_mutual_count}</span>
+                </ShadowDivRow>
+                <ShadowDivRow>
+                  {'Mutual of Omaha amount:'}
+                  <span className='font-medium'>{' $' + formData.life_total_cost.toFixed(2)}</span>
+                </ShadowDivRow>
               </>
             )}
           </>
@@ -132,10 +144,10 @@ const Summary = () => {
           formData.monthly_grand_total &&
           formData.additional_insured &&
           (formData.eligible_americo_count > 0 || formData.eligible_mutual_count > 0) && (
-            <ShadowDiv>
+            <ShadowDivRow>
               {'Monthly Grand Total: '}
-              {formData.monthly_grand_total}
-            </ShadowDiv>
+              <span className='font-medium'>{formData.monthly_grand_total}</span>
+            </ShadowDivRow>
           )}
         {formData.state && (
           <ShadowDiv className='w-full'>

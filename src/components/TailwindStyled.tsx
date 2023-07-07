@@ -37,6 +37,9 @@ export const RequiredSpan = tw.span`
 export const ShadowDiv = tw.div`
   flex flex-col shadow-xl border-dp-hint/5 rounded-xl p-4 border gap-2 bg-dp-primary
 `;
+export const ShadowDivRow = tw.div`
+  flex flex-row shadow-xl border-dp-hint/5 rounded-xl p-4 border gap-2 bg-dp-primary font-semibold text-sm justify-start
+`;
 export const Divider = tw.div`
   h-[1px] w-full bg-dp-hint/75 my-0 sm:my-10 hidden sm:block
 `;
@@ -202,7 +205,7 @@ export const RadioContainer = tw.div`
   flex items-start rounded-full gap-3
 `;
 export const RadioButton = tw.input`
-  form-radio cursor-pointer rounded-full w-4 h-4 bg-neutral-500 border-dp-hint/5 checked:bg-purple-600 checked:fill-red-500 focus:border-blue-600 focus:ring-offset-dp-secondary disabled:bg-neutral-400 disabled:border-dp-hint/20 peer disabled:cursor-not-allowed
+  form-radio cursor-pointer rounded-full w-4 h-4 bg-neutral-500 border-dp-hint/5 checked:bg-purple-600 checked:fill-red-500 focus:border-blue-600 focus:ring-offset-dp-secondary disabled:bg-neutral-300 disabled:border-dp-hint/20 peer disabled:cursor-not-allowed
 `;
 export const RadioLabel = tw.label`
   cursor-pointer rounded-full ml-2 text-sm font-medium peer-disabled:text-gray-500 peer-disabled:cursor-not-allowed
