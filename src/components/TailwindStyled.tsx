@@ -131,23 +131,23 @@ export const Button = tw.button`
 export const H2 = tw.h2`
   cursor-default text-xl font-medium text-dp-text-primary select-none
 `;
+export const GoogleButtonContainer = tw.div`
+  flex items-center justify-center gap-6
+`;
 export const AddDependentContainer = tw.div`
   flex items-center justify-center gap-6
 `;
-export const GoogleRoutingButton = tw.div`
-  flex items-center justify-center gap-6
-`;
 export const AddDependentButton = tw.button`
-  bg-dp-hint/60 hover:bg-green-600 mx-6 w-1/2 transition-all text-dp-text-primary disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:cursor-not-allowed shadow-xl focus:ring-4 focus:outline-none font-medium rounded-full text-sm py-2.5 text-center focus:ring-blue-800
+  bg-blue-500 text-dp-text-secondary hover:bg-green-600 hover:text-dp-text-primary mx-6 w-1/2 transition-all disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:hover:text-dp-text-secondary disabled:cursor-not-allowed shadow-xl focus:ring-4 focus:outline-none font-medium rounded-full text-sm py-2.5 text-center focus:ring-blue-800
 `;
 export const ExternalAnchorButton = tw.a`
-  bg-dp-hint/60 hover:bg-green-600 mx-6 w-1/2 transition-all text-dp-text-primary disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:cursor-not-allowed shadow-xl focus:ring-4 focus:outline-none font-medium rounded-full text-sm py-2.5 text-center focus:ring-blue-800
+  bg-blue-500 text-dp-text-secondary hover:bg-green-600 hover:text-dp-text-primary mx-6 w-1/2 transition-all disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:hover:text-dp-text-secondary disabled:cursor-not-allowed shadow-xl focus:ring-4 focus:outline-none font-medium rounded-full text-sm py-2.5 text-center focus:ring-blue-800
 `;
 export const RemoveDependentButton = tw.button`
-  w-6 absolute top-2 right-2 opacity-70 hover:opacity-100 transition-all
+  w-6 absolute top-1 right-1 opacity-70 hover:opacity-100 transition-all
 `;
 export const AdditionalInsuredContainer = tw.div`
-  flex relative flex-col gap-4 px-6 py-5 border rounded-xl border-white/10 w-full h-full
+  flex relative flex-col gap-4 px-6 py-5 border rounded-xl border-dp-hint/5 w-full h-full mt-6 bg-dp-primary shadow-xl
 `;
 export const EligibilityIconContainer = tw.div`
   flex items-center justify-center text-dp-text-primary

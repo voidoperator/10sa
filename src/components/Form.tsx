@@ -38,7 +38,7 @@ import {
   StatusText,
   AgentInfoBox,
   ExternalAnchorButton,
-  GoogleRoutingButton,
+  GoogleButtonContainer,
   Break,
 } from './TailwindStyled';
 import {
@@ -61,6 +61,8 @@ import {
 } from '@/utility/utility';
 import type { Carrier, FormDataType, OptionTypes } from '@/types/formData';
 import Cookies from 'js-cookie';
+import { useSetAgency } from '@/hooks/useSetAgency';
+import ConfirmLocal from './local/ConfirmLocal';
 
 const Form = () => {
   // State management
@@ -83,6 +85,8 @@ const Form = () => {
   const [bankNameKey, setBankNameKey] = useState<number>(0);
   const [prevBankName, setPrevBankName] = useState(formData.bank_name);
   const [googleRoutingUrl, setGoogleRoutingUrl] = useState<string>('');
+  const [googlePlanPdf, setGooglePlanPdf] = useState<string>('');
+  const { agency, setAgency } = useSetAgency();
 
   const router = useRouter();
 
@@ -276,8 +280,8 @@ const Form = () => {
     }
 
     if (!routingNums && formData.state) {
-      const bankName = formData.bank_name.split(' ').join('+');
-      const state = formData.state.split('_').join('+');
+      const bankName = encodeURIComponent(formData.bank_name);
+      const state = encodeURIComponent(formData.state);
       setGoogleRoutingUrl(`https://www.google.com/search?q=${bankName}+routing+number+${state}`);
     } else {
       setGoogleRoutingUrl('');
@@ -286,6 +290,15 @@ const Form = () => {
     setBankNameKey((prevKey) => prevKey + 1);
     setPrevBankName(formData.bank_name);
   }, [formData.bank_name, formData.state]);
+
+  useEffect(() => {
+    if (!formData.state || !formData.carrier_name || !formData.plan_name) return;
+    const carrierName = encodeURIComponent(formData.carrier_name);
+    let planName = formData.plan_name.replace(/ *\([^)]*\) */g, ' ');
+    planName = encodeURIComponent(planName.trim());
+    const state = encodeURIComponent(toTitleCase(formData.state));
+    setGooglePlanPdf(`https://www.google.com/search?q=${carrierName}+${planName}+${state}+plan+brochure`);
+  }, [formData.state, formData.carrier_name, formData.plan_name]);
 
   useEffect(() => {
     if (!formData.gender) return;
@@ -579,7 +592,6 @@ const Form = () => {
     }
   };
 
-  // TODO CHANGE THIS TO ONLY EMAIL HEALTH TEMPLATE
   const handleEmailCustomerHealth = async () => {
     if (isSendingEmail) return;
     setIsSendingEmail(true);
@@ -775,7 +787,7 @@ const Form = () => {
           <Button onClick={restoreBackupFormData}>Restore Form</Button>
         </ButtonContainer>
       </>
-      {/* Agent Information */}
+      {/* Agent */}
       <>
         <Divider />
         <H2 id='agent'>Agent Information</H2>
@@ -848,10 +860,21 @@ const Form = () => {
             defaultValue={constantData?.agent_email || ''}
             externalValue={constantData?.agent_email}
           />
+          {agency ? (
+            <ConfirmLocal detail={toTitleCase(agency)} labelName='Agency:' id='confirm_agency' />
+          ) : (
+            <ConfirmLocal
+              labelName='No Agency Detected'
+              detail='Agency Missing: Try logging out and in again'
+              id='agency_missing'
+              name='agency_missing'
+              error={true}
+            />
+          )}
         </AgentInfoBox>
       </>
       <FormTag autoComplete='off' autoCapitalize='on' onSubmit={handlePostToGoogle}>
-        {/* Customer Details */}
+        {/* Customer */}
         <>
           <Divider />
           <H2 id='customer'>Customer Details</H2>
@@ -1001,7 +1024,7 @@ const Form = () => {
             defaultValue={formData?.coverage_reason || ''}
           />
         </>
-        {/* Health Questionnaire */}
+        {/* Health */}
         <>
           <Divider />
           <H2 id='health'>Health Questionnaire</H2>
@@ -1212,6 +1235,16 @@ const Form = () => {
                       <AmericoIcon twClasses={'h-10'} />
                     </EligibilityIconContainer>
                   )}
+                  <h3 className='text-dp-text-primary font-semibold text-center'>{`Additional Insured #${i + 1}`}</h3>
+                  <RemoveDependentButton
+                    id='remove-dependent'
+                    key={`dependent_${i + 1}_button`}
+                    type='button'
+                    tabIndex={-1}
+                    onClick={() => removeDependent(i)}
+                  >
+                    <CloseIcon twClasses='text-dp-text-primary/75 fill-dp-text-primary/75' />
+                  </RemoveDependentButton>
                   <TextInput
                     id={i}
                     labelName={`Dependent ${i + 1} Full Name:`}
@@ -1377,15 +1410,6 @@ const Form = () => {
                     defaultKey='notes'
                     defaultValue={dependent.notes || ''}
                   />
-                  <RemoveDependentButton
-                    id='remove-dependent'
-                    key={`dependent_${i + 1}_button`}
-                    type='button'
-                    tabIndex={-1}
-                    onClick={() => removeDependent(i)}
-                  >
-                    <CloseIcon twClasses='text-dp-text-primary fill-white' />
-                  </RemoveDependentButton>
                 </AdditionalInsuredContainer>
               );
             })}
@@ -1398,7 +1422,7 @@ const Form = () => {
                 tabIndex={-1}
                 onClick={addDependent}
               >
-                Add More Dependents
+                {formData.additional_insured_list.length === 0 ? `Add Spouse/Dependent` : 'Add More'}
               </AddDependentButton>
             </AddDependentContainer>
           )}
@@ -1509,7 +1533,7 @@ const Form = () => {
             {`Thank you, please hold.`}
           </Script>
         </>
-        {/* Quote Breakdown */}
+        {/* Quote */}
         <>
           <Divider />
           <H2 id='quote'>Quote Breakdown</H2>
@@ -1593,6 +1617,17 @@ const Form = () => {
             uppercase={false}
             defaultValue={formData?.plan_summary_pdf || ''}
           />
+          {formData.carrier_name && formData.plan_name && !formData.plan_summary_pdf && (
+            <GoogleButtonContainer
+              title={`Google plan PDF for ${toTitleCase(formData.carrier_name)} in the state of ${toTitleCase(
+                formData.state,
+              )}`}
+            >
+              <ExternalAnchorButton href={googlePlanPdf} target='_blank'>
+                {`Click here to Google it!`}
+              </ExternalAnchorButton>
+            </GoogleButtonContainer>
+          )}
         </>
         {/* Disclosure */}
         <>
@@ -1940,7 +1975,7 @@ const Form = () => {
             defaultValue={formData?.ssn || ''}
           />
         </>
-        {/* Beneficiary Information */}
+        {/* Beneficiary */}
         <>
           {formData.life_adb_provider !== 'none' && (
             <>
@@ -1985,7 +2020,7 @@ const Form = () => {
             </>
           )}
         </>
-        {/* Payment Method */}
+        {/* Payment */}
         <>
           <Divider />
           <H2 id='payment'>Payment Method</H2>
@@ -2022,7 +2057,7 @@ const Form = () => {
             defaultOption={formData?.routing_number || ''}
           />
           {googleRoutingUrl && (
-            <GoogleRoutingButton
+            <GoogleButtonContainer
               title={`Google Routing Number for ${toTitleCase(formData.bank_name)} in the state of ${toTitleCase(
                 formData.state,
               )}`}
@@ -2030,7 +2065,7 @@ const Form = () => {
               <ExternalAnchorButton href={googleRoutingUrl} target='_blank'>
                 {`Click here to Google it!`}
               </ExternalAnchorButton>
-            </GoogleRoutingButton>
+            </GoogleButtonContainer>
           )}
           <Script>
             {`Okay perfect, the system is showing that the routing number for ${

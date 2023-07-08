@@ -31,3 +31,12 @@ export type ScriptProps = {
   children: React.ReactNode;
   important?: boolean;
 };
+
+export type ConfirmLocalProps = {
+  id: number | string;
+  detail: string;
+  labelName: string;
+  name?: string;
+  error?: boolean;
+  additional?: boolean;
+};
