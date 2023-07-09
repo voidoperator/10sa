@@ -13,6 +13,10 @@ import SelectCreateable from './form/SelectCreateable';
 import Script from './form/Script';
 import DynamicButton from './form/DynamicButton';
 import LocalStorageInput from './local/LocalStorageInput';
+import GoogleMapsAddress from './form/GoogleMapsAddress';
+import Cookies from 'js-cookie';
+import ConfirmLocal from './local/ConfirmLocal';
+import { useSetAgency } from '@/hooks/useSetAgency';
 import { getZipcodeData, ZipcodeDataType } from '@/utility/getZipcodeData';
 import { DoublePlayLogo } from './icons/DoublePlayLogo';
 import { MutualOfOmahaIcon } from './icons/MutualOfOmahaIcon';
@@ -61,9 +65,6 @@ import {
   parseCurrency,
 } from '@/utility/utility';
 import type { Carrier, FormDataType, OptionTypes } from '@/types/formData';
-import Cookies from 'js-cookie';
-import { useSetAgency } from '@/hooks/useSetAgency';
-import ConfirmLocal from './local/ConfirmLocal';
 
 const Form = () => {
   // State management
@@ -1836,12 +1837,11 @@ const Form = () => {
               formData?.applying_for_coverage > 1 ? 'cards' : 'card'
             }.`}
           </Script>
-          <TextInput
+          <GoogleMapsAddress
             labelName='Street Address (no P.O. box):'
             name='address'
             id='address'
             placeholder='Ex. 12345 NW 1st St'
-            type='text'
             uppercase={false}
             defaultKey='address'
             defaultValue={formData?.address || ''}
@@ -2183,12 +2183,12 @@ const Form = () => {
             <Button type='submit'>Send to Google Sheets</Button>
             {formData.life_adb_provider !== 'none' && (
               <Button type='button' onClick={handleEmailCustomerADB} disabled={handleEmailADBDisableButton()}>
-                Email Customer
+                Email Health & ADB Summary
               </Button>
             )}
             {formData.life_adb_provider === 'none' && (
               <Button type='button' onClick={handleEmailCustomerHealth} disabled={handleEmailHealthDisableButton()}>
-                Email Customer w/o ADB
+                Email Health Summary
               </Button>
             )}
             <Button type='button' onClick={handleCopyToClipboard} disabled={!formData}>

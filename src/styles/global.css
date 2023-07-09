@@ -35,6 +35,42 @@ input:-webkit-autofill:active {
   transition: background-color 5000s ease-in-out 0s;
 }
 
+.pac-container {
+  font-family: 'Montserrat', sans-serif !important;
+  appearance: none !important;
+  background-color: #c7c7c7 !important;
+  border-radius: 8px !important;
+  padding-top: 0.5rem !important;
+  padding-right: 0.75rem !important;
+  padding-bottom: 0.5rem !important;
+  padding-left: 0.75rem !important;
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
+  --tw-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
+  --tw-shadow-colored: 0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color) !important;
+}
+
+div.pac-container.pac-logo::after {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+.pac-item-query {
+  font-size: 14px !important;
+}
+
+.pac-item {
+  font-size: 12px !important;
+  border-top: 0 !important;
+  font-weight: 500 !important;
+}
+
+.pac-item:hover,
+.pac-item-selected {
+  background-color: #ededed !important;
+  border-radius: 16px !important;
+}
+
 .americo_1 {
   fill: #0c233f;
 }

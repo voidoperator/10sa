@@ -235,6 +235,21 @@ export type BankRoutingNumbers = {
   [key: string]: RoutingNumbers;
 };
 
+export type GoogleMapsAddressProps = {
+  id: number | string;
+  labelName: string;
+  placeholder: string;
+  name: string;
+  pattern?: string;
+  required?: boolean;
+  additional?: boolean;
+  uppercase?: boolean;
+  useDefault?: boolean;
+  defaultKey?: string;
+  defaultValue?: string;
+  externalValue?: string;
+};
+
 export type State = OptionTypes['value'];
 
 export type PreferredCarriers = Record<State, Carrier[]>;

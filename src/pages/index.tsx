@@ -292,7 +292,11 @@ const Login = () => {
                 </SmallParagraph>
               )}
             </ShadowDiv>
-            {serverError && <ShadowDiv className=''>{serverError}</ShadowDiv>}
+            {serverError && (
+              <ErrorToast>
+                <GenericContainer>{serverError}</GenericContainer>
+              </ErrorToast>
+            )}
             {accountDoesntExist && (
               <ErrorToast>
                 <GenericContainer>An account with that email doesn&apos;t exists.</GenericContainer>

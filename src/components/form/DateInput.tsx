@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
 import Datepicker from '../datepicker';
-import { calculateAge, isBrowser } from '@/utility/utility';
+import { calculateAge } from '@/utility/utility';
 import type { DateValueType } from '../datepicker/types';
 import type { DateInputProps, DateValue, FormDataType } from '@/types/formData';
 import {
@@ -11,9 +11,6 @@ import {
   RequiredSpan,
   AgeContainer,
 } from '@/components/TailwindStyled';
-
-const datePickerInputClasses =
-  'form-input w-full border text-sm rounded-lg bg-dp-secondary border-dp-hint/0 placeholder-dp-placeholder-text text-dp-text-primary';
 
 const DateInput: React.FC<DateInputProps> = ({
   id,
