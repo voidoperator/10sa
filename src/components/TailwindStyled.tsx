@@ -47,7 +47,7 @@ export const AgentInfoBox = tw.div`
   flex flex-col shadow-xl border-dp-hint/5 rounded-xl px-4 py-6 border gap-6 mt-6 bg-dp-primary
 `;
 export const ScriptBox = tw(motion.div)`
-  rounded-[50px] shadow-xl text-dp-primary font-medium
+  rounded-[50px] shadow-xl text-white font-medium
 `;
 export const Break = tw(motion.br)``;
 export const MotionDiv = tw(motion.div)``;
@@ -175,7 +175,7 @@ export const MainWrapper = tw.div`
   flex w-full xl:max-w-4xl lg:max-w-2xl md:max-w-xl sm:max-w-lg max-w-[200px] p-4 border rounded-lg shadow sm:p-6 md:p-8 bg-dp-primary border-dp-hint/10 items-center justify-center
 `;
 export const StatusText = tw.p`
-  text-xl text-center
+  text-xl text-center font-medium
 `;
 export const IndexContainer = tw.div`
   flex items-start justify-between min-h-screen

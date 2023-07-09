@@ -1,5 +1,116 @@
 import { OptionTypes, PreferredCarriers, BankRoutingNumbers, StatesAbbreviation } from '../types/formData';
 
+export const relationshipOptions: OptionTypes[] = [
+  {
+    label: 'Aunt',
+    value: 'Aunt',
+  },
+  {
+    label: 'Brother-in-law',
+    value: 'Brother-in-law',
+  },
+  {
+    label: 'Business Partner',
+    value: 'Business Partner',
+  },
+  {
+    label: 'Child',
+    value: 'Child',
+  },
+  {
+    label: 'Common Law Spouse',
+    value: 'Common Law Spouse',
+  },
+  {
+    label: 'Cousin',
+    value: 'Cousin',
+  },
+  {
+    label: 'Custodian under UTMA/UGMA',
+    value: 'Custodian UTMA/UGMA',
+  },
+  {
+    label: 'Daughter-in-law',
+    value: 'Daughter-in-law',
+  },
+  {
+    label: 'Domestic Partner',
+    value: 'Domestic Partner',
+  },
+  {
+    label: 'Ex-spouse',
+    value: 'Ex-spouse',
+  },
+  {
+    label: 'Father-in-law',
+    value: 'Father-in-law',
+  },
+  {
+    label: 'Fiance',
+    value: 'Fiance',
+  },
+  {
+    label: 'Friend',
+    value: 'Friend',
+  },
+  {
+    label: 'Grandchild',
+    value: 'Grandchild',
+  },
+  {
+    label: 'Grandparent',
+    value: 'Grandparent',
+  },
+  {
+    label: 'Mother-in-law',
+    value: 'Mother-in-law',
+  },
+  {
+    label: 'Nephew',
+    value: 'Nephew',
+  },
+  {
+    label: 'Niece',
+    value: 'Niece',
+  },
+  {
+    label: 'Parent',
+    value: 'Parent',
+  },
+  {
+    label: 'Sibling',
+    value: 'Sibling',
+  },
+  {
+    label: 'Sister-in-law',
+    value: 'Sister-in-law',
+  },
+  {
+    label: 'Son-in-law',
+    value: 'Son-in-law',
+  },
+  {
+    label: 'Spouse',
+    value: 'Spouse',
+  },
+  {
+    label: 'Step Parent',
+    value: 'Step Parent',
+  },
+  {
+    label: 'Stepchild',
+    value: 'Step Child',
+  },
+  {
+    label: 'Step Sibling',
+    value: 'Step Sibling',
+  },
+  {
+    label: 'Uncle',
+    value: 'Uncle',
+  },
+];
+
 export const statesAbbreviation: StatesAbbreviation = {
   alabama: 'AL',
   alaska: 'AK',

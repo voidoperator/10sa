@@ -42,6 +42,7 @@ import {
   Break,
 } from './TailwindStyled';
 import {
+  relationshipOptions,
   unitedStates,
   countries,
   occupations,
@@ -68,6 +69,7 @@ const Form = () => {
   // State management
   const { formData, setFormData } = useFormData();
   const { constantData } = useConstantData();
+  const { agency } = useSetAgency();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isSendingEmail, setIsSendingEmail] = useState<boolean>(false);
   const [successful, setSuccessful] = useState<boolean>(false);
@@ -86,7 +88,6 @@ const Form = () => {
   const [prevBankName, setPrevBankName] = useState(formData.bank_name);
   const [googleRoutingUrl, setGoogleRoutingUrl] = useState<string>('');
   const [googlePlanPdf, setGooglePlanPdf] = useState<string>('');
-  const { agency, setAgency } = useSetAgency();
 
   const router = useRouter();
 
@@ -759,7 +760,7 @@ const Form = () => {
     return (
       <MainContainer>
         <MainWrapper>
-          <StatusText>Success!</StatusText>
+          <StatusText>{`Success! 🎉`}</StatusText>
         </MainWrapper>
       </MainContainer>
     );
@@ -768,7 +769,7 @@ const Form = () => {
     return (
       <MainContainer>
         <MainWrapper>
-          <StatusText>{errorMessage || 'Oh no! There was an error!'}</StatusText>
+          <StatusText>{errorMessage + ' ⚠️' || 'Oh no! There was an error! ⚠️'}</StatusText>
         </MainWrapper>
       </MainContainer>
     );
@@ -1219,13 +1220,13 @@ const Form = () => {
               const beneficiaryDOBLabel = `${beneficiaryFirstName + "'s"} Date of Birth (Optional):`;
               return (
                 <AdditionalInsuredContainer key={`dependent_${i + 1}_info`}>
-                  {dependent.age !== null && dependent.age < 18 && (
+                  {dependent.age !== null && (dependent.age < 18 || dependent.age > 70) && (
                     <EligibilityIconContainer>
                       <IneligibleIcon twClasses={'h-10'} />
                     </EligibilityIconContainer>
                   )}
                   {dependent.age !== null &&
-                    (dependent.age === 18 || dependent.age === 19 || dependent.age >= 60 || dependent.age <= 70) && (
+                    (dependent.age === 18 || dependent.age === 19 || (dependent.age >= 60 && dependent.age <= 70)) && (
                       <EligibilityIconContainer>
                         <MutualOfOmahaIcon twClasses={'h-10'} />
                       </EligibilityIconContainer>
@@ -1235,7 +1236,7 @@ const Form = () => {
                       <AmericoIcon twClasses={'h-10'} />
                     </EligibilityIconContainer>
                   )}
-                  <h3 className='text-dp-text-primary font-semibold text-center'>{`Additional Insured #${i + 1}`}</h3>
+                  {/* <h3 className='text-dp-text-primary font-semibold text-center'>{`Additional Insured #${i + 1}`}</h3> */}
                   <RemoveDependentButton
                     id='remove-dependent'
                     key={`dependent_${i + 1}_button`}
@@ -1377,16 +1378,13 @@ const Form = () => {
                         defaultKey='beneficiary_full_name'
                         defaultValue={dependent.beneficiary_full_name || ''}
                       />
-                      <TextInput
+                      <DropDownInput
                         id={i}
                         labelName={beneficiaryRelationshipLabel}
                         name='beneficiary_relationship'
-                        placeholder='Ex. Son, Daughter, Spouse'
-                        type='text'
-                        uppercase={true}
+                        placeholder='Please select the relationship...'
                         additional={true}
-                        defaultKey='beneficiary_relationship'
-                        defaultValue={dependent.beneficiary_relationship || ''}
+                        options={relationshipOptions}
                       />
                       <DateInput
                         id={i}
@@ -1993,14 +1991,13 @@ const Form = () => {
                 defaultKey='beneficiary_full_name'
                 defaultValue={formData?.beneficiary_full_name || ''}
               />
-              <TextInput
+              <DropDownInput
+                id='beneficiary_relationship'
                 labelName={`${beneficiaryName}'s Relationship to ${primaryName}:`}
                 name='beneficiary_relationship'
-                id='beneficiary_relationship'
-                placeholder='Ex. Son, Daughter, Spouse'
-                type='text'
-                defaultKey='beneficiary_relationship'
-                defaultValue={formData?.beneficiary_relationship || ''}
+                placeholder='Please select the relationship...'
+                additional={true}
+                options={relationshipOptions}
               />
               <Script>
                 {`{OPTIONAL}`}
