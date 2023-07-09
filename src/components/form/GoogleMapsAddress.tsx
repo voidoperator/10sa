@@ -2,7 +2,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
 import { MainLabel, RequiredSpan, ShadowDiv, TextField } from '@/components/TailwindStyled';
-import { isBrowser, loadScript } from '@/utility/utility';
+import { isBrowser } from '@/utility/utility';
+import { Loader } from '@googlemaps/js-api-loader';
 import type { GoogleMapsAddressProps } from '@/types/formData';
 
 const GoogleMapsAddress: React.FC<GoogleMapsAddressProps> = ({
@@ -26,13 +27,18 @@ const GoogleMapsAddress: React.FC<GoogleMapsAddressProps> = ({
 
   useEffect(() => {
     if (isBrowser()) {
-      const current = autoCompleteRef.current;
-      if (current !== null) {
-        loadScript(
-          `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`,
-          () => setupAutocomplete(current),
-        );
-      }
+      const loader = new Loader({
+        apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
+        version: 'weekly',
+        libraries: ['places'],
+      });
+
+      loader.importLibrary('places').then(() => {
+        const current = autoCompleteRef.current;
+        if (current !== null) {
+          setupAutocomplete(current);
+        }
+      });
     }
   }, []);
 

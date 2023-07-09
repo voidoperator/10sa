@@ -2,32 +2,6 @@ import type { FormDataType, RoutingNumbers, OptionTypes } from '../types/formDat
 
 export const isBrowser = () => typeof window !== 'undefined';
 
-export const loadScript = (url: string, callback: () => void) => {
-  if (document.querySelector(`script[src="${url}"]`)) {
-    callback();
-    return;
-  }
-
-  let script = document.createElement('script');
-  script.type = 'text/javascript';
-
-  if ((script as any).readyState) {
-    (script as any).onreadystatechange = function () {
-      if ((script as any).readyState === 'loaded' || (script as any).readyState === 'complete') {
-        (script as any).onreadystatechange = null;
-        callback();
-      }
-    };
-  } else {
-    script.onload = function () {
-      callback();
-    };
-  }
-
-  script.src = url;
-  document.getElementsByTagName('head')[0].appendChild(script);
-};
-
 export const getNextMonth = (): string => {
   const today = new Date();
   let nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
