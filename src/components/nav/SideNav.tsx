@@ -118,7 +118,7 @@ const SideNav = () => {
       </SymbolContainer>
       <DownloadsContainer>
         <Anchor
-          href='https://github.com/voidoperator/10sa-autosherpa/releases/download/v0.2/AuthoSherpa.zip'
+          href='https://github.com/voidoperator/doubleplay-autosherpa/releases/download/v0.3/AutoSherpa.zip'
           rel='noopener noreferrer'
           target='_blank'
           className='bg-transparent'

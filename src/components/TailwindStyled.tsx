@@ -218,7 +218,7 @@ export const TextField = tw.input`
 
 // TextArea
 export const TextArea = tw.textarea`
-  form-textarea focus:border-blue-600 block p-2.5 w-full text-sm rounded-lg border bg-dp-secondary border-dp-hint/0 placeholder-dp-placeholder-text text-dp-text-primary placeholder:font-normal font-medium
+  form-textarea focus:border-blue-600 block p-2.5 w-full text-sm rounded-lg border bg-dp-secondary border-dp-hint/0 placeholder-dp-placeholder-text text-dp-text-primary placeholder:font-normal font-medium scrollbar-thin scrollbar-thumb-dp-hint scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar-track-dp-secondary
 `;
 
 // GroupButton

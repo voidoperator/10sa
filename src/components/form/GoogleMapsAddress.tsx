@@ -1,9 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
 import { MainLabel, RequiredSpan, ShadowDiv, TextField } from '@/components/TailwindStyled';
 import { isBrowser, loadScript } from '@/utility/utility';
-import { google } from 'google-maps';
 import type { GoogleMapsAddressProps } from '@/types/formData';
 
 const GoogleMapsAddress: React.FC<GoogleMapsAddressProps> = ({
@@ -31,31 +30,31 @@ const GoogleMapsAddress: React.FC<GoogleMapsAddressProps> = ({
       if (current !== null) {
         loadScript(
           `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`,
-          () => {
-            const autoComplete = new window.google.maps.places.Autocomplete(current, {
-              types: ['address'],
-              componentRestrictions: { country: 'us' },
-            });
-            autoComplete.addListener('place_changed', () => handlePlaceSelect(autoComplete));
-          },
+          () => setupAutocomplete(current),
         );
       }
     }
   }, []);
 
-  useEffect(() => {
-    const current = autoCompleteRef.current;
-    if (current) {
-      current.addEventListener('keydown', (event: globalThis.KeyboardEvent) => {
-        if (event.key === 'Enter') {
-          event.preventDefault();
-        }
-        if (event.key === 'Tab') {
-          google.maps.event.trigger(current, 'place_changed');
-        }
-      });
-    }
-  }, [autoCompleteRef]);
+  const setupAutocomplete = (input: HTMLInputElement) => {
+    const autoComplete = new google.maps.places.Autocomplete(input, {
+      types: ['address'],
+      componentRestrictions: { country: 'us' },
+    });
+
+    autoComplete.addListener('place_changed', () => handlePlaceSelect(autoComplete));
+
+    input.addEventListener('keydown', (event: globalThis.KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        return;
+      }
+      if (event.key === 'Tab') {
+        google.maps.event.trigger(autoComplete, 'place_changed');
+        return;
+      }
+    });
+  };
 
   const handlePlaceSelect = (autoComplete: google.maps.places.Autocomplete) => {
     const addressObject = autoComplete.getPlace();

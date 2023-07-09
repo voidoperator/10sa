@@ -14,6 +14,7 @@ import Script from './form/Script';
 import DynamicButton from './form/DynamicButton';
 import LocalStorageInput from './local/LocalStorageInput';
 import GoogleMapsAddress from './form/GoogleMapsAddress';
+import RestoreFromJsonArea from './form/RestoreFromJsonArea';
 import Cookies from 'js-cookie';
 import ConfirmLocal from './local/ConfirmLocal';
 import { useSetAgency } from '@/hooks/useSetAgency';
@@ -89,6 +90,7 @@ const Form = () => {
   const [prevBankName, setPrevBankName] = useState(formData.bank_name);
   const [googleRoutingUrl, setGoogleRoutingUrl] = useState<string>('');
   const [googlePlanPdf, setGooglePlanPdf] = useState<string>('');
+  const [importing, setImporting] = useState<boolean>(false);
 
   const router = useRouter();
 
@@ -510,9 +512,9 @@ const Form = () => {
 
   const handleCopyToClipboard = () => {
     if (!formData) return;
-    const formatData = sanatizeFormData(formData);
+    // const formatData = sanatizeFormData(formData);
     navigator.clipboard
-      .writeText(JSON.stringify(formatData))
+      .writeText(JSON.stringify(formData))
       .then(() => {
         console.log('Copied form data to clipboard');
         setCopied(true);
@@ -780,15 +782,23 @@ const Form = () => {
       <LogoContainer>
         <DoublePlayLogo twClasses='w-2/3 4xl:max-w-4xl 3xl:max-w-3xl 2xl:max-w-3xl xl:max-w-2xl lg:max-w-xl hover:opacity-90 transition-all' />
       </LogoContainer>
-      {/* Clear | Restore | Test */}
+      {/* Clear | Restore | Import */}
       <>
         <HeadingSrOnly>Lead Form</HeadingSrOnly>
         <Divider />
         <ButtonContainer>
           <Button onClick={backupAndClearFormData}>Clear Form</Button>
           <Button onClick={restoreBackupFormData}>Restore Form</Button>
+          <Button onClick={() => setImporting((prev) => !prev)}>Import Form</Button>
         </ButtonContainer>
       </>
+      {/* Import JSON Box */}
+      {importing && (
+        <>
+          <Divider />
+          <RestoreFromJsonArea handlePrev={setPrevBankName} placeholder='Paste raw JSON data here...' />
+        </>
+      )}
       {/* Agent */}
       <>
         <Divider />
@@ -2192,7 +2202,7 @@ const Form = () => {
               </Button>
             )}
             <Button type='button' onClick={handleCopyToClipboard} disabled={!formData}>
-              {copied ? 'Succesfully copied!' : 'Copy for AutoMerico'}
+              {copied ? 'Succesfully copied!' : 'Copy JSON Form'}
             </Button>
           </ButtonContainer>
         </>
