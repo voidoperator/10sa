@@ -173,14 +173,39 @@ const Form = () => {
     const monthlyHealthPremium = parseCurrency(formData.monthly_health_premium) || 0;
 
     let mutual_of_omaha_premium = 0;
-    if (formData.mutual_quote_gender && formData.mutual_face_amount) {
+    if (formData.mutual_quote_gender && formData.mutual_face_amount && formData.age) {
+      const age = parseInt(formData.age.toString(), 10) || 0;
       const coverageAmount = parseInt(formData.mutual_face_amount.replace(/[^0-9]/g, ''), 10) || 0;
-      const multiplier = (coverageAmount - 50000) / 10000;
+      const coverageAboveMinimum = Math.max(coverageAmount - 50000, 0);
+
+      let basePremium = 1,
+        premiumIncrementPer1000 = 1;
+
       if (formData.mutual_quote_gender === 'male') {
-        mutual_of_omaha_premium = 10.289 + multiplier * 1.1811;
+        if (age <= 50) {
+          basePremium = 10.29;
+          premiumIncrementPer1000 = 0.118;
+        } else if (age <= 60) {
+          basePremium = 10.72;
+          premiumIncrementPer1000 = 0.127;
+        } else {
+          basePremium = 13.22;
+          premiumIncrementPer1000 = 0.1768;
+        }
       } else if (formData.mutual_quote_gender === 'female') {
-        mutual_of_omaha_premium = 7.529 + multiplier * 0.6301;
+        if (age <= 50) {
+          basePremium = 7.53;
+          premiumIncrementPer1000 = 0.063;
+        } else if (age <= 60) {
+          basePremium = 8.27;
+          premiumIncrementPer1000 = 0.078;
+        } else {
+          basePremium = 10.68;
+          premiumIncrementPer1000 = 0.126;
+        }
       }
+
+      mutual_of_omaha_premium = basePremium + (premiumIncrementPer1000 * coverageAboveMinimum) / 1000;
       mutual_of_omaha_premium = parseFloat(mutual_of_omaha_premium.toFixed(2));
     }
 
@@ -232,6 +257,7 @@ const Form = () => {
     formData.mutual_quote_gender,
     formData.mutual_face_amount,
     formData.americo_premium,
+    formData.date_of_birth,
     formData.age,
   ]);
 
@@ -512,7 +538,6 @@ const Form = () => {
 
   const handleCopyToClipboard = () => {
     if (!formData) return;
-    // const formatData = sanatizeFormData(formData);
     navigator.clipboard
       .writeText(JSON.stringify(formData))
       .then(() => {
