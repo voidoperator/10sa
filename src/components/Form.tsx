@@ -45,6 +45,8 @@ import {
   ExternalAnchorButton,
   GoogleButtonContainer,
   Break,
+  ShadowDiv,
+  ShadowDivRow,
 } from './TailwindStyled';
 import {
   relationshipOptions,
@@ -152,7 +154,7 @@ const Form = () => {
     if (!formData.life_adb_provider) return;
     const init = '';
     if (formData.life_adb_provider === 'mutual') {
-      setFormData((prevState) => ({ ...prevState, americo_premium: init }));
+      setFormData((prevState) => ({ ...prevState, americo_premium: init, americo_premium_other: init }));
     }
     if (formData.life_adb_provider === 'americo') {
       setFormData((prevState) => ({ ...prevState, mutual_quote_gender: init, mutual_face_amount: init }));
@@ -168,7 +170,10 @@ const Form = () => {
       (formData.age !== null && formData.age >= 20 && formData.age <= 59 ? 1 : 0) +
       eligibleAdditionalInsuredList.length;
 
-    const americoPremium = parseCurrency(formData.americo_premium) || 48;
+    const americoPremium =
+      formData.americo_premium === 'Other'
+        ? parseCurrency(formData.americo_premium_other)
+        : parseCurrency(formData.americo_premium);
     const americoMonthlyAmount = eligibleAmericoCount * americoPremium;
     const monthlyHealthPremium = parseCurrency(formData.monthly_health_premium) || 0;
 
@@ -257,6 +262,7 @@ const Form = () => {
     formData.mutual_quote_gender,
     formData.mutual_face_amount,
     formData.americo_premium,
+    formData.americo_premium_other,
     formData.date_of_birth,
     formData.age,
   ]);
@@ -505,6 +511,36 @@ const Form = () => {
       constantData.agent_license_number &&
       constantData.agent_phone_number &&
       agency
+    ) {
+      return false;
+    }
+    return true;
+  };
+
+  const handleAcaConsentFormDisableButton = () => {
+    const agency = Cookies.get('agency') || localStorage.getItem('agency');
+    if (
+      !agency ||
+      !formData.first_name ||
+      !formData.last_name ||
+      !formData.married ||
+      !formData.annual_household_income ||
+      !formData.household_size ||
+      !formData.additional_insured_list ||
+      !formData.plan_name ||
+      !formData.carrier_name
+    )
+      return true;
+    if (
+      agency &&
+      formData.first_name &&
+      formData.last_name &&
+      formData.married &&
+      formData.annual_household_income &&
+      formData.household_size &&
+      formData.additional_insured_list &&
+      formData.plan_name &&
+      formData.carrier_name
     ) {
       return false;
     }
@@ -765,6 +801,40 @@ const Form = () => {
     }
   };
 
+  const handleAcaConsentForm = async () => {
+    if (isSendingEmail) return;
+    setIsSendingEmail(true);
+
+    const agency = Cookies.get('agency') || localStorage.getItem('agency');
+    if (!agency || !constantData.agent_email) return;
+
+    const customerEmail = encodeURIComponent(formData.email);
+    const agencyName = encodeURIComponent(toTitleCase(agency));
+    const nameFirst = encodeURIComponent(toTitleCase(formData.first_name));
+    const nameLast = encodeURIComponent(toTitleCase(formData.last_name));
+    const isSingle = formData.married === 'no' ? 'Single' : 'Married';
+    const maritalStatus = encodeURIComponent(isSingle);
+    const annualHouseholdIncome = encodeURIComponent(formData.annual_household_income);
+    const numberTaxReturn = encodeURIComponent(formData.household_size);
+    const numberMedicalCoverage = encodeURIComponent(formData.additional_insured_list.length + 1);
+    const planName = encodeURIComponent(formData.plan_name);
+    const carrierName = encodeURIComponent(formData.carrier_name);
+    const agentEmail = encodeURIComponent(constantData.agent_email);
+    // DoublePlay 10SA Form: 231898980792174
+    // Customer Form: 231807827523055
+    let agencyFormNumber;
+    if (agency === '10_steps_ahead') {
+      agencyFormNumber = '231898980792174';
+    }
+    // TODO: ADD MISSING AGENCIES JOTFORMS
+    if (!agencyFormNumber) return;
+    const jotFormUrl = `https://form.jotform.com/${agencyFormNumber}?agency=${agencyName}&legalName[first]=${nameFirst}&legalName[last]=${nameLast}&customerEmail=${customerEmail}&maritalStatus=${maritalStatus}&annualIncome=${annualHouseholdIncome}&householdSize=${numberTaxReturn}&peopleInsured=${numberMedicalCoverage}&carrier=${carrierName}&planName=${planName}&agentEmail=${agentEmail}`;
+    window.open(jotFormUrl, '_blank');
+    setTimeout(() => {
+      setIsSendingEmail(false);
+    }, 2000);
+  };
+
   // Form renders
   if (isSubmitting)
     return (
@@ -811,11 +881,13 @@ const Form = () => {
       <>
         <HeadingSrOnly>Lead Form</HeadingSrOnly>
         <Divider />
-        <ButtonContainer>
-          <Button onClick={backupAndClearFormData}>Clear Form</Button>
-          <Button onClick={restoreBackupFormData}>Restore Form</Button>
-          <Button onClick={() => setImporting((prev) => !prev)}>Import Form</Button>
-        </ButtonContainer>
+        <ShadowDivRow>
+          <ButtonContainer>
+            <Button onClick={backupAndClearFormData}>Clear Form</Button>
+            <Button onClick={restoreBackupFormData}>Restore Form</Button>
+            <Button onClick={() => setImporting((prev) => !prev)}>Import Form</Button>
+          </ButtonContainer>
+        </ShadowDivRow>
       </>
       {/* Import JSON Box */}
       {importing && (
@@ -1984,8 +2056,15 @@ const Form = () => {
             <Break />
             <Break />
             {`So due to new federal marketplace regulations I'm required to email you a Docusign document that you'll have to sign authorizing us to enroll you in this plan on your behalf.`}
-            <Break />
-            <Break />
+          </Script>
+          {formData.email && (
+            <ShadowDiv>
+              <Button onClick={handleAcaConsentForm} disabled={handleAcaConsentFormDisableButton()}>
+                Email ACA Consent Form
+              </Button>
+            </ShadowDiv>
+          )}
+          <Script important>
             {`If you could check your email, sign it, and let me know when you're done, we'll be ready to proceed.`}
           </Script>
           <Script>
@@ -2215,20 +2294,22 @@ const Form = () => {
         <>
           <Divider />
           <ButtonContainer>
-            <Button type='submit'>Send to Google Sheets</Button>
-            {formData.life_adb_provider !== 'none' && (
-              <Button type='button' onClick={handleEmailCustomerADB} disabled={handleEmailADBDisableButton()}>
-                Email Health & ADB Summary
+            <ShadowDivRow>
+              <Button type='submit'>Send to Google Sheets</Button>
+              {formData.life_adb_provider !== 'none' && (
+                <Button type='button' onClick={handleEmailCustomerADB} disabled={handleEmailADBDisableButton()}>
+                  Email Health & Life Summary
+                </Button>
+              )}
+              {formData.life_adb_provider === 'none' && (
+                <Button type='button' onClick={handleEmailCustomerHealth} disabled={handleEmailHealthDisableButton()}>
+                  Email Health Summary
+                </Button>
+              )}
+              <Button type='button' onClick={handleCopyToClipboard} disabled={!formData}>
+                {copied ? 'Succesfully copied!' : 'Copy JSON Form'}
               </Button>
-            )}
-            {formData.life_adb_provider === 'none' && (
-              <Button type='button' onClick={handleEmailCustomerHealth} disabled={handleEmailHealthDisableButton()}>
-                Email Health Summary
-              </Button>
-            )}
-            <Button type='button' onClick={handleCopyToClipboard} disabled={!formData}>
-              {copied ? 'Succesfully copied!' : 'Copy JSON Form'}
-            </Button>
+            </ShadowDivRow>
           </ButtonContainer>
         </>
       </FormTag>

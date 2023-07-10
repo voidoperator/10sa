@@ -226,7 +226,7 @@ export const GroupButtonContainer = tw.div`
   flex items-center justify-center font-semibold
 `;
 export const GroupButtonButton = tw.button`
-  w-1/2 hover:bg-green-600/90 active:bg-dp-hint/100 border-dp-hint/5 text-dp-text-primary py-2 px-4 transition-all sm:text-xs
+  flex items-center justify-center overflow-x-hidden w-1/2 hover:bg-green-600/90 active:bg-dp-hint/100 border-dp-hint/5 text-dp-text-primary py-2 px-4 transition-all sm:text-xs
 `;
 
 // DateInput

@@ -61,12 +61,14 @@ const Summary = () => {
               required={false}
               rowOrCol='col'
               options={[
-                { label: '$27 Monthly - $100k ADB', value: '$27' },
-                { label: '$35 Monthly - $150k ADB', value: '$35' },
-                { label: '$42 Monthly - $200k ADB', value: '$42' },
                 { label: '$48 Monthly - $250k ADB', value: '$48' },
+                { label: '$42 Monthly - $200k ADB', value: '$42' },
+                { label: '$35 Monthly - $150k ADB', value: '$35' },
+                { label: '$27 Monthly - $100k ADB', value: '$27' },
+                { label: 'Other', value: 'Other' },
               ]}
               defaultOption={formData?.americo_premium || '$48'}
+              showCustomOption={true}
             />
           </>
         )}
@@ -100,6 +102,32 @@ const Summary = () => {
               defaultValue={formData?.mutual_face_amount || ''}
             />
           </>
+        )}
+        {formData.life_adb_provider &&
+          formData.household_size &&
+          formData.monthly_health_premium &&
+          formData.monthly_grand_total &&
+          formData.additional_insured &&
+          (formData.eligible_americo_count > 0 || formData.eligible_mutual_count > 0) && (
+            <ShadowDivRow>
+              {'Monthly Grand Total: '}
+              <span className='font-medium'>{formData.monthly_grand_total}</span>
+            </ShadowDivRow>
+          )}
+        {formData.state && (
+          <ShadowDiv className='w-full'>
+            <div className='font-semibold text-sm'>Preferred carriers for {toTitleCase(formData.state)}:</div>
+            <SummaryUl>
+              {formData.carriers &&
+                formData.carriers.map((carrier, i) => {
+                  return (
+                    <SummaryLi key={carrier + i} title={carrier}>
+                      <CarrierIcon icon={carrier as CarrierIconKey} twClasses='max-w-xs fill-black' />
+                    </SummaryLi>
+                  );
+                })}
+            </SummaryUl>
+          </ShadowDiv>
         )}
         {formData.household_size && (
           <ShadowDivRow>
@@ -137,32 +165,6 @@ const Summary = () => {
               </>
             )}
           </>
-        )}
-        {formData.life_adb_provider &&
-          formData.household_size &&
-          formData.monthly_health_premium &&
-          formData.monthly_grand_total &&
-          formData.additional_insured &&
-          (formData.eligible_americo_count > 0 || formData.eligible_mutual_count > 0) && (
-            <ShadowDivRow>
-              {'Monthly Grand Total: '}
-              <span className='font-medium'>{formData.monthly_grand_total}</span>
-            </ShadowDivRow>
-          )}
-        {formData.state && (
-          <ShadowDiv className='w-full'>
-            <div className='font-semibold text-sm'>Preferred carriers for {toTitleCase(formData.state)}:</div>
-            <SummaryUl>
-              {formData.carriers &&
-                formData.carriers.map((carrier, i) => {
-                  return (
-                    <SummaryLi key={carrier + i} title={carrier}>
-                      <CarrierIcon icon={carrier as CarrierIconKey} twClasses='max-w-xs fill-black' />
-                    </SummaryLi>
-                  );
-                })}
-            </SummaryUl>
-          </ShadowDiv>
         )}
       </SummaryContainer>
     </SummarySection>

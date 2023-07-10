@@ -22,6 +22,7 @@ const RestoreFromJsonArea: React.FC<RestoreFromJsonAreaProps> = ({ placeholder, 
       const data = JSON.parse(jsonInput);
       setValidJson(data);
       setIsDisabled(false);
+      setButtonText('Import JSON');
     } catch (error) {
       setIsDisabled(true);
       setButtonText('Invalid JSON');

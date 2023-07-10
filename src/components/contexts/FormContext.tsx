@@ -89,6 +89,7 @@ export const initialFormData: FormDataType = {
   preferred_doctors: '',
   preferred_doctors_name: '',
   americo_premium: '',
+  americo_premium_other: '',
   mutual_face_amount: '',
   mutual_quote_gender: '',
   eligible_americo_count: 0,

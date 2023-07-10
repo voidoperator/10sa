@@ -64,6 +64,7 @@ export type FormDataType = {
   preferred_doctors: string;
   preferred_doctors_name: string;
   americo_premium: string;
+  americo_premium_other: string;
   mutual_face_amount: string;
   mutual_quote_gender: string;
   eligible_americo_count: number;
@@ -130,6 +131,7 @@ export type RadioInputProps = {
   required?: boolean;
   additional?: boolean;
   defaultOption?: string;
+  showCustomOption?: boolean;
   rowOrCol?: string;
 };
 
