@@ -66,6 +66,7 @@ import {
   getDayWithSuffix,
   getRoutingNumbers,
   parseCurrency,
+  formatDependentAutoMerico,
 } from '@/utility/utility';
 import type { Carrier, FormDataType, OptionTypes } from '@/types/formData';
 
@@ -586,6 +587,21 @@ const Form = () => {
       .catch((err) => console.log(`Could not copy text: ${err}`));
   };
 
+  const handleCopyDependentAutomerico = (index: number) => {
+    if (!formData) return;
+    const dependentAutoMerico = formatDependentAutoMerico(formData, index);
+    navigator.clipboard
+      .writeText(JSON.stringify(dependentAutoMerico))
+      .then(() => {
+        console.log('Copied form data to clipboard');
+        setCopied(true);
+        setTimeout(() => {
+          setCopied(false);
+        }, 5000);
+      })
+      .catch((err) => console.log(`Could not copy text: ${err}`));
+  };
+
   const handleEmailCustomerADB = async () => {
     if (isSendingEmail) return;
     setIsSendingEmail(true);
@@ -874,20 +890,20 @@ const Form = () => {
 
   return (
     <FormSectionContainer>
+      <HeadingSrOnly>Lead Form</HeadingSrOnly>
       <LogoContainer>
         <DoublePlayLogo twClasses='w-2/3 4xl:max-w-4xl 3xl:max-w-3xl 2xl:max-w-3xl xl:max-w-2xl lg:max-w-xl hover:opacity-90 transition-all' />
       </LogoContainer>
       {/* Clear | Restore | Import */}
       <>
-        <HeadingSrOnly>Lead Form</HeadingSrOnly>
         <Divider />
-        <ShadowDivRow>
-          <ButtonContainer>
+        <ButtonContainer>
+          <ShadowDivRow>
             <Button onClick={backupAndClearFormData}>Clear Form</Button>
             <Button onClick={restoreBackupFormData}>Restore Form</Button>
             <Button onClick={() => setImporting((prev) => !prev)}>Import Form</Button>
-          </ButtonContainer>
-        </ShadowDivRow>
+          </ShadowDivRow>
+        </ButtonContainer>
       </>
       {/* Import JSON Box */}
       {importing && (
@@ -1344,7 +1360,6 @@ const Form = () => {
                       <AmericoIcon twClasses={'h-10'} />
                     </EligibilityIconContainer>
                   )}
-                  {/* <h3 className='text-dp-text-primary font-semibold text-center'>{`Additional Insured #${i + 1}`}</h3> */}
                   <RemoveDependentButton
                     id='remove-dependent'
                     key={`dependent_${i + 1}_button`}
@@ -1516,6 +1531,13 @@ const Form = () => {
                     defaultKey='notes'
                     defaultValue={dependent.notes || ''}
                   />
+                  <ButtonContainer>
+                    <ShadowDiv>
+                      <Button type='button' onClick={() => handleCopyDependentAutomerico(i)} disabled={!formData}>
+                        {`Copy ${dependentFirstName} for AutoMerico`}
+                      </Button>
+                    </ShadowDiv>
+                  </ButtonContainer>
                 </AdditionalInsuredContainer>
               );
             })}
@@ -2307,7 +2329,7 @@ const Form = () => {
                 </Button>
               )}
               <Button type='button' onClick={handleCopyToClipboard} disabled={!formData}>
-                {copied ? 'Succesfully copied!' : 'Copy JSON Form'}
+                {copied ? 'Copied!' : 'Copy JSON Form'}
               </Button>
             </ShadowDivRow>
           </ButtonContainer>

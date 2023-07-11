@@ -123,7 +123,7 @@ export const LogoContainer = tw.div`
   flex items-center justify-center
 `;
 export const ButtonContainer = tw.div`
-  w-full inline-flex gap-4
+  w-full
 `;
 export const Button = tw.button`
   disabled:bg-neutral-500 disabled:text-neutral-200 hover:bg-green-600 bg-blue-500 border active:bg-blue-500/100 w-full transition-all text-white hover:text-neutral-900 focus:ring-4 focus:outline-none font-medium hover:font-semibold disabled:hover:font-medium rounded-lg text-sm px-5 py-2.5 text-center focus:ring-blue-800 select-none disabled:cursor-not-allowed
