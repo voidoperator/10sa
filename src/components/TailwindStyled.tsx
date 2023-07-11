@@ -68,6 +68,9 @@ export const QuestionButton = tw.button`
 export const NextLink = tw(Link)`
   underline text-blue-600 hover:text-blue-800 transition-colors font-medium
 `;
+export const NextLinkButton = tw(Link)`
+  text-dp-text-secondary hover:bg-green-600 transition-colors font-medium bg-blue-500 py-4 px-6 rounded-full
+`;
 export const SmallParagraph = tw.p`
   text-sm select-none
 `;

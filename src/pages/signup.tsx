@@ -66,7 +66,7 @@ const SignUp = () => {
         setHasRouted(true);
         setTimeout(() => {
           router.replace('/');
-        }, 5000);
+        }, 15000);
       }
     } catch (error: unknown) {
       console.log(error);

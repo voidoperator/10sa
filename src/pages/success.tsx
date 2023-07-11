@@ -1,7 +1,15 @@
 import React from 'react';
 import Head from 'next/head';
 import LogOutButton from '@/components/paywall/LogOutButton';
-import { H2, LogoContainer, MainContainer, MainWrapper, NextLink, SmallParagraph } from '@/components/TailwindStyled';
+import {
+  H2,
+  LogoContainer,
+  MainContainer,
+  MainWrapper,
+  NextLink,
+  NextLinkButton,
+  SmallParagraph,
+} from '@/components/TailwindStyled';
 import { DoublePlayLogo } from '@/components/icons/DoublePlayLogo';
 
 const Success = () => {
@@ -16,9 +24,9 @@ const Success = () => {
         </LogoContainer>
         <H2>Payment Successful!</H2>
         <SmallParagraph className='font-medium text-base'>
-          Your transaction has been completed, and a receipt for your purchase has been emailed to you.
+          Your transaction has been completed and a receipt for your purchase has been emailed to you.
         </SmallParagraph>
-        <NextLink href='/form'>Click here to enter DouplePlay</NextLink>
+        <NextLinkButton href='/form'>Click here to enter DouplePlay</NextLinkButton>
       </MainWrapper>
       <LogOutButton />
     </MainContainer>
