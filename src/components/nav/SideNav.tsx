@@ -13,6 +13,7 @@ import { AmericoSymbol, HealthSherpaSymbol, MutualOfOmahaSymbol } from '../icons
 import { statesAbbreviation } from '@/utility/staticData';
 import { parseCurrency } from '@/utility/utility';
 import { DownloadAutoSherpaIcon } from '../icons/DownloadAutoSherpaIcon';
+import { DownloadAutoMericoIcon } from '../icons/DownloadAutoMericoIcon';
 
 const SideNav = () => {
   const { formData, setFormData } = useFormData();
@@ -122,9 +123,18 @@ const SideNav = () => {
           rel='noopener noreferrer'
           target='_blank'
           className='bg-transparent'
-          title='Download AutoSherpa'
+          title='AutoSherpa Download'
         >
           <DownloadAutoSherpaIcon twClasses='z-10 w-10 rounded-full fill-white/75 hover:fill-white transition-all duration-500' />
+        </Anchor>
+        <Anchor
+          href='https://github.com/voidoperator/doubleplay-automerico/releases/download/v0.1/AutoMerico.zip'
+          rel='noopener noreferrer'
+          target='_blank'
+          className='bg-transparent'
+          title='AutoMerico Download'
+        >
+          <DownloadAutoMericoIcon twClasses='z-10 w-10 rounded-full fill-white/75 hover:fill-white transition-all duration-500' />
         </Anchor>
       </DownloadsContainer>
     </SideNavContainer>
