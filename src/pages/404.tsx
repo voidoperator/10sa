@@ -6,7 +6,7 @@ const NotFoundPage = () => {
   return (
     <MainContainer>
       <Head>
-        <title>10 Steps Ahead || 404: Not Found</title>
+        <title>DoublePlay | 404</title>
       </Head>
       <MainWrapper className='flex-col gap-6'>
         <StatusText>404: Not Found</StatusText>

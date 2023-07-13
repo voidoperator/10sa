@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
 import {
   MainLabelSpan,
@@ -7,8 +7,9 @@ import {
   RequiredSpan,
   RadioButton,
   RadioLabel,
+  TextField,
 } from '@/components/TailwindStyled';
-import type { RadioInputProps, FormDataType } from '../../types/formData';
+import type { RadioInputProps, FormDataType } from '@/types/formData';
 
 const RadioInput: React.FC<RadioInputProps> = ({
   labelName,
@@ -20,8 +21,23 @@ const RadioInput: React.FC<RadioInputProps> = ({
   rowOrCol = 'row',
   defaultOption,
   additional = false,
+  showCustomOption = false,
 }) => {
   const { formData, setFormData } = useFormData();
+  const [customValue, setCustomValue] = useState<string>('');
+  const [showOtherInput, setShowOtherInput] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!showCustomOption) return;
+    if (formData.americo_premium === 'Other') {
+      setShowOtherInput(true);
+    } else {
+      setShowOtherInput(false);
+      setCustomValue('');
+      setFormData((prevState) => ({ ...prevState, americo_premium_other: '' }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.americo_premium]);
 
   useEffect(() => {
     if (defaultOption && !formData[name as keyof FormDataType]) {
@@ -44,6 +60,25 @@ const RadioInput: React.FC<RadioInputProps> = ({
       setFormData((prevState) => ({ ...prevState, additional_insured_list: additionalInsuredList }));
       return;
     }
+  };
+
+  const handleOtherChange = ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
+    value = value.replace(/[^0-9.]/g, '');
+    let decimalPart = '';
+    if (value.includes('.')) {
+      const [integerPart, decimal] = value.split('.');
+      decimalPart = '.' + decimal.substring(0, 2);
+      value = integerPart;
+    }
+    if (value === '') {
+      value = '';
+    } else {
+      const numericValue = Number(value);
+      value = new Intl.NumberFormat('en-US').format(numericValue);
+      value = `$${value}${decimalPart}`;
+    }
+    setCustomValue(value);
+    setFormData((prevState) => ({ ...prevState, americo_premium_other: value }));
   };
 
   const formatId = additional && typeof id === 'number' ? name + '_' + (id + 1) : name;
@@ -82,6 +117,16 @@ const RadioInput: React.FC<RadioInputProps> = ({
             </div>
           );
         })}
+        {showOtherInput && (
+          <TextField
+            type='text'
+            name={`${name}_other`}
+            id={`${name}_other`}
+            onChange={(e) => handleOtherChange(e)}
+            value={formData.americo_premium_other || customValue}
+            placeholder='Ex. $98.75'
+          />
+        )}
       </RadioContainer>
     </RadioInputWrapper>
   );

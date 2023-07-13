@@ -4,7 +4,7 @@ import Creatable from 'react-select/creatable';
 import { useFormData } from '../contexts/FormContext';
 import { creatableStyles, MainLabel, RequiredSpan, ShadowDiv } from '@/components/TailwindStyled';
 import type { OnChangeValue } from 'react-select';
-import type { SelectCreateableProps, OptionTypes } from '../../types/formData';
+import type { SelectCreateableProps, OptionTypes } from '@/types/formData';
 
 const SelectCreateable: React.FC<SelectCreateableProps> = ({
   labelName,

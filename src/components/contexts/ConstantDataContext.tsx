@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState, FC, ReactNode, Context } from 'react';
-import { isBrowser } from '../../utility/utility';
-import type { ConstantDataType } from '../../types/constantData';
+import { isBrowser } from '@/utility/utility';
+import type { ConstantDataType } from '@/types/constantData';
 
 export const initialLocalStorageState: ConstantDataType = {
   google_app_url: '',
   agent_full_name: '',
   agent_license_number: '',
+  agent_npn: '',
   agent_phone_number: '',
   agent_email: '',
   show_script: '',

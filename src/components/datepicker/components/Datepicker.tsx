@@ -318,12 +318,12 @@ const Datepicker: React.FC<DatepickerType> = ({
         <Input setContextRef={setInputRef} onValueChange={onValueChange} />
 
         <div
-          className='transition-all ease-out duration-300 absolute z-10 mt-[1px] text-sm lg:text-xs 2xl:text-sm translate-y-4 opacity-0 hidden'
+          className='transition-all ease-out duration-300 absolute z-10 mt-[1px] text-sm translate-y-4 opacity-0 hidden'
           ref={calendarContainerRef}
         >
           <Arrow ref={arrowRef} />
 
-          <div className='mt-2.5 shadow-sm border border-gray-300 px-1 py-0.5 bg-white dark:bg-slate-800 dark:text-white dark:border-slate-600 rounded-lg'>
+          <div className='mt-2.5 p-5 bg-dp-secondary/80 backdrop-blur-xl text-black font-bold rounded-xl'>
             <div className='lg:flex-row flex flex-col py-2'>
               {showShortcuts && <Shortcuts />}
 

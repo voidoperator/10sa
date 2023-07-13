@@ -166,22 +166,26 @@ export const sanatizeFormData = (form: FormDataType) => {
   }, {});
 };
 
-export const backupAndClearFormData = () => {
-  const currentFormData = localStorage.getItem('formData') || '';
-  if (currentFormData) {
-    localStorage.setItem('backupFormData', localStorage.getItem('formData') || '');
-    localStorage.removeItem('formData');
-    window.location.reload();
+export const formatDependentAutoMerico = (formData: FormDataType, index: number) => {
+  if (!formData.additional_insured_list || index >= formData.additional_insured_list.length) {
+    throw new Error('Invalid index for additional_insured_list');
   }
-};
 
-export const restoreBackupFormData = () => {
-  const backupData = localStorage.getItem('backupFormData');
-  if (backupData) {
-    localStorage.setItem('formData', backupData);
-    localStorage.removeItem('backupFormData');
-    window.location.reload();
-  } else {
-    console.log('No backup data found');
-  }
+  const dependent = formData.additional_insured_list[index];
+
+  const { full_name, dependent_gender, id, notes, ...restDependentData } = dependent;
+
+  const nameParts = full_name.split(' ');
+  const first_name = nameParts[0] || '';
+  const last_name = nameParts[nameParts.length - 1] || '';
+  const middle_name = nameParts.length > 2 ? nameParts.slice(1, -1).join(' ') : '';
+
+  return {
+    ...formData,
+    ...restDependentData,
+    first_name,
+    middle_name,
+    last_name,
+    gender: dependent_gender,
+  };
 };

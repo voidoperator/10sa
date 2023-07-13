@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { useFormData, initialDependentState } from './contexts/FormContext';
 import { useConstantData } from './contexts/ConstantDataContext';
 import TextInput from './form/TextInput';
@@ -12,8 +13,13 @@ import SelectCreateable from './form/SelectCreateable';
 import Script from './form/Script';
 import DynamicButton from './form/DynamicButton';
 import LocalStorageInput from './local/LocalStorageInput';
+import GoogleMapsAddress from './form/GoogleMapsAddress';
+import RestoreFromJsonArea from './form/RestoreFromJsonArea';
+import Cookies from 'js-cookie';
+import ConfirmLocal from './local/ConfirmLocal';
+import { useSetAgency } from '@/hooks/useSetAgency';
 import { getZipcodeData, ZipcodeDataType } from '@/utility/getZipcodeData';
-import { TenStepsAheadLogo } from './icons/TenStepsAheadLogo';
+import { DoublePlayLogo } from './icons/DoublePlayLogo';
 import { MutualOfOmahaIcon } from './icons/MutualOfOmahaIcon';
 import { AmericoIcon } from './icons/AmericoIcon';
 import { CloseIcon } from './icons/CloseIcon';
@@ -37,10 +43,13 @@ import {
   StatusText,
   AgentInfoBox,
   ExternalAnchorButton,
-  GoogleRoutingButton,
+  GoogleButtonContainer,
   Break,
+  ShadowDiv,
+  ShadowDivRow,
 } from './TailwindStyled';
 import {
+  relationshipOptions,
   unitedStates,
   countries,
   occupations,
@@ -49,23 +58,23 @@ import {
   banks,
   routingNumbers,
   mockJsonData,
-} from '../utility/staticData';
+} from '@/utility/staticData';
 import {
   toTitleCase,
   sanatizeFormData,
-  backupAndClearFormData,
-  restoreBackupFormData,
   getNextMonth,
   getDayWithSuffix,
   getRoutingNumbers,
   parseCurrency,
-} from '../utility/utility';
-import type { Carrier, FormDataType, OptionTypes } from '../types/formData';
+  formatDependentAutoMerico,
+} from '@/utility/utility';
+import type { Carrier, FormDataType, OptionTypes } from '@/types/formData';
 
 const Form = () => {
   // State management
   const { formData, setFormData } = useFormData();
   const { constantData } = useConstantData();
+  const { agency } = useSetAgency();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isSendingEmail, setIsSendingEmail] = useState<boolean>(false);
   const [successful, setSuccessful] = useState<boolean>(false);
@@ -83,6 +92,10 @@ const Form = () => {
   const [bankNameKey, setBankNameKey] = useState<number>(0);
   const [prevBankName, setPrevBankName] = useState(formData.bank_name);
   const [googleRoutingUrl, setGoogleRoutingUrl] = useState<string>('');
+  const [googlePlanPdf, setGooglePlanPdf] = useState<string>('');
+  const [importing, setImporting] = useState<boolean>(false);
+
+  const router = useRouter();
 
   // Set formData
   useEffect(() => {
@@ -142,7 +155,7 @@ const Form = () => {
     if (!formData.life_adb_provider) return;
     const init = '';
     if (formData.life_adb_provider === 'mutual') {
-      setFormData((prevState) => ({ ...prevState, americo_premium: init }));
+      setFormData((prevState) => ({ ...prevState, americo_premium: init, americo_premium_other: init }));
     }
     if (formData.life_adb_provider === 'americo') {
       setFormData((prevState) => ({ ...prevState, mutual_quote_gender: init, mutual_face_amount: init }));
@@ -158,29 +171,56 @@ const Form = () => {
       (formData.age !== null && formData.age >= 20 && formData.age <= 59 ? 1 : 0) +
       eligibleAdditionalInsuredList.length;
 
-    const americoPremium = parseCurrency(formData.americo_premium) || 48;
+    const americoPremium =
+      formData.americo_premium === 'Other'
+        ? parseCurrency(formData.americo_premium_other)
+        : parseCurrency(formData.americo_premium);
     const americoMonthlyAmount = eligibleAmericoCount * americoPremium;
     const monthlyHealthPremium = parseCurrency(formData.monthly_health_premium) || 0;
 
     let mutual_of_omaha_premium = 0;
-    if (formData.mutual_quote_gender && formData.mutual_face_amount) {
+    if (formData.mutual_quote_gender && formData.mutual_face_amount && formData.age) {
+      const age = parseInt(formData.age.toString(), 10) || 0;
       const coverageAmount = parseInt(formData.mutual_face_amount.replace(/[^0-9]/g, ''), 10) || 0;
-      const multiplier = (coverageAmount - 50000) / 10000;
+      const coverageAboveMinimum = Math.max(coverageAmount - 50000, 0);
+
+      let basePremium = 1,
+        premiumIncrementPer1000 = 1;
+
       if (formData.mutual_quote_gender === 'male') {
-        mutual_of_omaha_premium = 10.289 + multiplier * 1.1811;
+        if (age <= 50) {
+          basePremium = 10.29;
+          premiumIncrementPer1000 = 0.118;
+        } else if (age <= 60) {
+          basePremium = 10.72;
+          premiumIncrementPer1000 = 0.127;
+        } else {
+          basePremium = 13.22;
+          premiumIncrementPer1000 = 0.1768;
+        }
       } else if (formData.mutual_quote_gender === 'female') {
-        mutual_of_omaha_premium = 7.529 + multiplier * 0.6301;
+        if (age <= 50) {
+          basePremium = 7.53;
+          premiumIncrementPer1000 = 0.063;
+        } else if (age <= 60) {
+          basePremium = 8.27;
+          premiumIncrementPer1000 = 0.078;
+        } else {
+          basePremium = 10.68;
+          premiumIncrementPer1000 = 0.126;
+        }
       }
+
+      mutual_of_omaha_premium = basePremium + (premiumIncrementPer1000 * coverageAboveMinimum) / 1000;
       mutual_of_omaha_premium = parseFloat(mutual_of_omaha_premium.toFixed(2));
     }
 
     const eligibleMutualInsuredList =
       formData.additional_insured_list?.filter(
-        (member) => member.age !== null && (member.age === 18 || member.age === 19 || member.age >= 60),
+        (member) => member.age !== null && member.age >= 18 && member.age <= 70,
       ) || [];
     const eligibleMutualCount =
-      (formData.age !== null && (formData.age === 18 || formData.age === 19 || formData.age >= 60) ? 1 : 0) +
-      eligibleMutualInsuredList.length;
+      (formData.age !== null && formData.age >= 18 && formData.age <= 70 ? 1 : 0) + eligibleMutualInsuredList.length;
     const mutualMonthlyAmount = eligibleMutualCount * mutual_of_omaha_premium;
     const grandTotal =
       formData.life_adb_provider === 'americo'
@@ -189,13 +229,32 @@ const Form = () => {
 
     const formatGrandTotal = grandTotal ? `$${grandTotal.toFixed(2).toString()}` : '';
 
-    setFormData((prevState) => ({
-      ...prevState,
-      monthly_grand_total: formatGrandTotal,
-      eligible_americo_count: eligibleAmericoCount,
-      eligible_mutual_count: eligibleMutualCount,
-      life_total_cost: americoMonthlyAmount || mutualMonthlyAmount,
-    }));
+    if (formData.life_adb_provider === 'americo') {
+      setFormData((prevState) => ({
+        ...prevState,
+        monthly_grand_total: formatGrandTotal,
+        eligible_americo_count: eligibleAmericoCount,
+        eligible_mutual_count: eligibleMutualCount,
+        life_total_cost: americoMonthlyAmount,
+      }));
+    }
+    if (formData.life_adb_provider === 'none') {
+      const grandTotal = formatGrandTotal ? formatGrandTotal : '$0';
+      setFormData((prevState) => ({
+        ...prevState,
+        monthly_grand_total: grandTotal,
+        life_total_cost: 0,
+      }));
+    }
+    if (formData.life_adb_provider === 'mutual') {
+      setFormData((prevState) => ({
+        ...prevState,
+        monthly_grand_total: formatGrandTotal,
+        eligible_americo_count: eligibleAmericoCount,
+        eligible_mutual_count: eligibleMutualCount,
+        life_total_cost: mutualMonthlyAmount,
+      }));
+    }
   }, [
     JSON.stringify(formData.additional_insured_list),
     formData.additional_insured,
@@ -204,6 +263,8 @@ const Form = () => {
     formData.mutual_quote_gender,
     formData.mutual_face_amount,
     formData.americo_premium,
+    formData.americo_premium_other,
+    formData.date_of_birth,
     formData.age,
   ]);
 
@@ -256,8 +317,8 @@ const Form = () => {
     }
 
     if (!routingNums && formData.state) {
-      const bankName = formData.bank_name.split(' ').join('+');
-      const state = formData.state.split('_').join('+');
+      const bankName = encodeURIComponent(formData.bank_name);
+      const state = encodeURIComponent(formData.state);
       setGoogleRoutingUrl(`https://www.google.com/search?q=${bankName}+routing+number+${state}`);
     } else {
       setGoogleRoutingUrl('');
@@ -266,6 +327,15 @@ const Form = () => {
     setBankNameKey((prevKey) => prevKey + 1);
     setPrevBankName(formData.bank_name);
   }, [formData.bank_name, formData.state]);
+
+  useEffect(() => {
+    if (!formData.state || !formData.carrier_name || !formData.plan_name) return;
+    const carrierName = encodeURIComponent(formData.carrier_name);
+    let planName = formData.plan_name.replace(/ *\([^)]*\) */g, ' ');
+    planName = encodeURIComponent(planName.trim());
+    const state = encodeURIComponent(toTitleCase(formData.state));
+    setGooglePlanPdf(`https://www.google.com/search?q=${carrierName}+${planName}+${state}+plan+brochure`);
+  }, [formData.state, formData.carrier_name, formData.plan_name]);
 
   useEffect(() => {
     if (!formData.gender) return;
@@ -405,7 +475,9 @@ const Form = () => {
   }, [formData.life_total_cost, formData.health_unsubsidized]);
 
   // Function handlers
-  const handleEmailDisableButton = () => {
+  const handleEmailADBDisableButton = () => {
+    const agency = Cookies.get('agency') || localStorage.getItem('agency');
+    if (!agency) return true;
     if (
       formData &&
       formData.monthly_grand_total &&
@@ -417,7 +489,59 @@ const Form = () => {
       constantData.agent_email &&
       constantData.agent_full_name &&
       constantData.agent_license_number &&
-      constantData.agent_phone_number
+      constantData.agent_phone_number &&
+      agency
+    ) {
+      return false;
+    }
+    return true;
+  };
+
+  const handleEmailHealthDisableButton = () => {
+    const agency = Cookies.get('agency') || localStorage.getItem('agency');
+    if (!agency) return true;
+    if (
+      formData &&
+      formData.monthly_grand_total &&
+      formData.plan_summary_pdf &&
+      formData.email &&
+      formData.first_name &&
+      formData.carrier_name &&
+      constantData.agent_email &&
+      constantData.agent_full_name &&
+      constantData.agent_license_number &&
+      constantData.agent_phone_number &&
+      agency
+    ) {
+      return false;
+    }
+    return true;
+  };
+
+  const handleAcaConsentFormDisableButton = () => {
+    const agency = Cookies.get('agency') || localStorage.getItem('agency');
+    if (
+      !agency ||
+      !formData.first_name ||
+      !formData.last_name ||
+      !formData.married ||
+      !formData.annual_household_income ||
+      !formData.household_size ||
+      !formData.additional_insured_list ||
+      !formData.plan_name ||
+      !formData.carrier_name
+    )
+      return true;
+    if (
+      agency &&
+      formData.first_name &&
+      formData.last_name &&
+      formData.married &&
+      formData.annual_household_income &&
+      formData.household_size &&
+      formData.additional_insured_list &&
+      formData.plan_name &&
+      formData.carrier_name
     ) {
       return false;
     }
@@ -451,9 +575,8 @@ const Form = () => {
 
   const handleCopyToClipboard = () => {
     if (!formData) return;
-    const formatData = sanatizeFormData(formData);
     navigator.clipboard
-      .writeText(JSON.stringify(formatData))
+      .writeText(JSON.stringify(formData))
       .then(() => {
         console.log('Copied form data to clipboard');
         setCopied(true);
@@ -464,9 +587,27 @@ const Form = () => {
       .catch((err) => console.log(`Could not copy text: ${err}`));
   };
 
-  const handleEmailCustomer = async () => {
-    if (!constantData.google_app_url) return;
+  const handleCopyDependentAutomerico = (index: number) => {
+    if (!formData) return;
+    const dependentAutoMerico = formatDependentAutoMerico(formData, index);
+    navigator.clipboard
+      .writeText(JSON.stringify(dependentAutoMerico))
+      .then(() => {
+        console.log('Copied form data to clipboard');
+        setCopied(true);
+        setTimeout(() => {
+          setCopied(false);
+        }, 5000);
+      })
+      .catch((err) => console.log(`Could not copy text: ${err}`));
+  };
+
+  const handleEmailCustomerADB = async () => {
+    if (isSendingEmail) return;
     setIsSendingEmail(true);
+
+    // Retrieve agency
+    const agency = Cookies.get('agency') || localStorage.getItem('agency');
 
     // Format formData
     const formatData = sanatizeFormData(formData) as FormDataType;
@@ -488,6 +629,8 @@ const Form = () => {
 
     // Parse information for email
     const emailData = {
+      type: 'adb',
+      agency: agency,
       customerEmail: formatData.email,
       customerFirstName: formatData.first_name,
       carrierName: formatData.carrier_name,
@@ -495,6 +638,71 @@ const Form = () => {
       monthlyGrandTotal: formatData.monthly_grand_total,
       planSummaryLink: formatData.plan_summary_pdf,
       adbInformationalLink: informationalLink,
+      agentFullName: agentName,
+      agentPhoneNumberPretty: phonePretty,
+      agentPhoneNumberHref: phoneHref,
+      agentEmail: constantData.agent_email,
+      agentLicenseNumber: constantData.agent_license_number,
+    };
+
+    try {
+      const response = await fetch('/api/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(emailData),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(` emailing client... ${data.error}`);
+      }
+      setIsSendingEmail(false);
+      setSuccessful(true);
+      setTimeout(() => {
+        setSuccessful(false);
+      }, 4000);
+    } catch (error: any) {
+      setErrorMessage(error.toString());
+      setIsSendingEmail(false);
+      setError(true);
+      setTimeout(() => {
+        setErrorMessage('');
+        setError(false);
+      }, 6000);
+    }
+  };
+
+  const handleEmailCustomerHealth = async () => {
+    if (isSendingEmail) return;
+    setIsSendingEmail(true);
+
+    // Retrieve agency
+    const agency = Cookies.get('agency') || localStorage.getItem('agency');
+
+    // Format formData
+    const formatData = sanatizeFormData(formData) as FormDataType;
+
+    // Auto send email to client data
+    const agentName = toTitleCase(constantData.agent_full_name || '');
+    let phonePretty;
+    let phoneHref;
+    if (constantData.agent_phone_number) {
+      let formatPhonePretty = constantData.agent_phone_number.split('-');
+      const [area = '', three = '', four = ''] = formatPhonePretty;
+      phonePretty = `(${area}) ${three}-${four}`;
+      phoneHref = `${area}${three}${four}`;
+    }
+
+    // Parse information for email
+    const emailData = {
+      type: 'health',
+      agency: agency,
+      customerEmail: formatData.email,
+      customerFirstName: formatData.first_name,
+      carrierName: formatData.carrier_name,
+      monthlyGrandTotal: formatData.monthly_grand_total,
+      planSummaryLink: formatData.plan_summary_pdf,
       agentFullName: agentName,
       agentPhoneNumberPretty: phonePretty,
       agentPhoneNumberHref: phoneHref,
@@ -589,6 +797,60 @@ const Form = () => {
     }
   };
 
+  const backupAndClearFormData = async () => {
+    const currentFormData = localStorage.getItem('formData') || '';
+    if (currentFormData) {
+      localStorage.setItem('backupFormData', localStorage.getItem('formData') || '');
+      localStorage.removeItem('formData');
+      router.reload();
+    }
+  };
+
+  const restoreBackupFormData = () => {
+    const backupData = localStorage.getItem('backupFormData');
+    if (backupData) {
+      localStorage.setItem('formData', backupData);
+      localStorage.removeItem('backupFormData');
+      router.reload();
+    } else {
+      console.log('No backup data found');
+    }
+  };
+
+  const handleAcaConsentForm = async () => {
+    if (isSendingEmail) return;
+    setIsSendingEmail(true);
+
+    const agency = Cookies.get('agency') || localStorage.getItem('agency');
+    if (!agency || !constantData.agent_email) return;
+
+    const customerEmail = encodeURIComponent(formData.email);
+    const agencyName = encodeURIComponent(toTitleCase(agency));
+    const nameFirst = encodeURIComponent(toTitleCase(formData.first_name));
+    const nameLast = encodeURIComponent(toTitleCase(formData.last_name));
+    const isSingle = formData.married === 'no' ? 'Single' : 'Married';
+    const maritalStatus = encodeURIComponent(isSingle);
+    const annualHouseholdIncome = encodeURIComponent(formData.annual_household_income);
+    const numberTaxReturn = encodeURIComponent(formData.household_size);
+    const numberMedicalCoverage = encodeURIComponent(formData.additional_insured_list.length + 1);
+    const planName = encodeURIComponent(formData.plan_name);
+    const carrierName = encodeURIComponent(formData.carrier_name);
+    const agentEmail = encodeURIComponent(constantData.agent_email);
+    // DoublePlay 10SA Form: 231898980792174
+    // Customer Form: 231807827523055
+    let agencyFormNumber;
+    if (agency === '10_steps_ahead') {
+      agencyFormNumber = '231898980792174';
+    }
+    // TODO: ADD MISSING AGENCIES JOTFORMS
+    if (!agencyFormNumber) return;
+    const jotFormUrl = `https://form.jotform.com/${agencyFormNumber}?agency=${agencyName}&legalName[first]=${nameFirst}&legalName[last]=${nameLast}&customerEmail=${customerEmail}&maritalStatus=${maritalStatus}&annualIncome=${annualHouseholdIncome}&householdSize=${numberTaxReturn}&peopleInsured=${numberMedicalCoverage}&carrier=${carrierName}&planName=${planName}&agentEmail=${agentEmail}`;
+    window.open(jotFormUrl, '_blank');
+    setTimeout(() => {
+      setIsSendingEmail(false);
+    }, 2000);
+  };
+
   // Form renders
   if (isSubmitting)
     return (
@@ -612,7 +874,7 @@ const Form = () => {
     return (
       <MainContainer>
         <MainWrapper>
-          <StatusText>Success!</StatusText>
+          <StatusText>{`Success! 🎉`}</StatusText>
         </MainWrapper>
       </MainContainer>
     );
@@ -621,26 +883,36 @@ const Form = () => {
     return (
       <MainContainer>
         <MainWrapper>
-          <StatusText>{errorMessage || 'Oh no! There was an error!'}</StatusText>
+          <StatusText>{errorMessage + ' ⚠️' || 'Oh no! There was an error! ⚠️'}</StatusText>
         </MainWrapper>
       </MainContainer>
     );
 
   return (
     <FormSectionContainer>
+      <HeadingSrOnly>Lead Form</HeadingSrOnly>
       <LogoContainer>
-        <TenStepsAheadLogo twClasses='w-full 4xl:max-w-4xl 3xl:max-w-3xl 2xl:max-w-3xl xl:max-w-2xl lg:max-w-xl hover:opacity-90 transition-all' />
+        <DoublePlayLogo twClasses='w-2/3 4xl:max-w-4xl 3xl:max-w-3xl 2xl:max-w-3xl xl:max-w-2xl lg:max-w-xl hover:opacity-90 transition-all' />
       </LogoContainer>
-      {/* Clear | Restore | Test */}
+      {/* Clear | Restore | Import */}
       <>
-        <HeadingSrOnly>Lead Form</HeadingSrOnly>
         <Divider />
         <ButtonContainer>
-          <Button onClick={backupAndClearFormData}>Clear Form</Button>
-          <Button onClick={restoreBackupFormData}>Restore Form</Button>
+          <ShadowDivRow>
+            <Button onClick={backupAndClearFormData}>Clear Form</Button>
+            <Button onClick={restoreBackupFormData}>Restore Form</Button>
+            <Button onClick={() => setImporting((prev) => !prev)}>Import Form</Button>
+          </ShadowDivRow>
         </ButtonContainer>
       </>
-      {/* Agent Information */}
+      {/* Import JSON Box */}
+      {importing && (
+        <>
+          <Divider />
+          <RestoreFromJsonArea handlePrev={setPrevBankName} placeholder='Paste raw JSON data here...' />
+        </>
+      )}
+      {/* Agent */}
       <>
         <Divider />
         <H2 id='agent'>Agent Information</H2>
@@ -685,6 +957,15 @@ const Form = () => {
             externalValue={constantData?.agent_license_number}
           />
           <LocalStorageInput
+            labelName='Agent NPN:'
+            name='agent_npn'
+            id='agent_npn'
+            placeholder='Ex. 123456789'
+            defaultKey='agent_npn'
+            defaultValue={constantData?.agent_npn || ''}
+            externalValue={constantData?.agent_npn}
+          />
+          <LocalStorageInput
             labelName='Agent Phone Number:'
             name='agent_phone_number'
             id='agent_phone_number'
@@ -704,10 +985,21 @@ const Form = () => {
             defaultValue={constantData?.agent_email || ''}
             externalValue={constantData?.agent_email}
           />
+          {agency ? (
+            <ConfirmLocal detail={toTitleCase(agency)} labelName='Agency:' id='confirm_agency' />
+          ) : (
+            <ConfirmLocal
+              labelName='No Agency Detected'
+              detail='Agency Missing: Try logging out and in again'
+              id='agency_missing'
+              name='agency_missing'
+              error={true}
+            />
+          )}
         </AgentInfoBox>
       </>
       <FormTag autoComplete='off' autoCapitalize='on' onSubmit={handlePostToGoogle}>
-        {/* Customer Details */}
+        {/* Customer */}
         <>
           <Divider />
           <H2 id='customer'>Customer Details</H2>
@@ -720,7 +1012,7 @@ const Form = () => {
             {`Can I please have your full name?`}
           </Script>
           <TextInput
-            labelName='First Name'
+            labelName='First Name:'
             name='first_name'
             id='first_name'
             placeholder='Ex. John'
@@ -739,7 +1031,7 @@ const Form = () => {
             defaultValue={formData?.middle_name || ''}
           />
           <TextInput
-            labelName='Last Name'
+            labelName='Last Name:'
             name='last_name'
             id='last_name'
             placeholder='Ex. Doe'
@@ -857,7 +1149,7 @@ const Form = () => {
             defaultValue={formData?.coverage_reason || ''}
           />
         </>
-        {/* Health Questionnaire */}
+        {/* Health */}
         <>
           <Divider />
           <H2 id='health'>Health Questionnaire</H2>
@@ -905,16 +1197,17 @@ const Form = () => {
             defaultValue={formData?.annual_household_income || ''}
           />
           <Script>{`Great. Can I please have your date of birth?`}</Script>
-          {formData.age !== null && formData.age < 18 && (
+          {formData.age !== null && (formData.age < 18 || formData.age > 70) && (
             <EligibilityIconContainer>
               <IneligibleIcon twClasses={'h-10'} />
             </EligibilityIconContainer>
           )}
-          {formData.age !== null && (formData.age === 18 || formData.age === 19 || formData.age >= 60) && (
-            <EligibilityIconContainer>
-              <MutualOfOmahaIcon twClasses={'h-10'} />
-            </EligibilityIconContainer>
-          )}
+          {formData.age !== null &&
+            (formData.age === 18 || formData.age === 19 || (formData.age >= 60 && formData.age <= 70)) && (
+              <EligibilityIconContainer>
+                <MutualOfOmahaIcon twClasses={'h-10'} />
+              </EligibilityIconContainer>
+            )}
           {formData.age !== null && formData.age >= 20 && formData.age <= 59 && (
             <EligibilityIconContainer>
               <AmericoIcon twClasses={'h-10'} />
@@ -1051,21 +1344,31 @@ const Form = () => {
               const beneficiaryDOBLabel = `${beneficiaryFirstName + "'s"} Date of Birth (Optional):`;
               return (
                 <AdditionalInsuredContainer key={`dependent_${i + 1}_info`}>
-                  {dependent.age !== null && dependent.age < 18 && (
+                  {dependent.age !== null && (dependent.age < 18 || dependent.age > 70) && (
                     <EligibilityIconContainer>
                       <IneligibleIcon twClasses={'h-10'} />
                     </EligibilityIconContainer>
                   )}
-                  {dependent.age !== null && (dependent.age === 18 || dependent.age === 19 || dependent.age >= 60) && (
-                    <EligibilityIconContainer>
-                      <MutualOfOmahaIcon twClasses={'h-10'} />
-                    </EligibilityIconContainer>
-                  )}
+                  {dependent.age !== null &&
+                    (dependent.age === 18 || dependent.age === 19 || (dependent.age >= 60 && dependent.age <= 70)) && (
+                      <EligibilityIconContainer>
+                        <MutualOfOmahaIcon twClasses={'h-10'} />
+                      </EligibilityIconContainer>
+                    )}
                   {dependent.age !== null && dependent.age >= 20 && dependent.age <= 59 && (
                     <EligibilityIconContainer>
                       <AmericoIcon twClasses={'h-10'} />
                     </EligibilityIconContainer>
                   )}
+                  <RemoveDependentButton
+                    id='remove-dependent'
+                    key={`dependent_${i + 1}_button`}
+                    type='button'
+                    tabIndex={-1}
+                    onClick={() => removeDependent(i)}
+                  >
+                    <CloseIcon twClasses='text-dp-text-primary/75 fill-dp-text-primary/75' />
+                  </RemoveDependentButton>
                   <TextInput
                     id={i}
                     labelName={`Dependent ${i + 1} Full Name:`}
@@ -1198,16 +1501,13 @@ const Form = () => {
                         defaultKey='beneficiary_full_name'
                         defaultValue={dependent.beneficiary_full_name || ''}
                       />
-                      <TextInput
+                      <DropDownInput
                         id={i}
                         labelName={beneficiaryRelationshipLabel}
                         name='beneficiary_relationship'
-                        placeholder='Ex. Son, Daughter, Spouse'
-                        type='text'
-                        uppercase={true}
+                        placeholder='Please select the relationship...'
                         additional={true}
-                        defaultKey='beneficiary_relationship'
-                        defaultValue={dependent.beneficiary_relationship || ''}
+                        options={relationshipOptions}
                       />
                       <DateInput
                         id={i}
@@ -1231,15 +1531,13 @@ const Form = () => {
                     defaultKey='notes'
                     defaultValue={dependent.notes || ''}
                   />
-                  <RemoveDependentButton
-                    id='remove-dependent'
-                    key={`dependent_${i + 1}_button`}
-                    type='button'
-                    tabIndex={-1}
-                    onClick={() => removeDependent(i)}
-                  >
-                    <CloseIcon twClasses='text-white fill-white' />
-                  </RemoveDependentButton>
+                  <ButtonContainer>
+                    <ShadowDiv>
+                      <Button type='button' onClick={() => handleCopyDependentAutomerico(i)} disabled={!formData}>
+                        {`Copy ${dependentFirstName} for AutoMerico`}
+                      </Button>
+                    </ShadowDiv>
+                  </ButtonContainer>
                 </AdditionalInsuredContainer>
               );
             })}
@@ -1252,7 +1550,7 @@ const Form = () => {
                 tabIndex={-1}
                 onClick={addDependent}
               >
-                Add More Dependents
+                {formData.additional_insured_list.length === 0 ? `Add Spouse/Dependent` : 'Add More'}
               </AddDependentButton>
             </AddDependentContainer>
           )}
@@ -1363,7 +1661,7 @@ const Form = () => {
             {`Thank you, please hold.`}
           </Script>
         </>
-        {/* Quote Breakdown */}
+        {/* Quote */}
         <>
           <Divider />
           <H2 id='quote'>Quote Breakdown</H2>
@@ -1447,6 +1745,17 @@ const Form = () => {
             uppercase={false}
             defaultValue={formData?.plan_summary_pdf || ''}
           />
+          {formData.carrier_name && formData.plan_name && !formData.plan_summary_pdf && (
+            <GoogleButtonContainer
+              title={`Google plan PDF for ${toTitleCase(formData.carrier_name)} in the state of ${toTitleCase(
+                formData.state,
+              )}`}
+            >
+              <ExternalAnchorButton href={googlePlanPdf} target='_blank'>
+                {`Click here to Google it!`}
+              </ExternalAnchorButton>
+            </GoogleButtonContainer>
+          )}
         </>
         {/* Disclosure */}
         <>
@@ -1657,12 +1966,11 @@ const Form = () => {
               formData?.applying_for_coverage > 1 ? 'cards' : 'card'
             }.`}
           </Script>
-          <TextInput
+          <GoogleMapsAddress
             labelName='Street Address (no P.O. box):'
             name='address'
             id='address'
             placeholder='Ex. 12345 NW 1st St'
-            type='text'
             uppercase={false}
             defaultKey='address'
             defaultValue={formData?.address || ''}
@@ -1700,16 +2008,20 @@ const Form = () => {
               error={true}
             />
           )}
-          <Script>{`Were you born in the United States?`}</Script>
-          <SelectCreateable
-            id={'country_of_birth'}
-            name='country_of_birth'
-            labelName={`${primaryName}'s Country of Birth:`}
-            placeholder='Please select a country...'
-            options={countries}
-            defaultOption={formData?.country_of_birth || ''}
-          />
-          {formData.country_of_birth === 'United States Of America' && (
+          {formData.life_adb_provider !== 'none' && (
+            <>
+              <Script>{`Were you born in the United States?`}</Script>
+              <SelectCreateable
+                id={'country_of_birth'}
+                name='country_of_birth'
+                labelName={`${primaryName}'s Country of Birth:`}
+                placeholder='Please select a country...'
+                options={countries}
+                defaultOption={formData?.country_of_birth || ''}
+              />
+            </>
+          )}
+          {formData.life_adb_provider !== 'none' && formData.country_of_birth === 'United States Of America' && (
             <>
               <Script>{`What state were you born in?`}</Script>
               <DropDownInput
@@ -1721,49 +2033,60 @@ const Form = () => {
               />
             </>
           )}
-          {formData.country_of_birth !== 'United States Of America' && (
+          {formData.life_adb_provider !== 'none' && formData.country_of_birth !== 'United States Of America' && (
             <Script>{`Are you a resident or a citizen?`}</Script>
           )}
-          <RadioInput
-            labelName='Immigration status:'
-            name='immigration_status'
-            id='immigration_status'
-            options={[
-              { label: 'Resident', value: 'resident' },
-              { label: 'Citizen', value: 'citizen' },
-            ]}
-          />
-          <Script>{`What is your height and weight?`}</Script>
-          <TextInput
-            labelName="Primary's Height:"
-            name='height'
-            id='height'
-            placeholder="Ex. 5'11"
-            type='text'
-            pattern="^(\d{0,1})'(\d{0,2})$"
-            height={true}
-            defaultKey='height'
-            defaultValue={formData?.height || ''}
-          />
-          <TextInput
-            labelName="Primary's Weight:"
-            name='weight'
-            id='weight'
-            placeholder='Ex. 150 lb'
-            type='text'
-            pattern='^\d+(\.\d+)?$'
-            uppercase={false}
-            weight={true}
-            defaultKey='weight'
-            defaultValue={formData?.weight || ''}
-          />
+          {formData.life_adb_provider !== 'none' && (
+            <>
+              <RadioInput
+                labelName='Immigration status:'
+                name='immigration_status'
+                id='immigration_status'
+                options={[
+                  { label: 'Resident', value: 'resident' },
+                  { label: 'Citizen', value: 'citizen' },
+                ]}
+              />
+              <Script>{`What is your height and weight?`}</Script>
+              <TextInput
+                labelName="Primary's Height:"
+                name='height'
+                id='height'
+                placeholder="Ex. 5'11"
+                type='text'
+                pattern="^(\d{0,1})'(\d{0,2})$"
+                height={true}
+                defaultKey='height'
+                defaultValue={formData?.height || ''}
+              />
+              <TextInput
+                labelName="Primary's Weight:"
+                name='weight'
+                id='weight'
+                placeholder='Ex. 150 lb'
+                type='text'
+                pattern='^\d+(\.\d+)?$'
+                uppercase={false}
+                weight={true}
+                defaultKey='weight'
+                defaultValue={formData?.weight || ''}
+              />
+            </>
+          )}
           <Script important>
             {`Great thank you.`}
             <Break />
             <Break />
             {`So due to new federal marketplace regulations I'm required to email you a Docusign document that you'll have to sign authorizing us to enroll you in this plan on your behalf.`}
-            <Break />
-            <Break />
+          </Script>
+          {formData.email && (
+            <ShadowDiv>
+              <Button onClick={handleAcaConsentForm} disabled={handleAcaConsentFormDisableButton()}>
+                Email ACA Consent Form
+              </Button>
+            </ShadowDiv>
+          )}
+          <Script important>
             {`If you could check your email, sign it, and let me know when you're done, we'll be ready to proceed.`}
           </Script>
           <Script>
@@ -1786,48 +2109,51 @@ const Form = () => {
             defaultValue={formData?.ssn || ''}
           />
         </>
-        {/* Beneficiary Information */}
+        {/* Beneficiary */}
         <>
-          <Divider />
-          <H2 id='beneficiary'>Beneficiary Information</H2>
-          <Script>
-            {`As we discussed, one of the benefits you are receiving today is a Death Benefit. God forbid you were to pass away, who would you like to put down as a Beneficiary? It can be a parent, spouse, child or your estate.`}
-          </Script>
-          <TextInput
-            labelName={`${primaryName}'s Beneficiary's Full Name:`}
-            name='beneficiary_full_name'
-            id='beneficiary_full_name'
-            placeholder='Ex. Jane Doe'
-            type='text'
-            defaultKey='beneficiary_full_name'
-            defaultValue={formData?.beneficiary_full_name || ''}
-          />
-          <TextInput
-            labelName={`${beneficiaryName}'s Relationship to ${primaryName}:`}
-            name='beneficiary_relationship'
-            id='beneficiary_relationship'
-            placeholder='Ex. Son, Daughter, Spouse'
-            type='text'
-            defaultKey='beneficiary_relationship'
-            defaultValue={formData?.beneficiary_relationship || ''}
-          />
-          <Script>
-            {`{OPTIONAL}`}
-            <Break />
-            <Break />
-            {`Can I also have their date of birth?`}
-          </Script>
-          <DateInput
-            labelName={`${beneficiaryName}'s Date of Birth (Optional):`}
-            name='beneficiary_date_of_birth'
-            id='beneficiary_date_of_birth'
-            ageKey='beneficiary_age'
-            defaultKey='beneficiary_date_of_birth'
-            required={false}
-            defaultValue={formData?.beneficiary_date_of_birth || ''}
-          />
+          {formData.life_adb_provider !== 'none' && (
+            <>
+              <Divider />
+              <H2 id='beneficiary'>Beneficiary Information</H2>
+              <Script>
+                {`As we discussed, one of the benefits you are receiving today is a Death Benefit. God forbid you were to pass away, who would you like to put down as a Beneficiary? It can be a parent, spouse, child or your estate.`}
+              </Script>
+              <TextInput
+                labelName={`${primaryName}'s Beneficiary's Full Name:`}
+                name='beneficiary_full_name'
+                id='beneficiary_full_name'
+                placeholder='Ex. Jane Doe'
+                type='text'
+                defaultKey='beneficiary_full_name'
+                defaultValue={formData?.beneficiary_full_name || ''}
+              />
+              <DropDownInput
+                id='beneficiary_relationship'
+                labelName={`${beneficiaryName}'s Relationship to ${primaryName}:`}
+                name='beneficiary_relationship'
+                placeholder='Please select the relationship...'
+                additional={true}
+                options={relationshipOptions}
+              />
+              <Script>
+                {`{OPTIONAL}`}
+                <Break />
+                <Break />
+                {`Can I also have their date of birth?`}
+              </Script>
+              <DateInput
+                labelName={`${beneficiaryName}'s Date of Birth (Optional):`}
+                name='beneficiary_date_of_birth'
+                id='beneficiary_date_of_birth'
+                ageKey='beneficiary_age'
+                defaultKey='beneficiary_date_of_birth'
+                required={false}
+                defaultValue={formData?.beneficiary_date_of_birth || ''}
+              />
+            </>
+          )}
         </>
-        {/* Payment Method */}
+        {/* Payment */}
         <>
           <Divider />
           <H2 id='payment'>Payment Method</H2>
@@ -1864,7 +2190,7 @@ const Form = () => {
             defaultOption={formData?.routing_number || ''}
           />
           {googleRoutingUrl && (
-            <GoogleRoutingButton
+            <GoogleButtonContainer
               title={`Google Routing Number for ${toTitleCase(formData.bank_name)} in the state of ${toTitleCase(
                 formData.state,
               )}`}
@@ -1872,7 +2198,7 @@ const Form = () => {
               <ExternalAnchorButton href={googleRoutingUrl} target='_blank'>
                 {`Click here to Google it!`}
               </ExternalAnchorButton>
-            </GoogleRoutingButton>
+            </GoogleButtonContainer>
           )}
           <Script>
             {`Okay perfect, the system is showing that the routing number for ${
@@ -1986,17 +2312,26 @@ const Form = () => {
             {`Have a great day ${toTitleCase(formData?.first_name) || '{Client First Name}'}. Bye bye!`}
           </Script>
         </>
-        {/* Submit | Copy */}
+        {/* Submit | Email | Copy */}
         <>
           <Divider />
           <ButtonContainer>
-            <Button type='submit'>Send to Google Sheets</Button>
-            <Button type='button' onClick={handleEmailCustomer} disabled={handleEmailDisableButton()}>
-              Email Customer
-            </Button>
-            <Button type='button' onClick={handleCopyToClipboard} disabled={!formData}>
-              {copied ? 'Succesfully copied!' : 'Copy for AutoMerico'}
-            </Button>
+            <ShadowDivRow>
+              <Button type='submit'>Send to Google Sheets</Button>
+              {formData.life_adb_provider !== 'none' && (
+                <Button type='button' onClick={handleEmailCustomerADB} disabled={handleEmailADBDisableButton()}>
+                  Email Health & Life Summary
+                </Button>
+              )}
+              {formData.life_adb_provider === 'none' && (
+                <Button type='button' onClick={handleEmailCustomerHealth} disabled={handleEmailHealthDisableButton()}>
+                  Email Health Summary
+                </Button>
+              )}
+              <Button type='button' onClick={handleCopyToClipboard} disabled={!formData}>
+                {copied ? 'Copied!' : 'Copy JSON Form'}
+              </Button>
+            </ShadowDivRow>
           </ButtonContainer>
         </>
       </FormTag>

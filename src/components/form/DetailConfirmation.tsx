@@ -1,6 +1,6 @@
 import React from 'react';
 import { ShadowDiv, MainLabel, MainLabelSpan, SubLabel, SubLabelSpan } from '@/components/TailwindStyled';
-import type { DetailConfirmationProps } from '../../types/formData';
+import type { DetailConfirmationProps } from '@/types/formData';
 
 const DetailConfirmation: React.FC<DetailConfirmationProps> = ({
   id,
@@ -10,7 +10,7 @@ const DetailConfirmation: React.FC<DetailConfirmationProps> = ({
   error = false,
   additional = false,
 }) => {
-  const textColor = error ? 'text-orange-400 cursor-pointer' : 'text-white cursor-default';
+  const textColor = error ? 'text-red-500 font-bold cursor-pointer' : 'text-dp-text-primary cursor-default';
   const formatId = additional && typeof id === 'number' ? name + '_' + (id + 1) : id.toString();
 
   if (!error) {

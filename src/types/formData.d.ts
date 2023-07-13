@@ -64,6 +64,7 @@ export type FormDataType = {
   preferred_doctors: string;
   preferred_doctors_name: string;
   americo_premium: string;
+  americo_premium_other: string;
   mutual_face_amount: string;
   mutual_quote_gender: string;
   eligible_americo_count: number;
@@ -130,6 +131,7 @@ export type RadioInputProps = {
   required?: boolean;
   additional?: boolean;
   defaultOption?: string;
+  showCustomOption?: boolean;
   rowOrCol?: string;
 };
 
@@ -233,6 +235,21 @@ export type RoutingNumbers = {
 
 export type BankRoutingNumbers = {
   [key: string]: RoutingNumbers;
+};
+
+export type GoogleMapsAddressProps = {
+  id: number | string;
+  labelName: string;
+  placeholder: string;
+  name: string;
+  pattern?: string;
+  required?: boolean;
+  additional?: boolean;
+  uppercase?: boolean;
+  useDefault?: boolean;
+  defaultKey?: string;
+  defaultValue?: string;
+  externalValue?: string;
 };
 
 export type State = OptionTypes['value'];

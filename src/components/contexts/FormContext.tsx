@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, FC, ReactNode, Context } from 'react';
-import { isBrowser } from '../../utility/utility';
-import type { FormDataType, InsuredList } from '../../types/formData';
+import { isBrowser } from '@/utility/utility';
+import type { FormDataType, InsuredList } from '@//types/formData';
 
 export const initialDependentState: InsuredList = {
   id: 0,
@@ -89,6 +89,7 @@ export const initialFormData: FormDataType = {
   preferred_doctors: '',
   preferred_doctors_name: '',
   americo_premium: '',
+  americo_premium_other: '',
   mutual_face_amount: '',
   mutual_quote_gender: '',
   eligible_americo_count: 0,

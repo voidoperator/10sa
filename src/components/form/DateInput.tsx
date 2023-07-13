@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormData } from '../contexts/FormContext';
 import Datepicker from '../datepicker';
-import { calculateAge, isBrowser } from '../../utility/utility';
+import { calculateAge } from '@/utility/utility';
 import type { DateValueType } from '../datepicker/types';
-import type { DateInputProps, DateValue, FormDataType } from '../../types/formData';
+import type { DateInputProps, DateValue, FormDataType } from '@/types/formData';
 import {
   ShadowDiv,
   DateInputLabelContainer,
@@ -11,9 +11,6 @@ import {
   RequiredSpan,
   AgeContainer,
 } from '@/components/TailwindStyled';
-
-const datePickerInputClasses =
-  'form-input w-full border text-sm rounded-lg bg-10sa-deep-purple border-10sa-gold/40 placeholder-gray-400 text-white';
 
 const DateInput: React.FC<DateInputProps> = ({
   id,
@@ -159,11 +156,11 @@ const DateInput: React.FC<DateInputProps> = ({
         value={value}
         asSingle={true}
         onChange={handleValueChange}
-        displayFormat='MM/DD/YYYY'
         popoverDirection='down'
-        useRange={false}
+        displayFormat='MM/DD/YYYY'
         placeholder={'Enter or select a date: MM/DD/YYYY'}
-        inputClassName={datePickerInputClasses}
+        useRange={false}
+        i18n='en'
       />
     </ShadowDiv>
   );

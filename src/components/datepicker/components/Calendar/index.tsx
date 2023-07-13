@@ -57,7 +57,7 @@ const Calendar: React.FC<Props> = ({
     changeDatepickerValue,
     hideDatepicker,
     asSingle,
-    i18n,
+    i18n = 'en',
     startWeekOn,
     input,
   } = useContext(DatepickerContext);
@@ -227,11 +227,11 @@ const Calendar: React.FC<Props> = ({
 
   return (
     <div className='w-full md:w-[297px] md:min-w-[297px]'>
-      <div className='flex items-center space-x-1.5 border border-gray-300 dark:border-gray-700 rounded-md px-2 py-1.5'>
+      <div className='flex items-center space-x-1.5 border border-neutral-700 rounded-xl px-4 py-1.5 text-black'>
         {!showMonths && !showYears && (
           <div className='flex-none'>
             <RoundedButton roundedFull={true} onClick={onClickPrevious}>
-              <ChevronLeftIcon className='h-5 w-5' />
+              <ChevronLeftIcon className='h-5 w-5 text-black' />
             </RoundedButton>
           </div>
         )}
@@ -244,7 +244,7 @@ const Calendar: React.FC<Props> = ({
                 setYear(year - 12);
               }}
             >
-              <DoubleChevronLeftIcon className='h-5 w-5' />
+              <DoubleChevronLeftIcon className='h-5 w-5 text-black' />
             </RoundedButton>
           </div>
         )}
@@ -281,7 +281,7 @@ const Calendar: React.FC<Props> = ({
                 setYear(year + 12);
               }}
             >
-              <DoubleChevronRightIcon className='h-5 w-5' />
+              <DoubleChevronRightIcon className='h-5 w-5 text-black' />
             </RoundedButton>
           </div>
         )}
@@ -289,7 +289,7 @@ const Calendar: React.FC<Props> = ({
         {!showMonths && !showYears && (
           <div className='flex-none'>
             <RoundedButton roundedFull={true} onClick={onClickNext}>
-              <ChevronRightIcon className='h-5 w-5' />
+              <ChevronRightIcon className='h-5 w-5 text-black' />
             </RoundedButton>
           </div>
         )}
