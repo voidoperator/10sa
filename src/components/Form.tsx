@@ -2157,114 +2157,114 @@ const Form = () => {
         <>
           <Divider />
           <H2 id='payment'>Payment Method</H2>
-          {formData.life_adb_provider === 'none' && (
+          {/* {formData.life_adb_provider === 'none' && ( */}
+          <RadioInput
+            labelName='Payment Type:'
+            name='payment_type'
+            id='payment_type'
+            options={[
+              { label: 'Card', value: 'card' },
+              { label: 'Bank Account', value: 'bank_account' },
+            ]}
+          />
+          {/* )} */}
+          {/* {formData.payment_type === 'bank_account' && ( */}
+          <>
+            <Script>
+              {`As far as payment method, insurance companies require either a Checking or a Savings account as form of payment, who do you bank with?`}
+            </Script>
+            <SelectCreateable
+              id='bank_name'
+              name='bank_name'
+              labelName='Bank Name:'
+              creatable={true}
+              options={banks}
+              placeholder='Please select a bank or create one...'
+              defaultOption={formData?.bank_name || ''}
+            />
+            <Script>{`And is the account a checking or a savings?`}</Script>
             <RadioInput
-              labelName='Payment Type:'
-              name='payment_type'
-              id='payment_type'
+              labelName='Account type:'
+              name='account_type'
+              id='account_type'
               options={[
-                { label: 'Card', value: 'card' },
-                { label: 'Bank Account', value: 'bank_account' },
+                { label: 'Savings', value: 'savings' },
+                { label: 'Checking', value: 'checking' },
               ]}
             />
-          )}
-          {formData.payment_type === 'bank_account' && (
-            <>
-              <Script>
-                {`As far as payment method, insurance companies require either a Checking or a Savings account as form of payment, who do you bank with?`}
-              </Script>
-              <SelectCreateable
-                id='bank_name'
-                name='bank_name'
-                labelName='Bank Name:'
-                creatable={true}
-                options={banks}
-                placeholder='Please select a bank or create one...'
-                defaultOption={formData?.bank_name || ''}
-              />
-              <Script>{`And is the account a checking or a savings?`}</Script>
+            <SelectCreateable
+              key={bankNameKey}
+              id='routing_number'
+              name='routing_number'
+              labelName='Bank Routing Number:'
+              creatable={true}
+              options={bankRoutes}
+              placeholder="Please select the bank's routing state or create one..."
+              defaultOption={formData?.routing_number || ''}
+            />
+            {googleRoutingUrl && (
+              <GoogleButtonContainer
+                title={`Google Routing Number for ${toTitleCase(formData.bank_name)} in the state of ${toTitleCase(
+                  formData.state,
+                )}`}
+              >
+                <ExternalAnchorButton href={googleRoutingUrl} target='_blank'>
+                  {`Click here to Google it!`}
+                </ExternalAnchorButton>
+              </GoogleButtonContainer>
+            )}
+            <Script>
+              {`Okay perfect, the system is showing that the routing number for ${
+                formData?.bank_name || '{Bank Name}'
+              } in the State of ${toTitleCase(formData?.state) || '{Client State}'} is ${
+                formData?.routing_number || '{Routing Number}'
+              }, is that correct?`}
+            </Script>
+            <Script>
+              {`What is your account number?`}
+              <Break />
+              <Break />
+              {`{Write down account number}`}
+              <Break />
+              <Break />
+              {`Can you repeat it a second time to make sure I have it correct?`}
+            </Script>
+            <TextInput
+              labelName='Account Number:'
+              name='account_number'
+              id='account_number'
+              placeholder='Ex. 123456789012'
+              type='text'
+              pattern='^\d{4,17}$'
+              accountNumber={true}
+              defaultKey='account_number'
+              defaultValue={formData?.account_number || ''}
+            />
+            <Script>{`And what is the full name of the account holder?`}</Script>
+            <TextInput
+              labelName='Name of Account Holder:'
+              name='name_of_account_holder'
+              id='name_of_account_holder'
+              placeholder='Ex. John Doe'
+              type='text'
+              defaultKey='name_of_account_holder'
+              defaultValue={formData?.name_of_account_holder || ''}
+            />
+            {constantData.show_script === 'on' && (
               <RadioInput
-                labelName='Account type:'
-                name='account_type'
-                id='account_type'
+                labelName={`(FOR AGENT): ARE YOU LICENSED IN ${
+                  toTitleCase(formData?.state).toUpperCase() || '{CLIENT STATE}'
+                }?`}
+                name='is_agent_licensed_in_state'
+                id='is_agent_licensed_in_state'
                 options={[
-                  { label: 'Savings', value: 'savings' },
-                  { label: 'Checking', value: 'checking' },
+                  { label: 'Yes', value: 'yes' },
+                  { label: 'No', value: 'no' },
                 ]}
               />
-              <SelectCreateable
-                key={bankNameKey}
-                id='routing_number'
-                name='routing_number'
-                labelName='Bank Routing Number:'
-                creatable={true}
-                options={bankRoutes}
-                placeholder="Please select the bank's routing state or create one..."
-                defaultOption={formData?.routing_number || ''}
-              />
-              {googleRoutingUrl && (
-                <GoogleButtonContainer
-                  title={`Google Routing Number for ${toTitleCase(formData.bank_name)} in the state of ${toTitleCase(
-                    formData.state,
-                  )}`}
-                >
-                  <ExternalAnchorButton href={googleRoutingUrl} target='_blank'>
-                    {`Click here to Google it!`}
-                  </ExternalAnchorButton>
-                </GoogleButtonContainer>
-              )}
-              <Script>
-                {`Okay perfect, the system is showing that the routing number for ${
-                  formData?.bank_name || '{Bank Name}'
-                } in the State of ${toTitleCase(formData?.state) || '{Client State}'} is ${
-                  formData?.routing_number || '{Routing Number}'
-                }, is that correct?`}
-              </Script>
-              <Script>
-                {`What is your account number?`}
-                <Break />
-                <Break />
-                {`{Write down account number}`}
-                <Break />
-                <Break />
-                {`Can you repeat it a second time to make sure I have it correct?`}
-              </Script>
-              <TextInput
-                labelName='Account Number:'
-                name='account_number'
-                id='account_number'
-                placeholder='Ex. 123456789012'
-                type='text'
-                pattern='^\d{4,17}$'
-                accountNumber={true}
-                defaultKey='account_number'
-                defaultValue={formData?.account_number || ''}
-              />
-              <Script>{`And what is the full name of the account holder?`}</Script>
-              <TextInput
-                labelName='Name of Account Holder:'
-                name='name_of_account_holder'
-                id='name_of_account_holder'
-                placeholder='Ex. John Doe'
-                type='text'
-                defaultKey='name_of_account_holder'
-                defaultValue={formData?.name_of_account_holder || ''}
-              />
-              {constantData.show_script === 'on' && (
-                <RadioInput
-                  labelName={`(FOR AGENT): ARE YOU LICENSED IN ${
-                    toTitleCase(formData?.state).toUpperCase() || '{CLIENT STATE}'
-                  }?`}
-                  name='is_agent_licensed_in_state'
-                  id='is_agent_licensed_in_state'
-                  options={[
-                    { label: 'Yes', value: 'yes' },
-                    { label: 'No', value: 'no' },
-                  ]}
-                />
-              )}
-            </>
-          )}
+            )}
+          </>
+          {/* )} */}
           {formData.is_agent_licensed_in_state === 'yes' && (
             <Script>
               {`Alright, now that I have all your information please give me a few minutes to finalize your application.`}
