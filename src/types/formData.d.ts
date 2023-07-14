@@ -23,6 +23,10 @@ export type FormDataType = {
   taxes_filing_status: string;
   household_size: string;
   immigration_status: string;
+  payment_type: string;
+  card_number: string;
+  expiration: string;
+  ccv: string;
   bank_name: string;
   account_type: string;
   routing_number: string;
